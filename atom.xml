@@ -191,9 +191,9 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
-      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
-    
       <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
+    
+      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
     
   </entry>
   
@@ -202,11 +202,12 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     <link href="http://thomaslau.github.io/2015/03/23/2017-03-23-%E4%BB%8E%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E7%9A%84%E5%85%AD%E8%84%89%E7%A5%9E%E5%89%91%E7%9C%8B%E9%98%BF%E9%87%8C%E6%9C%88%E9%A5%BC%E4%BA%8B%E4%BB%B6/"/>
     <id>http://thomaslau.github.io/2015/03/23/2017-03-23-从阿里巴巴的六脉神剑看阿里月饼事件/</id>
     <published>2015-03-23T03:01:07.000Z</published>
-    <updated>2017-07-28T12:37:24.000Z</updated>
+    <updated>2017-07-28T12:52:30.000Z</updated>
     
     <content type="html"><![CDATA[<p>阿里月饼 事件过去数月，网上褒贬不一，知乎成了宣泄地或者论战的战场。<br>今天我想从阿里的六脉神剑文化和人才观看看这件事。<br>因为有人赞同有人反对有人沉默，所以我这里说自己支持或反对已经都没有意义，未免陷入争论，我尽量使用客观的词语来描述和探讨，毕竟我更感兴趣的事大环境下以及大背景下一些人的反应，他们为什么会如此反应而导致争论？</p>
 <p>搜了一下，阿里六脉神剑是：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">1.客户第一：客户是衣食父母搜索</div><div class="line">2.团队合作：共享共担，平凡人做非凡事</div><div class="line">3.拥抱变化：迎接变化，勇于创新</div><div class="line">4.诚信：诚实正直，言出必践</div><div class="line">5.激情：乐观向上，永不</div><div class="line">6.敬业：专业执着，精益求精</div></pre></td></tr></table></figure>
+<a id="more"></a>
 <p>可以看出，这是一支注重客户／合作／诚信／创造／敬业的组织，这就对应了阿里用人时候：<br>人才是最好的财富，平凡人做不平凡事，让员工快乐工作<br>招聘注重职业道德和诚信，培训员工，花费在员工，责任感，注重长期的一个过程，需要英雄更需要团队，关心员工的用人之道。</p>
 <p>注意，这里是企业的“宽”，对应没有讲出的是对员工的“严”，注重诚信，诚信不仅仅是对客户，还是对公司对同事对工作，缺一不可，注意，这里是公司对员工的要求，是一家管理几万名员工，誓要做102年的企业，是一家在真真正正的丛林社会的国度里成长起来还要面向全世界的企业，形成的企业文化。是一家强调 诚信／快乐工作／敬业 的做法，宁可不要一时的“英雄”，也要注重整体，大局观，因为它们重视的是一个团队，是一个深信平凡人做不平凡事的企业文化。</p>
 <p>阿里的HR（或者是什么部门），一个下午就做出上述决断，我觉得这个在大多数公司看来真的是小事司空见惯，在阿里却能解聘来处理，可以反应对自己的约束力和对全员的责任观，这一点，应该是国内大多数企业学习的和思考的。<br>这个角度或许可以理解阿里的HR为什么会做出决定。【好不好另论】<br>但可惜没有公平的对待涉事人员。</p>
@@ -216,7 +217,9 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
     <summary type="html">
     
-      &lt;p&gt;阿里月饼 事件过去数月，网上褒贬不一，知乎成了宣泄地或者论战的战场。&lt;br&gt;今天我想从阿里的六脉神剑文化和人才观看看这件事。&lt;br&gt;因为有人赞同有人反对有人沉默，所以我这里说自己支持或反对已经都没有意义，未免陷入争论，我尽量使用客观的词语来描述和探讨，毕竟我更感兴趣的事大环
+      &lt;p&gt;阿里月饼 事件过去数月，网上褒贬不一，知乎成了宣泄地或者论战的战场。&lt;br&gt;今天我想从阿里的六脉神剑文化和人才观看看这件事。&lt;br&gt;因为有人赞同有人反对有人沉默，所以我这里说自己支持或反对已经都没有意义，未免陷入争论，我尽量使用客观的词语来描述和探讨，毕竟我更感兴趣的事大环境下以及大背景下一些人的反应，他们为什么会如此反应而导致争论？&lt;/p&gt;
+&lt;p&gt;搜了一下，阿里六脉神剑是：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1.客户第一：客户是衣食父母搜索&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2.团队合作：共享共担，平凡人做非凡事&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3.拥抱变化：迎接变化，勇于创新&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4.诚信：诚实正直，言出必践&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5.激情：乐观向上，永不&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6.敬业：专业执着，精益求精&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
     
     </summary>
     
@@ -254,6 +257,35 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
   </entry>
   
   <entry>
+    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
+    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
+    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
+    <published>2015-02-04T03:01:07.000Z</published>
+    <updated>2017-06-16T05:07:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
+<p>原文戳上面的链接，这里摘录：</p>
+<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
+
+When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
+    
+      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>翻墙_二三事</title>
     <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
     <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
@@ -281,35 +313,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
     
       <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
-
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
     
   </entry>
   
