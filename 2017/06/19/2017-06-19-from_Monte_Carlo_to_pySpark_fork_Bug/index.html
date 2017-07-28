@@ -1,0 +1,723 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,Spark,Monte Carlo," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="编程浪子" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下： 截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题： 刚学Spark，故先看一段Monte Carlo method 求Pi的代码 12345678910111213141516from random import ran">
+<meta name="keywords" content="Tech,Spark,Monte Carlo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从Monte Carlo谈pySpark的fork引发的Bug">
+<meta property="og:url" content="http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/index.html">
+<meta property="og:site_name" content="编程浪子">
+<meta property="og:description" content="这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下： 截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题： 刚学Spark，故先看一段Monte Carlo method 求Pi的代码 12345678910111213141516from random import ran">
+<meta property="og:updated_time" content="2017-07-28T03:17:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从Monte Carlo谈pySpark的fork引发的Bug">
+<meta name="twitter:description" content="这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下： 截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题： 刚学Spark，故先看一段Monte Carlo method 求Pi的代码 12345678910111213141516from random import ran">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/"/>
+
+
+
+
+
+  <title>从Monte Carlo谈pySpark的fork引发的Bug | 编程浪子</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程浪子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程浪子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从Monte Carlo谈pySpark的fork引发的Bug</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-06-19T11:01:07+08:00">
+                2017-06-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下：</p>
+<p>截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题：</p>
+<p>刚学Spark，故先看一段Monte Carlo method 求Pi的代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> random <span class="keyword">import</span> random</div><div class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">funcx</span><span class="params">(x)</span>:</span></div><div class="line">  <span class="comment"># print x[0],x[1]</span></div><div class="line">  <span class="keyword">return</span> <span class="number">1</span> <span class="keyword">if</span> x[<span class="number">0</span>]**<span class="number">2</span> + x[<span class="number">1</span>]**<span class="number">2</span> &lt; <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">genRnd</span><span class="params">(ind)</span>:</span></div><div class="line">  x=random() * <span class="number">2</span> - <span class="number">1</span></div><div class="line">  y=random() * <span class="number">2</span> - <span class="number">1</span></div><div class="line">  <span class="keyword">return</span> (x,y)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runsp</span><span class="params">(total)</span>:</span></div><div class="line">  ret=sc.parallelize(xrange(total),<span class="number">1</span>).map(genRnd).map(funcx).reduce(<span class="keyword">lambda</span> x, y: x + y)/float(total) * <span class="number">4</span></div><div class="line">  <span class="keyword">print</span> ret</div><div class="line"></div><div class="line">runsp(<span class="number">3</span>)</div></pre></td></tr></table></figure>
+<p>spark-shell方式运行上述代码，多次运行runsp(n), 会发现几点有趣现象：</p>
+<p>1, 按理说, n越大，虽不是越能逼近pi，但是逼近pi的概率应该是越大的。然而发现似乎并不如此，起初以为是python生成伪随机算法导致，还好通过下面一个现象发现问题。但是伪随机算法在多大程度上干扰了Monte Carlo求值？这个后面会写一篇从数学上分析下。<br><a id="more"></a><br>2, 多次运行runsp(n)，就会发现输出值是不变的而不是随机的，-_-# 事实上，放开上述 print注释，就会发现下面输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; total=3</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; <span class="built_in">exit</span>()</div></pre></td></tr></table></figure>
+<hr>
+<p>不废话了，这应该是pyspark的一个bug，而且对于使用 python random.random()的生成随机科学计算来说更严重。</p>
+<p>主要是因为，当用xrange时候，new worker的，如下pyspark的 daemon.py里面代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> listen_sock <span class="keyword">in</span> ready_fds:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        sock, _ = listen_sock.accept()</div><div class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">if</span> e.errno == EINTR:</div><div class="line">            <span class="keyword">continue</span></div><div class="line">        <span class="keyword">raise</span></div><div class="line">    <span class="comment"># Launch a worker process</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        pid = os.fork()</div><div class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">if</span> e.errno <span class="keyword">in</span> (EAGAIN, EINTR):</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">            pid = os.fork()  <span class="comment"># error here will shutdown daemon</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            outfile = sock.makefile(mode=<span class="string">'wb'</span>)</div><div class="line">            write_int(e.errno, outfile)  <span class="comment"># Signal that the fork failed</span></div><div class="line">            outfile.flush()</div><div class="line">            outfile.close()</div><div class="line">            sock.close()</div><div class="line">            <span class="keyword">continue</span></div><div class="line">    <span class="keyword">if</span> pid == <span class="number">0</span>:</div><div class="line">        <span class="comment"># in child process</span></div><div class="line">        listen_sock.close()</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="comment"># Acknowledge that the fork was successful</span></div><div class="line">            outfile = sock.makefile(mode=<span class="string">"wb"</span>)</div><div class="line">            write_int(os.getpid(), outfile)</div><div class="line">            outfile.flush()</div><div class="line">            outfile.close()</div><div class="line">            <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">                code = worker(sock)</div><div class="line">                <span class="keyword">if</span> <span class="keyword">not</span> reuse <span class="keyword">or</span> code:</div><div class="line">                    <span class="comment"># wait for closing</span></div><div class="line">                    <span class="keyword">try</span>:</div><div class="line">                        <span class="keyword">while</span> sock.recv(<span class="number">1024</span>):</div><div class="line">                            <span class="keyword">pass</span></div><div class="line">                    <span class="keyword">except</span> Exception:</div><div class="line">                        <span class="keyword">pass</span></div><div class="line">                    <span class="keyword">break</span></div><div class="line">                gc.collect()</div><div class="line">        <span class="keyword">except</span>:</div><div class="line">            traceback.print_exc()</div><div class="line">            os._exit(<span class="number">1</span>)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            os._exit(<span class="number">0</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        sock.close()</div></pre></td></tr></table></figure>
+<p>当生成RDD，map之后，reduce，就会进入上述代码，注意其中一句 </p>
+<pre><code>pid = os.fork()
+</code></pre><p>这句，会fork一个子进程，fork子进程会复制父进程空间，damon.py通过import pyspark.worker 间接import了shuffle.py的 import random，也就是说，每次fork的时候，复制了父的random，python的random是伪随机的，也就是说，子进程的random的下一个状态是确定的，所以会出现上述每次运行得到的随机序列一样的情况。</p>
+<p><strong>fix</strong></p>
+<p>最简单的fix办法，想必也会想到，就是在fork之后，worker代理调用random之前，进行random.seed(),<br>这确实是一种方法了，比如在上述代码 code = worker(sock)之前加一句random.seed()</p>
+<p><strong>引用</strong><br>Linux系统调用 fork：<br><a href="http://man7.org/linux/man-pages/man2/fork.2.html" target="_blank" rel="external">Fork - Linux Programmer’s Manual</a></p>
+<p><a href="https://www.ibm.com/developerworks/cn/linux/kernel/syscall/part2/index.html" target="_blank" rel="external">系统调用跟我学(2)</a><br>最初印象深的fork主题文章是来源于developerworks中国上的一篇文章，可惜太久了找不到，快速阅读可以看下面几篇<br><a href="http://dev.dafan.info/detail/221129?p=" target="_blank" rel="external">Linux进程-基础</a>，<a href="http://www.bijishequ.com/detail/20115?p=" target="_blank" rel="external">Linux进程-fork</a><br>下面结合源码解析了fork的调用原理<br><a href="http://blog.tonychow.me/blog/2013/06/27/linuxzhong-forkxi-tong-diao-yong-fen-xi/" target="_blank" rel="external">Linux中fork系统调用分析</a><br><a href="http://notes.maxwi.com/2016/08/17/linux-fork/" target="_blank" rel="external">Linux下fork函数及pthread函数的总结</a><br><a href="http://www.cnblogs.com/mickole/p/3186441.html" target="_blank" rel="external">linux系统编程之进程<em>3</em>进程复制fork，孤儿进程，僵尸进程</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/Spark/" rel="tag"># Spark</a>
+          
+            <a href="/tags/Monte-Carlo/" rel="tag"># Monte Carlo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/07/05/2015-07-05-Eclipse看jvmcode插件/" rel="next" title="Eclipse看jvmcode插件">
+                <i class="fa fa-chevron-left"></i> Eclipse看jvmcode插件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/25/2017-07-25-from_noInflation_to_Java Method_invoke/" rel="prev" title="从noInflation看Java Method.invoke">
+                从noInflation看Java Method.invoke <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

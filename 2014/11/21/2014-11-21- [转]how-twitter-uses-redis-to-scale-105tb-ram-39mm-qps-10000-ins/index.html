@@ -1,0 +1,740 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,redis,twitter,performance," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="编程浪子" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="原文见：how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins 原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）  Wh">
+<meta name="keywords" content="Tech,redis,twitter,performance">
+<meta property="og:type" content="article">
+<meta property="og:title" content="how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins">
+<meta property="og:url" content="http://thomaslau.github.io/2014/11/21/2014-11-21- [转]how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/index.html">
+<meta property="og:site_name" content="编程浪子">
+<meta property="og:description" content="原文见：how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins 原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）  Wh">
+<meta property="og:updated_time" content="2017-07-28T03:20:27.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins">
+<meta name="twitter:description" content="原文见：how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins 原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）  Wh">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2014/11/21/2014-11-21- [转]how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/"/>
+
+
+
+
+
+  <title>how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins | 编程浪子</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程浪子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2014/11/21/2014-11-21- [转]how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程浪子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-11-21T11:01:07+08:00">
+                2014-11-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>原文见：<a href="http://highscalability.com/blog/2014/9/8/how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins.html" target="_blank" rel="external">how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins</a></p>
+<p>原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）</p>
+<ul>
+<li>Why Redis?</li>
+<li>Hybrid List</li>
+<li>BTree</li>
+<li>Cluster Management</li>
+<li>Data Insight</li>
+<li>Wish List for Redis</li>
+</ul>
+<p>几个好的总结：<br>（嗯，第六点？）</p>
+<ol>
+<li><p><strong>Scale demands predictability.</strong><br>The larger the cluster, the more customers, the more predictable and deterministic you want your service to be. When there’s one customer and there’s a problem you can dig into a problem and it’s intriguing. When you have 70 customers you can’t keep up. </p>
+<a id="more"></a>
+</li>
+<li><p><strong>Tail latencies matter.</strong><br>When you do fanouts to a lot of shards, when one is slow your entire query will be slow. </p>
+</li>
+</ol>
+<ol>
+<li><strong>Deterministic configuration is operationally important.</strong><br>Twitter is moving towards a container environment. Mesos is used as the job scheduler. The scheduler fulfills the request for the amount of CPU, memory etc. A monitor kills any job that goes over its resource requirement. Redis causes a problem in a container environment. Redis introduces external fragmentation, meaning you use more memory to store the same amount of data. If you don’t want to be killed you have to compensate for that with oversupply. You have to think my memory fragmentation ratio won’t go over 5%, but I’ll allocate 10% more as a buffer space. Maybe even 20%. Or I think I’ll get 5000 connections per host, but just in case let me allocate memory for 10,000 connections. The result is a huge potential for waste. Super low latency services don’t play well with Mesos today, so these jobs are isolated from other jobs.</li>
+</ol>
+<ol>
+<li><strong>Knowing your resource usage at runtime is really helpful.</strong><br>In a large cluster bad stuff happens. You think you are safe but things happen and behaviour is unexpected. Most services today can’t degrade gracefully. For example, when a limit of 10GB of RAM is reached then requests are rejected until there’s free RAM. This only fails a small percentage of traffic that’s proportional to the resource that they require. That’s graceful. Garbage collection problems are not graceful, traffic just gets dropped on the floor, this problem affects a lot of teams in a lot of companies every day. </li>
+</ol>
+<ol>
+<li><strong>Push computation to the data.</strong><br>If you look at relative network speeds, CPU speeds, and disk speeds, it makes sense to do computation before going to disk and do computation before going to the network. An example is summarizing logs on a node before they are pushed to a centralized monitoring service. LUA in Redis another way to apply computation close to the data.</li>
+</ol>
+<ol>
+<li><strong>LUA is not production ready in Redis today.</strong><br>On demand scripting means service providers can’t guarantee their SLA. A loaded script can do anything. What service provider would want to take the risk of blowing their SLA because of someone elses code? A deployment model would be better. It would allow for code review and benchmarking, so resource usage and performance could be properly calculated. </li>
+</ol>
+<ol>
+<li><strong>Redis as the next high performance stream processing platform.</strong><br>It has pub-sub and scripting. Why not?</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/redis/" rel="tag"># redis</a>
+          
+            <a href="/tags/twitter/" rel="tag"># twitter</a>
+          
+            <a href="/tags/performance/" rel="tag"># performance</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/11/12/2014-11-12- antirez的抱怨/" rel="next" title="antirez的抱怨">
+                <i class="fa fa-chevron-left"></i> antirez的抱怨
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2014/12/20/2014-12-20- 爱而知其恶，恶而知其美/" rel="prev" title="爱而知其恶，恶而知其美">
+                爱而知其恶，恶而知其美 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
