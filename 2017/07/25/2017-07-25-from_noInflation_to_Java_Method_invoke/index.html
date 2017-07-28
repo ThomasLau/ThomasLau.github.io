@@ -1,28 +1,339 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-  <title>编程浪子</title>
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
-  <link href="/atom.xml" rel="self"/>
   
-  <link href="http://thomaslau.github.io/"/>
-  <updated>2017-07-28T12:26:50.000Z</updated>
-  <id>http://thomaslau.github.io/</id>
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
   
-  <author>
-    <name>Thomas Lau</name>
+  
+  
+  
+
+  
     
-  </author>
-  
-  <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>从noInflation看Java Method.invoke</title>
-    <link href="http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/"/>
-    <id>http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/</id>
-    <published>2017-07-25T13:01:07.000Z</published>
-    <updated>2017-07-28T12:26:50.000Z</updated>
     
-    <content type="html"><![CDATA[<p>旧文，现重新整理下：</p>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="JVM,Java,JAVA Flame Graph,JMH," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="编程浪子" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="旧文，现重新整理下： 1. 缘起最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:12345678910111213141516Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl    at sun.misc.">
+<meta name="keywords" content="JVM,Java,JAVA Flame Graph,JMH">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从noInflation看Java Method.invoke">
+<meta property="og:url" content="http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/index.html">
+<meta property="og:site_name" content="编程浪子">
+<meta property="og:description" content="旧文，现重新整理下： 1. 缘起最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:12345678910111213141516Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl    at sun.misc.">
+<meta property="og:image" content="http://thomaslau.github.io/images/flamegraph.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/flamegraph_native.png">
+<meta property="og:updated_time" content="2017-07-28T12:26:50.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从noInflation看Java Method.invoke">
+<meta name="twitter:description" content="旧文，现重新整理下： 1. 缘起最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:12345678910111213141516Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl    at sun.misc.">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/flamegraph.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/"/>
+
+
+
+
+
+  <title>从noInflation看Java Method.invoke | 编程浪子</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">编程浪子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程浪子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从noInflation看Java Method.invoke</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T21:01:07+08:00">
+                2017-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>旧文，现重新整理下：</p>
 <h1 id="1-缘起"><a href="#1-缘起" class="headerlink" title="1. 缘起"></a>1. 缘起</h1><p>最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl</div><div class="line">    at sun.misc.Unsafe.defineClass(Native Method)</div><div class="line">    at sun.reflect.ClassDefiner.defineClass(ClassDefiner.java:63)</div><div class="line">    at sun.reflect.MethodAccessorGenerator<span class="variable">$1</span>.run(MethodAccessorGenerator.java:399)</div><div class="line">    at sun.reflect.MethodAccessorGenerator<span class="variable">$1</span>.run(MethodAccessorGenerator.java:394)</div><div class="line">    at java.security.AccessController.doPrivileged(Native Method)</div><div class="line">    at sun.reflect.MethodAccessorGenerator.generate(MethodAccessorGenerator.java:393)</div><div class="line">    at sun.reflect.MethodAccessorGenerator.generateConstructor(MethodAccessorGenerator.java:92)</div><div class="line">    at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:55)</div><div class="line">    at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)</div><div class="line">    at java.lang.reflect.Constructor.newInstance(Constructor.java:423)</div><div class="line">    at java.lang.Class.newInstance(Class.java:442)</div><div class="line">    at com.thomas.classloader.unload.MonitorHotSwap.main(MonitorHotSwap.java:34)</div><div class="line">Caused by: java.lang.ClassNotFoundException: sun.reflect.ConstructorAccessorImpl</div><div class="line">    at java.net.URLClassLoader.findClass(URLClassLoader.java:381)</div><div class="line">    ...</div></pre></td></tr></table></figure></p>
 <p>我把他的代码稍作简化，主要部分是类似下面的逻辑，功能是程序监控某几个文件的变动，发现符合条件就会编译并会重新加载class，<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HotSwapURLClassLoader</span> <span class="keyword">extends</span> <span class="title">URLClassLoader</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException &#123;</div><div class="line">        Class&lt;?&gt; clazz = <span class="keyword">null</span>;</div><div class="line">        clazz = findLoadedClass(name);</div><div class="line">        <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="comment">//...一段热替换逻辑</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (name.startsWith(<span class="string">"java."</span>)) &#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                ClassLoader system = ClassLoader.getSystemClassLoader();</div><div class="line">                clazz = system.loadClass(name);</div><div class="line">                <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</div><div class="line">                    <span class="keyword">if</span> (resolve)</div><div class="line">                        resolveClass(clazz);</div><div class="line">                    <span class="keyword">return</span> (clazz);</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</div><div class="line">                <span class="comment">// Ignore</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> customLoad(name, <span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hot</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        <span class="comment">//System.out.println(String.format("ver:%s, classLoader: %s.", ver, this.getClass().getClassLoader()));</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>上面的异常，不同于常遇到的异常，我们根据异常栈逆推可能不会很容易的定位到root cause。所以我在hot方法加了一条日志信息，即注释打开，运行多次，发现每次都是<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ver:15, classLoader: com.thomas.unload.HotSwapURLClassLoader@4e25154f.</div><div class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl</div></pre></td></tr></table></figure></p>
@@ -84,585 +395,390 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
 <li>两篇不错的文章 <a href="http://psy-lob-saw.blogspot.co.za/2017/02/flamegraphs-intro-fire-for-everyone.html" target="_blank" rel="external">flamegraphs-intro-fire-for-everyone</a>,<a href="http://psy-lob-saw.blogspot.co.za/2016/06/the-pros-and-cons-of-agct.html" target="_blank" rel="external">The Pros and Cons of AsyncGetCallTrace Profilers</a></li>
 <li>几个常用参考页面：<br>Oracle官方的 <a href="http://www.oracle.com/technetwork/articles/java/vmoptions-jsp-140102.html" target="_blank" rel="external">Java HotSpot VM Options</a>, <a href="http://www.cnblogs.com/redcreen/archive/2011/05/04/2037057.html" target="_blank" rel="external">VM参数中文版，有些已过期</a><br>Oracle官方的 <a href="http://docs.oracle.com/javase/8/docs/technotes/tools/windows/java.html" target="_blank" rel="external">JAVA Options</a>，R大的 <a href="http://hllvm.group.iteye.com/group/topic/27945" target="_blank" rel="external">JVM调优的”标准参数”的各种陷阱]</a>,可以参考HotSpot VM里的各个globals.hpp文件</li>
 </ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;旧文，现重新整理下：&lt;/p&gt;
-&lt;h1 id=&quot;1-缘起&quot;&gt;&lt;a href=&quot;#1-缘起&quot; class=&quot;headerlink&quot; title=&quot;1. 缘起&quot;&gt;&lt;/a&gt;1. 缘起&lt;/h1&gt;&lt;p&gt;最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:&lt;br&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;16&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;Exception &lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt; thread &lt;span class=&quot;string&quot;&gt;&quot;main&quot;&lt;/span&gt; java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.misc.Unsafe.defineClass(Native Method)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.ClassDefiner.defineClass(ClassDefiner.java:63)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.MethodAccessorGenerator&lt;span class=&quot;variable&quot;&gt;$1&lt;/span&gt;.run(MethodAccessorGenerator.java:399)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.MethodAccessorGenerator&lt;span class=&quot;variable&quot;&gt;$1&lt;/span&gt;.run(MethodAccessorGenerator.java:394)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at java.security.AccessController.doPrivileged(Native Method)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.MethodAccessorGenerator.generate(MethodAccessorGenerator.java:393)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.MethodAccessorGenerator.generateConstructor(MethodAccessorGenerator.java:92)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:55)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at java.lang.reflect.Constructor.newInstance(Constructor.java:423)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at java.lang.Class.newInstance(Class.java:442)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at com.thomas.classloader.unload.MonitorHotSwap.main(MonitorHotSwap.java:34)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Caused by: java.lang.ClassNotFoundException: sun.reflect.ConstructorAccessorImpl&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    at java.net.URLClassLoader.findClass(URLClassLoader.java:381)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    ...&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;我把他的代码稍作简化，主要部分是类似下面的逻辑，功能是程序监控某几个文件的变动，发现符合条件就会编译并会重新加载class，&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;16&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;17&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;18&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;19&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;20&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;21&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;22&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;23&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;24&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;25&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;26&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;27&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;28&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;29&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;30&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;31&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;HotSwapURLClassLoader&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;URLClassLoader&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    &lt;span class=&quot;meta&quot;&gt;@Override&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; Class&amp;lt;?&amp;gt; loadClass(String name, &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; resolve) &lt;span class=&quot;keyword&quot;&gt;throws&lt;/span&gt; ClassNotFoundException &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        Class&amp;lt;?&amp;gt; clazz = &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        clazz = findLoadedClass(name);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (clazz != &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;            &lt;span class=&quot;comment&quot;&gt;//...一段热替换逻辑&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (name.startsWith(&lt;span class=&quot;string&quot;&gt;&quot;java.&quot;&lt;/span&gt;)) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;            &lt;span class=&quot;keyword&quot;&gt;try&lt;/span&gt; &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                ClassLoader system = ClassLoader.getSystemClassLoader();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                clazz = system.loadClass(name);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (clazz != &lt;span class=&quot;keyword&quot;&gt;null&lt;/span&gt;) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (resolve)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                        resolveClass(clazz);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                    &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (clazz);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;            &amp;#125; &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt; (ClassNotFoundException e) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                &lt;span class=&quot;comment&quot;&gt;// Ignore&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;            &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; customLoad(name, &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    ...&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;X&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    ...&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;hot&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(String msg)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &lt;span class=&quot;comment&quot;&gt;//System.out.println(String.format(&quot;ver:%s, classLoader: %s.&quot;, ver, this.getClass().getClassLoader()));&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;上面的异常，不同于常遇到的异常，我们根据异常栈逆推可能不会很容易的定位到root cause。所以我在hot方法加了一条日志信息，即注释打开，运行多次，发现每次都是&lt;br&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;ver:15, classLoader: com.thomas.unload.HotSwapURLClassLoader@4e25154f.&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Exception &lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt; thread &lt;span class=&quot;string&quot;&gt;&quot;main&quot;&lt;/span&gt; java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;这让我想起了JVM参数有inflationThreshold=15&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
-    
-      <category term="Java" scheme="http://thomaslau.github.io/tags/Java/"/>
-    
-      <category term="JAVA Flame Graph" scheme="http://thomaslau.github.io/tags/JAVA-Flame-Graph/"/>
-    
-      <category term="JMH" scheme="http://thomaslau.github.io/tags/JMH/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>从Monte Carlo谈pySpark的fork引发的Bug</title>
-    <link href="http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/"/>
-    <id>http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/</id>
-    <published>2017-06-19T03:01:07.000Z</published>
-    <updated>2017-07-28T03:17:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下：</p>
-<p>截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题：</p>
-<p>刚学Spark，故先看一段Monte Carlo method 求Pi的代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> random <span class="keyword">import</span> random</div><div class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">funcx</span><span class="params">(x)</span>:</span></div><div class="line">  <span class="comment"># print x[0],x[1]</span></div><div class="line">  <span class="keyword">return</span> <span class="number">1</span> <span class="keyword">if</span> x[<span class="number">0</span>]**<span class="number">2</span> + x[<span class="number">1</span>]**<span class="number">2</span> &lt; <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">genRnd</span><span class="params">(ind)</span>:</span></div><div class="line">  x=random() * <span class="number">2</span> - <span class="number">1</span></div><div class="line">  y=random() * <span class="number">2</span> - <span class="number">1</span></div><div class="line">  <span class="keyword">return</span> (x,y)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runsp</span><span class="params">(total)</span>:</span></div><div class="line">  ret=sc.parallelize(xrange(total),<span class="number">1</span>).map(genRnd).map(funcx).reduce(<span class="keyword">lambda</span> x, y: x + y)/float(total) * <span class="number">4</span></div><div class="line">  <span class="keyword">print</span> ret</div><div class="line"></div><div class="line">runsp(<span class="number">3</span>)</div></pre></td></tr></table></figure>
-<p>spark-shell方式运行上述代码，多次运行runsp(n), 会发现几点有趣现象：</p>
-<p>1, 按理说, n越大，虽不是越能逼近pi，但是逼近pi的概率应该是越大的。然而发现似乎并不如此，起初以为是python生成伪随机算法导致，还好通过下面一个现象发现问题。但是伪随机算法在多大程度上干扰了Monte Carlo求值？这个后面会写一篇从数学上分析下。<br><a id="more"></a><br>2, 多次运行runsp(n)，就会发现输出值是不变的而不是随机的，-_-# 事实上，放开上述 print注释，就会发现下面输出：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; total=3</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; <span class="built_in">exit</span>()</div></pre></td></tr></table></figure>
-<hr>
-<p>不废话了，这应该是pyspark的一个bug，而且对于使用 python random.random()的生成随机科学计算来说更严重。</p>
-<p>主要是因为，当用xrange时候，new worker的，如下pyspark的 daemon.py里面代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> listen_sock <span class="keyword">in</span> ready_fds:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        sock, _ = listen_sock.accept()</div><div class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">if</span> e.errno == EINTR:</div><div class="line">            <span class="keyword">continue</span></div><div class="line">        <span class="keyword">raise</span></div><div class="line">    <span class="comment"># Launch a worker process</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        pid = os.fork()</div><div class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">if</span> e.errno <span class="keyword">in</span> (EAGAIN, EINTR):</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">            pid = os.fork()  <span class="comment"># error here will shutdown daemon</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            outfile = sock.makefile(mode=<span class="string">'wb'</span>)</div><div class="line">            write_int(e.errno, outfile)  <span class="comment"># Signal that the fork failed</span></div><div class="line">            outfile.flush()</div><div class="line">            outfile.close()</div><div class="line">            sock.close()</div><div class="line">            <span class="keyword">continue</span></div><div class="line">    <span class="keyword">if</span> pid == <span class="number">0</span>:</div><div class="line">        <span class="comment"># in child process</span></div><div class="line">        listen_sock.close()</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="comment"># Acknowledge that the fork was successful</span></div><div class="line">            outfile = sock.makefile(mode=<span class="string">"wb"</span>)</div><div class="line">            write_int(os.getpid(), outfile)</div><div class="line">            outfile.flush()</div><div class="line">            outfile.close()</div><div class="line">            <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">                code = worker(sock)</div><div class="line">                <span class="keyword">if</span> <span class="keyword">not</span> reuse <span class="keyword">or</span> code:</div><div class="line">                    <span class="comment"># wait for closing</span></div><div class="line">                    <span class="keyword">try</span>:</div><div class="line">                        <span class="keyword">while</span> sock.recv(<span class="number">1024</span>):</div><div class="line">                            <span class="keyword">pass</span></div><div class="line">                    <span class="keyword">except</span> Exception:</div><div class="line">                        <span class="keyword">pass</span></div><div class="line">                    <span class="keyword">break</span></div><div class="line">                gc.collect()</div><div class="line">        <span class="keyword">except</span>:</div><div class="line">            traceback.print_exc()</div><div class="line">            os._exit(<span class="number">1</span>)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            os._exit(<span class="number">0</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        sock.close()</div></pre></td></tr></table></figure>
-<p>当生成RDD，map之后，reduce，就会进入上述代码，注意其中一句 </p>
-<pre><code>pid = os.fork()
-</code></pre><p>这句，会fork一个子进程，fork子进程会复制父进程空间，damon.py通过import pyspark.worker 间接import了shuffle.py的 import random，也就是说，每次fork的时候，复制了父的random，python的random是伪随机的，也就是说，子进程的random的下一个状态是确定的，所以会出现上述每次运行得到的随机序列一样的情况。</p>
-<p><strong>fix</strong></p>
-<p>最简单的fix办法，想必也会想到，就是在fork之后，worker代理调用random之前，进行random.seed(),<br>这确实是一种方法了，比如在上述代码 code = worker(sock)之前加一句random.seed()</p>
-<p><strong>引用</strong><br>Linux系统调用 fork：<br><a href="http://man7.org/linux/man-pages/man2/fork.2.html" target="_blank" rel="external">Fork - Linux Programmer’s Manual</a></p>
-<p><a href="https://www.ibm.com/developerworks/cn/linux/kernel/syscall/part2/index.html" target="_blank" rel="external">系统调用跟我学(2)</a><br>最初印象深的fork主题文章是来源于developerworks中国上的一篇文章，可惜太久了找不到，快速阅读可以看下面几篇<br><a href="http://dev.dafan.info/detail/221129?p=" target="_blank" rel="external">Linux进程-基础</a>，<a href="http://www.bijishequ.com/detail/20115?p=" target="_blank" rel="external">Linux进程-fork</a><br>下面结合源码解析了fork的调用原理<br><a href="http://blog.tonychow.me/blog/2013/06/27/linuxzhong-forkxi-tong-diao-yong-fen-xi/" target="_blank" rel="external">Linux中fork系统调用分析</a><br><a href="http://notes.maxwi.com/2016/08/17/linux-fork/" target="_blank" rel="external">Linux下fork函数及pthread函数的总结</a><br><a href="http://www.cnblogs.com/mickole/p/3186441.html" target="_blank" rel="external">linux系统编程之进程<em>3</em>进程复制fork，孤儿进程，僵尸进程</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下：&lt;/p&gt;
-&lt;p&gt;截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题：&lt;/p&gt;
-&lt;p&gt;刚学Spark，故先看一段Monte Carlo method 求Pi的代码&lt;/p&gt;
-&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;16&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; random &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; random&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; operator &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; add&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;funcx&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(x)&lt;/span&gt;:&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;comment&quot;&gt;# print x[0],x[1]&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; x[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;]**&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; + x[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;]**&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &amp;lt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;genRnd&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(ind)&lt;/span&gt;:&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  x=random() * &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; - &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  y=random() * &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; - &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (x,y)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;runsp&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(total)&lt;/span&gt;:&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  ret=sc.parallelize(xrange(total),&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;).map(genRnd).map(funcx).reduce(&lt;span class=&quot;keyword&quot;&gt;lambda&lt;/span&gt; x, y: x + y)/float(total) * &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;print&lt;/span&gt; ret&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;runsp(&lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;spark-shell方式运行上述代码，多次运行runsp(n), 会发现几点有趣现象：&lt;/p&gt;
-&lt;p&gt;1, 按理说, n越大，虽不是越能逼近pi，但是逼近pi的概率应该是越大的。然而发现似乎并不如此，起初以为是python生成伪随机算法导致，还好通过下面一个现象发现问题。但是伪随机算法在多大程度上干扰了Monte Carlo求值？这个后面会写一篇从数学上分析下。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="Spark" scheme="http://thomaslau.github.io/tags/Spark/"/>
-    
-      <category term="Monte Carlo" scheme="http://thomaslau.github.io/tags/Monte-Carlo/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Eclipse看jvmcode插件</title>
-    <link href="http://thomaslau.github.io/2015/07/05/2015-07-05-Eclipse%E7%9C%8Bjvmcode%E6%8F%92%E4%BB%B6/"/>
-    <id>http://thomaslau.github.io/2015/07/05/2015-07-05-Eclipse看jvmcode插件/</id>
-    <published>2015-07-05T03:01:07.000Z</published>
-    <updated>2017-07-28T03:18:04.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>1，有感于最近使用Lombok遇到一些问题，故特记录后面改进Eclipse+Lombok的编译问题</p>
-<p>2，中间经常使用javap看jvm code，故想了个办法看jvm code，希望可以使用方便，节省时间，具体做法是通过Eclipse 的Externel Tool的方式</p>
-<blockquote>
-<p>a.externel里面新建一个program，取名java-c</p>
-<p>b.Location里面填你的javap路径，如“D:\jdk8u45\bin\javap.exe”</p>
-<p>c.Working Directory 里面写${project_loc}</p>
-<p>d.Arguments里面填“-classpath target/classes;target/test-classes -c ${java_type_name}”</p>
-</blockquote>
-<p>ok，然后可用了，具体使用不详细解释了。<br><a id="more"></a><br>后记：</p>
-<p>上面d步是针对Maven项目的，如果是gradle的，各位可以根据自己习惯修改。</p>
-<p>特记，后面有时间的话，再写一个Eclipse插件实现上述。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;1，有感于最近使用Lombok遇到一些问题，故特记录后面改进Eclipse+Lombok的编译问题&lt;/p&gt;
-&lt;p&gt;2，中间经常使用javap看jvm code，故想了个办法看jvm code，希望可以使用方便，节省时间，具体做法是通过Eclipse 的Externel Tool的方式&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;a.externel里面新建一个program，取名java-c&lt;/p&gt;
-&lt;p&gt;b.Location里面填你的javap路径，如“D:\jdk8u45\bin\javap.exe”&lt;/p&gt;
-&lt;p&gt;c.Working Directory 里面写${project_loc}&lt;/p&gt;
-&lt;p&gt;d.Arguments里面填“-classpath target/classes;target/test-classes -c ${java_type_name}”&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;ok，然后可用了，具体使用不详细解释了。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
-    
-      <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>从阿里巴巴的六脉神剑看阿里月饼事件</title>
-    <link href="http://thomaslau.github.io/2015/03/23/2017-03-23-%E4%BB%8E%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4%E7%9A%84%E5%85%AD%E8%84%89%E7%A5%9E%E5%89%91%E7%9C%8B%E9%98%BF%E9%87%8C%E6%9C%88%E9%A5%BC%E4%BA%8B%E4%BB%B6/"/>
-    <id>http://thomaslau.github.io/2015/03/23/2017-03-23-从阿里巴巴的六脉神剑看阿里月饼事件/</id>
-    <published>2015-03-23T03:01:07.000Z</published>
-    <updated>2017-07-28T12:52:30.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>阿里月饼 事件过去数月，网上褒贬不一，知乎成了宣泄地或者论战的战场。<br>今天我想从阿里的六脉神剑文化和人才观看看这件事。<br>因为有人赞同有人反对有人沉默，所以我这里说自己支持或反对已经都没有意义，未免陷入争论，我尽量使用客观的词语来描述和探讨，毕竟我更感兴趣的事大环境下以及大背景下一些人的反应，他们为什么会如此反应而导致争论？</p>
-<p>搜了一下，阿里六脉神剑是：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">1.客户第一：客户是衣食父母搜索</div><div class="line">2.团队合作：共享共担，平凡人做非凡事</div><div class="line">3.拥抱变化：迎接变化，勇于创新</div><div class="line">4.诚信：诚实正直，言出必践</div><div class="line">5.激情：乐观向上，永不</div><div class="line">6.敬业：专业执着，精益求精</div></pre></td></tr></table></figure>
-<a id="more"></a>
-<p>可以看出，这是一支注重客户／合作／诚信／创造／敬业的组织，这就对应了阿里用人时候：<br>人才是最好的财富，平凡人做不平凡事，让员工快乐工作<br>招聘注重职业道德和诚信，培训员工，花费在员工，责任感，注重长期的一个过程，需要英雄更需要团队，关心员工的用人之道。</p>
-<p>注意，这里是企业的“宽”，对应没有讲出的是对员工的“严”，注重诚信，诚信不仅仅是对客户，还是对公司对同事对工作，缺一不可，注意，这里是公司对员工的要求，是一家管理几万名员工，誓要做102年的企业，是一家在真真正正的丛林社会的国度里成长起来还要面向全世界的企业，形成的企业文化。是一家强调 诚信／快乐工作／敬业 的做法，宁可不要一时的“英雄”，也要注重整体，大局观，因为它们重视的是一个团队，是一个深信平凡人做不平凡事的企业文化。</p>
-<p>阿里的HR（或者是什么部门），一个下午就做出上述决断，我觉得这个在大多数公司看来真的是小事司空见惯，在阿里却能解聘来处理，可以反应对自己的约束力和对全员的责任观，这一点，应该是国内大多数企业学习的和思考的。<br>这个角度或许可以理解阿里的HR为什么会做出决定。【好不好另论】<br>但可惜没有公平的对待涉事人员。</p>
-<p>上述是个人理解，但要说上面分析可以解释HR为何如此决定，我相信是远不够的，因为做这个决定的人甚至也可能都不用思考，只是个人一个临时的情绪行为，从这一点来说，任何专家的分析都可能解释不了上述情况。但，相信人更是受大环境影响作出决断。</p>
-<p>一个讲求自我约束，过分看重团队的整体性，甚至不惜要求大家统一价值观，这在攻城略地的组织活动中可以展现出惊人的效果，或许对应可以产生许多优秀的人才。<br>但离培养天才的土壤或许还很远。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;阿里月饼 事件过去数月，网上褒贬不一，知乎成了宣泄地或者论战的战场。&lt;br&gt;今天我想从阿里的六脉神剑文化和人才观看看这件事。&lt;br&gt;因为有人赞同有人反对有人沉默，所以我这里说自己支持或反对已经都没有意义，未免陷入争论，我尽量使用客观的词语来描述和探讨，毕竟我更感兴趣的事大环境下以及大背景下一些人的反应，他们为什么会如此反应而导致争论？&lt;/p&gt;
-&lt;p&gt;搜了一下，阿里六脉神剑是：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1.客户第一：客户是衣食父母搜索&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2.团队合作：共享共担，平凡人做非凡事&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3.拥抱变化：迎接变化，勇于创新&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4.诚信：诚实正直，言出必践&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5.激情：乐观向上，永不&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6.敬业：专业执着，精益求精&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="Security" scheme="http://thomaslau.github.io/tags/Security/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>The-Data-Engineering-Ecosystem-An-Interactive-Map</title>
-    <link href="http://thomaslau.github.io/2015/03/15/2015-03-15-The-Data-Engineering-Ecosystem-An-Interactive-Map/"/>
-    <id>http://thomaslau.github.io/2015/03/15/2015-03-15-The-Data-Engineering-Ecosystem-An-Interactive-Map/</id>
-    <published>2015-03-15T03:01:07.000Z</published>
-    <updated>2017-07-28T03:18:15.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文摘录一篇文章，作者整理了现在大数据使用的一些…<br>直接附原文和他们的成果图.</p>
-<p><a href="http://insightdataengineering.com/blog/The-Data-Engineering-Ecosystem-An-Interactive-Map.html" target="_blank" rel="external">原文链接</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://insightdataengineering.com/blog/pipeline_map.html" target="_blank" rel="external">效果</a><br><a id="more"></a><br>摘录：<br>Insight Data Engineering Fellows face these same questions when they begin working on their data pipelines. Fortunately, after several iterations of the Insight Data Engineering Program, we have developed this framework for visualizing a typical pipeline and the various data engineering tools. Along with the framework, we have included a set of tools for each category in the interactive map. </p>
-<p>截图<br><img style="width:110%" src="/images/blog/bigdata-store.png"></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文摘录一篇文章，作者整理了现在大数据使用的一些…&lt;br&gt;直接附原文和他们的成果图.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;http://insightdataengineering.com/blog/The-Data-Engineering-Ecosystem-An-Interactive-Map.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;原文链接&lt;/a&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;a href=&quot;http://insightdataengineering.com/blog/pipeline_map.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;效果&lt;/a&gt;&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="BigData" scheme="http://thomaslau.github.io/tags/BigData/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>翻墙_二三事</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-07-28T03:19:59.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>1,</p>
-<p>今天和一位素未谋面聊过几次的网友聊了几句，得知已经去了新西兰，该国IT行业就业环境不是很好，但还是找了一份编程的工作，除了得享新西兰大自然的赋予之外，工作又轻松愉快，摆脱国内经常无效率加班，廉价技术劳动力的怨念，打算在异国他乡发展。</p>
-<p>听完后，很高兴。<br><a id="more"></a></p>
-<p>2,</p>
-<p><strong>blog推荐</strong>,非常喜欢作者About里面的一些观点</p>
-<p><a href="http://www.raychase.net/aboutme" target="_blank" rel="external">四火的blog</a></p>
-<p>3,</p>
-<p>一直以为“以德报怨”是孔子说的，今天才听人说，妈的，原来是孔子说的是“以直报怨，以德报德”。</p>
-<pre><code>《论语宪问》：“或曰：‘以德报怨，何如？’子曰：&apos;何以报德？以直报怨，以德报德’”
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;1,&lt;/p&gt;
-&lt;p&gt;今天和一位素未谋面聊过几次的网友聊了几句，得知已经去了新西兰，该国IT行业就业环境不是很好，但还是找了一份编程的工作，除了得享新西兰大自然的赋予之外，工作又轻松愉快，摆脱国内经常无效率加班，廉价技术劳动力的怨念，打算在异国他乡发展。&lt;/p&gt;
-&lt;p&gt;听完后，很高兴。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
 
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>短句2</title>
-    <link href="http://thomaslau.github.io/2015/02/01/2015-02-01-%E7%9F%AD%E5%8F%A52/"/>
-    <id>http://thomaslau.github.io/2015/02/01/2015-02-01-短句2/</id>
-    <published>2015-02-01T13:01:07.000Z</published>
-    <updated>2017-06-16T05:07:19.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>风起的时候，尘土飞扬。</p>
-<p>风落的时候，尘归尘，土归土。</p>
-<p>这一次再见，四目对视数秒，</p>
-<p>这一刻，意识到，我又能怎样，又能改变什么？</p>
-<p>也在这一刻悟到，</p>
-<p>有更多更有意义的事。</p>
-<p>–2015于携程年会散场</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;风起的时候，尘土飞扬。&lt;/p&gt;
-&lt;p&gt;风落的时候，尘归尘，土归土。&lt;/p&gt;
-&lt;p&gt;这一次再见，四目对视数秒，&lt;/p&gt;
-&lt;p&gt;这一刻，意识到，我又能怎样，又能改变什么？&lt;/p&gt;
-&lt;p&gt;也在这一刻悟到，&lt;/p&gt;
-&lt;p&gt;有更多更有意义的事。&lt;/p&gt;
-&lt;p&gt;–2015于携程年会散场
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>先秦古文一篇《谏逐客书》</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:09.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
-<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E8%AE%B0%E5%BD%95%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0_scaling-postgresql-at-braintree-four-years-of-evolution/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:15.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>braintree的MySQL迁移Postgresql遇到的问题及解决方案</p>
-<p><a href="https://www.braintreepayments.com/braintrust/scaling-postgresql-at-braintree-four-years-of-evolution" target="_blank" rel="external">https://www.braintreepayments.com/braintrust/scaling-postgresql-at-braintree-four-years-of-evolution</a></p>
-<p>一个酷酷的网页</p>
-<p><a href="https://www.braintreepayments.com/about" target="_blank" rel="external">https://www.braintreepayments.com/about</a></p>
-<p>link2</p>
-<p><a href="https://speakerdeck.com/pgr0ss/high-availability-at-braintree" target="_blank" rel="external">https://speakerdeck.com/pgr0ss/high-availability-at-braintree</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;braintree的MySQL迁移Postgresql遇到的问题及解决方案&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.braintreepayments.com/braintrust/scaling-postgresql-at-braintree-four-y
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="MySQL" scheme="http://thomaslau.github.io/tags/MySQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>新浪微博明文发送信息，搜狗输入法收集设备信息</title>
-    <link href="http://thomaslau.github.io/2015/01/20/2015-01-20-%E6%96%B0%E6%B5%AA%E5%BE%AE%E5%8D%9A%E6%98%8E%E6%96%87%E5%8F%91%E9%80%81%E4%BF%A1%E6%81%AF%EF%BC%8C%E6%90%9C%E7%8B%97%E8%BE%93%E5%85%A5%E6%B3%95%E6%94%B6%E9%9B%86%E8%AE%BE%E5%A4%87%E4%BF%A1%E6%81%AF/"/>
-    <id>http://thomaslau.github.io/2015/01/20/2015-01-20-新浪微博明文发送信息，搜狗输入法收集设备信息/</id>
-    <published>2015-01-20T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:14.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>先看solidot一则新闻：<a href="http://www.solidot.org/story?sid=42744" target="_blank" rel="external">原文链接</a></p>
-<pre><code>迈克菲实验室称，新浪微博App通过明文HTTP发送消息，用户没有任何隐私，
-攻击者很容易收集Cookie，或通过中间人攻击修改信息，比如插入恶意链接。
-利用  Wireshark捕捉流量，用户通过聊天窗口与朋友的聊天记录完全一览无余。
-迈克菲实验室还发现，搜狗输入法会收集用户插入到电脑上的设备的信息，
-然后明文HTTP发送出去。
-</code></pre><a id="more"></a>
-<p>看到这则新闻，不由得想起了Android版的 EverNote和有道云笔记 都是明文存储内容的！<br>虽然有道云笔记有什么密码登录以及阅读加密的功能。</p>
-<p>Android权限系统是基于Linux的,这些App的data目录是rwxrwx—-权限，Android为每一个App创建一个用户，所以正常情况下一个App是访问不了另一个App的data数据，但显然root的手机就不是如此了，给予read sdcard的权限，这时候就可以获取这些数据了。</p>
-<p>下面两张图是在本人手机上获取Evernote笔记的效果(也可以自行使用RootExplorer查看)。<br><img src="/images/blog/evernote_text_src.png" alt="evrnote source text"><br>我的程序看到的内容<br><img src="/images/blog/evernote_text.png" alt="evrnote source text"><br>真是吐槽无力啊，一个程序给你带来了无尽的便利，可是却将你置于危险境地，你还会使用吗？涉及的问题是，该如何去定义一个好的App？如何去定义一个好的开发者？如何去理解一个开发者说的“任务开发完毕”？如何去理解“程序写得好”？</p>
-<p>没有比代码提交甘特图，bug解决率，redmine更能起着自我安慰自我欺骗的东西了。</p>
-<p>然而有一点的是，那些做什么事都成竹在胸的，是绝不可以轻信的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;先看solidot一则新闻：&lt;a href=&quot;http://www.solidot.org/story?sid=42744&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;原文链接&lt;/a&gt;&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;迈克菲实验室称，新浪微博App通过明文HTTP发送消息，用户没有任何隐私，
-攻击者很容易收集Cookie，或通过中间人攻击修改信息，比如插入恶意链接。
-利用  Wireshark捕捉流量，用户通过聊天窗口与朋友的聊天记录完全一览无余。
-迈克菲实验室还发现，搜狗输入法会收集用户插入到电脑上的设备的信息，
-然后明文HTTP发送出去。
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="Security" scheme="http://thomaslau.github.io/tags/Security/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>爱而知其恶，恶而知其美</title>
-    <link href="http://thomaslau.github.io/2014/12/20/2014-12-20-%20%E7%88%B1%E8%80%8C%E7%9F%A5%E5%85%B6%E6%81%B6%EF%BC%8C%E6%81%B6%E8%80%8C%E7%9F%A5%E5%85%B6%E7%BE%8E/"/>
-    <id>http://thomaslau.github.io/2014/12/20/2014-12-20- 爱而知其恶，恶而知其美/</id>
-    <published>2014-12-20T03:01:07.000Z</published>
-    <updated>2017-06-16T05:00:44.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>身为中国自由主义旗手的胡适，想必就不会首肯这本书。胡适曾经被鲁迅骂为“高等华人”、“金元博士”、“日本帝国主义的军师”，但当苏雪林向其控诉鲁迅的种种恶行时，胡适却坚持认为，凡论一人，要“爱而知其恶，恶而知其美”，虽然“鲁迅狺狺攻击我们”，但“鲁迅自有他的长处，他的早年文学作品，如他的小说史研究，皆是上等工作。”</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;身为中国自由主义旗手的胡适，想必就不会首肯这本书。胡适曾经被鲁迅骂为“高等华人”、“金元博士”、“日本帝国主义的军师”，但当苏雪林向其控诉鲁迅的种种恶行时，胡适却坚持认为，凡论一人，要“爱而知其恶，恶而知其美”，虽然“鲁迅狺狺攻击我们”，但“鲁迅自有他的长处，他的早年文学作
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins</title>
-    <link href="http://thomaslau.github.io/2014/11/21/2014-11-21-%20%5B%E8%BD%AC%5Dhow-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/"/>
-    <id>http://thomaslau.github.io/2014/11/21/2014-11-21- [转]how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/</id>
-    <published>2014-11-21T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:27.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>原文见：<a href="http://highscalability.com/blog/2014/9/8/how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins.html" target="_blank" rel="external">how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins</a></p>
-<p>原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）</p>
-<ul>
-<li>Why Redis?</li>
-<li>Hybrid List</li>
-<li>BTree</li>
-<li>Cluster Management</li>
-<li>Data Insight</li>
-<li>Wish List for Redis</li>
-</ul>
-<p>几个好的总结：<br>（嗯，第六点？）</p>
-<ol>
-<li><p><strong>Scale demands predictability.</strong><br>The larger the cluster, the more customers, the more predictable and deterministic you want your service to be. When there’s one customer and there’s a problem you can dig into a problem and it’s intriguing. When you have 70 customers you can’t keep up. </p>
-<a id="more"></a>
-</li>
-<li><p><strong>Tail latencies matter.</strong><br>When you do fanouts to a lot of shards, when one is slow your entire query will be slow. </p>
-</li>
-</ol>
-<ol>
-<li><strong>Deterministic configuration is operationally important.</strong><br>Twitter is moving towards a container environment. Mesos is used as the job scheduler. The scheduler fulfills the request for the amount of CPU, memory etc. A monitor kills any job that goes over its resource requirement. Redis causes a problem in a container environment. Redis introduces external fragmentation, meaning you use more memory to store the same amount of data. If you don’t want to be killed you have to compensate for that with oversupply. You have to think my memory fragmentation ratio won’t go over 5%, but I’ll allocate 10% more as a buffer space. Maybe even 20%. Or I think I’ll get 5000 connections per host, but just in case let me allocate memory for 10,000 connections. The result is a huge potential for waste. Super low latency services don’t play well with Mesos today, so these jobs are isolated from other jobs.</li>
-</ol>
-<ol>
-<li><strong>Knowing your resource usage at runtime is really helpful.</strong><br>In a large cluster bad stuff happens. You think you are safe but things happen and behaviour is unexpected. Most services today can’t degrade gracefully. For example, when a limit of 10GB of RAM is reached then requests are rejected until there’s free RAM. This only fails a small percentage of traffic that’s proportional to the resource that they require. That’s graceful. Garbage collection problems are not graceful, traffic just gets dropped on the floor, this problem affects a lot of teams in a lot of companies every day. </li>
-</ol>
-<ol>
-<li><strong>Push computation to the data.</strong><br>If you look at relative network speeds, CPU speeds, and disk speeds, it makes sense to do computation before going to disk and do computation before going to the network. An example is summarizing logs on a node before they are pushed to a centralized monitoring service. LUA in Redis another way to apply computation close to the data.</li>
-</ol>
-<ol>
-<li><strong>LUA is not production ready in Redis today.</strong><br>On demand scripting means service providers can’t guarantee their SLA. A loaded script can do anything. What service provider would want to take the risk of blowing their SLA because of someone elses code? A deployment model would be better. It would allow for code review and benchmarking, so resource usage and performance could be properly calculated. </li>
-</ol>
-<ol>
-<li><strong>Redis as the next high performance stream processing platform.</strong><br>It has pub-sub and scripting. Why not?</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;原文见：&lt;a href=&quot;http://highscalability.com/blog/2014/9/8/how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Why Redis?&lt;/li&gt;
-&lt;li&gt;Hybrid List&lt;/li&gt;
-&lt;li&gt;BTree&lt;/li&gt;
-&lt;li&gt;Cluster Management&lt;/li&gt;
-&lt;li&gt;Data Insight&lt;/li&gt;
-&lt;li&gt;Wish List for Redis&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;几个好的总结：&lt;br&gt;（嗯，第六点？）&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;Scale demands predictability.&lt;/strong&gt;&lt;br&gt;The larger the cluster, the more customers, the more predictable and deterministic you want your service to be. When there’s one customer and there’s a problem you can dig into a problem and it’s intriguing. When you have 70 customers you can’t keep up. &lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="redis" scheme="http://thomaslau.github.io/tags/redis/"/>
-    
-      <category term="twitter" scheme="http://thomaslau.github.io/tags/twitter/"/>
-    
-      <category term="performance" scheme="http://thomaslau.github.io/tags/performance/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>antirez的抱怨</title>
-    <link href="http://thomaslau.github.io/2014/11/12/2014-11-12-%20antirez%E7%9A%84%E6%8A%B1%E6%80%A8/"/>
-    <id>http://thomaslau.github.io/2014/11/12/2014-11-12- antirez的抱怨/</id>
-    <published>2014-11-12T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>针对他人twitter上的争论，其实antirez正文写的是很平淡客观的，今天偶然翻看评论，antirez对一位留言者做了回复，这里不难明白作者标题的含义了<br>Dermot Haughey留言：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Always shocked at how rude and dismissive the software community can be.</div><div class="line">People really need to abandon their egos in search of cooperation. </div><div class="line">Jumping on a prominent member of the open source communtity because you</div><div class="line">misunderstood what they said isn&apos;t going to &apos;win&apos; you any points in the longrun</div></pre></td></tr></table></figure>
-<a id="more"></a>
-<p>antirez回复：</p>
-<pre><code>Unfortunately they win points... in some way. An example with a person
- that is not very famous in the community nor was involved in this tweets 
- exchange: there was this early times Redis user that always tried to
-  contribute, which was fine. However all hits contribs where 
-  half-finished, or broken, or some other problem like that, so I politely 
-  refused the contribs. He got frustrated and started to point the finger 
-  at me for me distributed systems misunderstandings, and so forth, and 
-  started to write blog posts about abstract concepts that made he seem 
-  smart. No real content, no real code shipped for years, just blabla, and 
-  endorsing systems which are super safe during partitions and all the 
-  rest is shit and so forth. Know what? He started to be hired by 
-  companies in this space. However if you look at the hires story you see 
-  him jumping each 6 months to a new company since the fact he is not able 
-  to actually do work is something people eventually realize. Now every 
-  time there is some Redis drama and he adds his voice I think that in 
-  this world we can&apos;t have good things, really.
-</code></pre><p><a href="http://antirez.com/news/82" target="_blank" rel="external">这里可见原文</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;针对他人twitter上的争论，其实antirez正文写的是很平淡客观的，今天偶然翻看评论，antirez对一位留言者做了回复，这里不难明白作者标题的含义了&lt;br&gt;Dermot Haughey留言：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;Always shocked at how rude and dismissive the software community can be.&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;People really need to abandon their egos in search of cooperation. &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Jumping on a prominent member of the open source communtity because you&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;misunderstood what they said isn&amp;apos;t going to &amp;apos;win&amp;apos; you any points in the longrun&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>由一段js正则式想到</title>
-    <link href="http://thomaslau.github.io/2014/10/31/2014-10-31-%20%E7%94%B1%E4%B8%80%E6%AE%B5js%E6%AD%A3%E5%88%99%E5%BC%8F%E6%83%B3%E5%88%B0/"/>
-    <id>http://thomaslau.github.io/2014/10/31/2014-10-31- 由一段js正则式想到/</id>
-    <published>2014-10-31T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:42.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天找JS的json函数，发现一段代码：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">parse: <span class="function"><span class="keyword">function</span> (<span class="params">text</span>) </span>&#123;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        <span class="keyword">return</span> !(<span class="regexp">/[^,:&#123;&#125;\[\]0-9.\-+Eaeflnr-u \n\r\t]/</span>.test(</div><div class="line">                text.replace(<span class="regexp">/"(\\.|[^"\\])*"/g</span>, <span class="string">''</span>))) &amp;&amp;</div><div class="line">                <span class="built_in">eval</span>(<span class="string">'('</span> + text + <span class="string">')'</span>);</div><div class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</div><div class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">        &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>详细的代码可以见<a href="https://github.com/openresty/ngx_openresty/blob/master/clients/js/JSON.js" target="_blank" rel="external">这里</a><br>应该是很老的代码了，但是真是搞不清这里的含义</p>
-<p><em><code>/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/</code></em></p>
-<p>中间 <em>Eaeflnr-u</em> 这一段的意思是？为什么要这样去判断是否是json的格式呢？<br><a id="more"></a><br>好奇没有想明白，但是用这一段来判断确实是错误的，比如输入’{“key”:Math.PI}’时候这里会parse不到正确的json。</p>
-<p>douglascrockford 后面改进的<a href="https://github.com/openresty/ngx_openresty/blob/master/clients/js/JSON.js" target="_blank" rel="external">JSON.js</a>以及<a href="https://github.com/douglascrockford/JSON-js/blob/master/json2.js" target="_blank" rel="external">JSON2.js</a>都是对此parse失败的，同样json.org官方提供的两个javascript的json库里<a href="https://github.com/dscape/clarinet" target="_blank" rel="external">clarinet.js</a>也是parse失败的。。。（但，stringfy({“key”:Math.PI})是正确）</p>
-<p>难道这个json不应该是被parse正确的吗？</p>
-<p>附上CrockFord 改进的版本,作者改进了对应的正则表达式，使用这样的正则表达式的初衷在注释里面可以看到一些，呵呵。</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// In the second stage, we run the text against regular expressions that look</span></div><div class="line"><span class="comment">// for non-JSON patterns. We are especially concerned with '()' and 'new'</span></div><div class="line"><span class="comment">// because they can cause invocation, and '=' because it can cause mutation.</span></div><div class="line"><span class="comment">// But just to be safe, we want to reject all unexpected forms.</span></div><div class="line"></div><div class="line"><span class="comment">// We split the second stage into 4 regexp operations in order to work around</span></div><div class="line"><span class="comment">// crippling inefficiencies in IE's and Safari's regexp engines. First we</span></div><div class="line"><span class="comment">// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we</span></div><div class="line"><span class="comment">// replace all simple value tokens with ']' characters. Third, we delete all</span></div><div class="line"><span class="comment">// open brackets that follow a colon or comma or that begin the text. Finally,</span></div><div class="line"><span class="comment">// we look to see that the remaining characters are only whitespace or ']' or</span></div><div class="line"><span class="comment">// ',' or ':' or '&#123;' or '&#125;'. If that is so, then the text is safe for eval.</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> (<span class="regexp">/^[\],:&#123;&#125;\s]*$/</span></div><div class="line">		.test(text.replace(<span class="regexp">/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]&#123;4&#125;)/g</span>, <span class="string">'@'</span>)</div><div class="line">			.replace(<span class="regexp">/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g</span>, <span class="string">']'</span>)</div><div class="line">			.replace(<span class="regexp">/(?:^|:|,)(?:\s*\[)+/g</span>, <span class="string">''</span>))) &#123;</div><div class="line"></div><div class="line"><span class="comment">// In the third stage we use the eval function to compile the text into a</span></div><div class="line"><span class="comment">// JavaScript structure. The '&#123;' operator is subject to a syntactic ambiguity</span></div><div class="line"><span class="comment">// in JavaScript: it can begin a block or an object literal. We wrap the text</span></div><div class="line"><span class="comment">// in parens to eliminate the ambiguity.</span></div><div class="line"></div><div class="line">   j = <span class="built_in">eval</span>(<span class="string">'('</span> + text + <span class="string">')'</span>);</div><div class="line"></div><div class="line"><span class="comment">// In the optional fourth stage, we recursively walk the new structure, passing</span></div><div class="line"><span class="comment">// each name/value pair to a reviver function for possible transformation.</span></div></pre></td></tr></table></figure>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天找JS的json函数，发现一段代码：&lt;/p&gt;
-&lt;figure class=&quot;highlight js&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;parse: &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;function&lt;/span&gt; (&lt;span class=&quot;params&quot;&gt;text&lt;/span&gt;) &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;try&lt;/span&gt; &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; !(&lt;span class=&quot;regexp&quot;&gt;/[^,:&amp;#123;&amp;#125;\[\]0-9.\-+Eaeflnr-u \n\r\t]/&lt;/span&gt;.test(&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                text.replace(&lt;span class=&quot;regexp&quot;&gt;/&quot;(\\.|[^&quot;\\])*&quot;/g&lt;/span&gt;, &lt;span class=&quot;string&quot;&gt;&#39;&#39;&lt;/span&gt;))) &amp;amp;&amp;amp;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;                &lt;span class=&quot;built_in&quot;&gt;eval&lt;/span&gt;(&lt;span class=&quot;string&quot;&gt;&#39;(&#39;&lt;/span&gt; + text + &lt;span class=&quot;string&quot;&gt;&#39;)&#39;&lt;/span&gt;);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &amp;#125; &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt; (e) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;            &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;literal&quot;&gt;false&lt;/span&gt;;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;        &amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;详细的代码可以见&lt;a href=&quot;https://github.com/openresty/ngx_openresty/blob/master/clients/js/JSON.js&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这里&lt;/a&gt;&lt;br&gt;应该是很老的代码了，但是真是搞不清这里的含义&lt;/p&gt;
-&lt;p&gt;&lt;em&gt;&lt;code&gt;/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/&lt;/code&gt;&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;中间 &lt;em&gt;Eaeflnr-u&lt;/em&gt; 这一段的意思是？为什么要这样去判断是否是json的格式呢？&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="JS" scheme="http://thomaslau.github.io/tags/JS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>openresty</title>
-    <link href="http://thomaslau.github.io/2014/10/30/2014-10-30-%20openresty/"/>
-    <id>http://thomaslau.github.io/2014/10/30/2014-10-30- openresty/</id>
-    <published>2014-10-30T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:49.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>发现一个不错的nginx扩展(不仅仅是扩展了)，<a href="http://openresty.org/cn/" target="_blank" rel="external">openresty.org</a> 有详细的介绍，这里摘录一下：</p>
-<pre><code>OpenResty （也称为 ngx_openresty）是一个全功能的 Web 应用服务器，它打包了标准的 Nginx 核心，
-很多的常用的第三方模块，以及它们的大多数依赖项。
-OpenResty 通过汇聚各种设计精良的 Nginx 模块,
-从而将 Nginx 有效的变成一个强大的 Web 应用服务器,
-这样, Web 开发人员可以使用 Lua 脚本语言调动 Nginx 支持的各种C以及Lua 模块,
-快速构造出足以胜任 10K+ 并发连接响应的超高性能Web 应用系统.
+      
+    </div>
 
-OpenResty 的目标是让你的Web服务直接跑在 Nginx 服务内部,
-充分利用 Nginx 的非阻塞 I/O 模型,
-不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如
-MySQL,PostgreSQL,~Memcaches 以及 ~Redis 等都进行一致的高性能响应.
-</code></pre><p>openresty的主要作者是 agentzh，中文名：章亦春，<a href="https://github.com/agentzh" target="_blank" rel="external">GitHub Page</a>。<br><a id="more"></a><br>这里<a href="http://wdicc.com/intro-openresty/" target="_blank" rel="external">wdicc.com</a>另有一片文章有介绍以及入门。</p>
-<p>here are the referrence：</p>
-<ul>
-<li><a href="http://wiki.nginx.org/3rdPartyModules" target="_blank" rel="external">wiki.nginx.org/3rdPartyModules</a></li>
-<li><a href="https://groups.google.com/forum/#!forum/openresty" target="_blank" rel="external">openresty google groups</a></li>
-<li><a href="https://github.com/openresty/lua-nginx-module" target="_blank" rel="external">lua-nginx-module</a></li>
-<li><a href="https://github.com/lebinh/ngxtop" target="_blank" rel="external">ngxtop - real-time metrics for nginx server</a></li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;发现一个不错的nginx扩展(不仅仅是扩展了)，&lt;a href=&quot;http://openresty.org/cn/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;openresty.org&lt;/a&gt; 有详细的介绍，这里摘录一下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;OpenResty （也称为 ngx_openresty）是一个全功能的 Web 应用服务器，它打包了标准的 Nginx 核心，
-很多的常用的第三方模块，以及它们的大多数依赖项。
-OpenResty 通过汇聚各种设计精良的 Nginx 模块,
-从而将 Nginx 有效的变成一个强大的 Web 应用服务器,
-这样, Web 开发人员可以使用 Lua 脚本语言调动 Nginx 支持的各种C以及Lua 模块,
-快速构造出足以胜任 10K+ 并发连接响应的超高性能Web 应用系统.
+    <div>
+      
+        
 
-OpenResty 的目标是让你的Web服务直接跑在 Nginx 服务内部,
-充分利用 Nginx 的非阻塞 I/O 模型,
-不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如
-MySQL,PostgreSQL,~Memcaches 以及 ~Redis 等都进行一致的高性能响应.
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;openresty的主要作者是 agentzh，中文名：章亦春，&lt;a href=&quot;https://github.com/agentzh&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GitHub Page&lt;/a&gt;。&lt;br&gt;
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/JAVA-Flame-Graph/" rel="tag"># JAVA Flame Graph</a>
+          
+            <a href="/tags/JMH/" rel="tag"># JMH</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/" rel="next" title="从Monte Carlo谈pySpark的fork引发的Bug">
+                <i class="fa fa-chevron-left"></i> 从Monte Carlo谈pySpark的fork引发的Bug
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
     
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="Nginx" scheme="http://thomaslau.github.io/tags/Nginx/"/>
-    
-  </entry>
+  </div>
+
+
+        </div>
+        
+          
   
-</feed>
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-缘起"><span class="nav-number">1.</span> <span class="nav-text">1. 缘起</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-复现"><span class="nav-number">2.</span> <span class="nav-text">2. 复现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Class-getMethod"><span class="nav-number">3.</span> <span class="nav-text">3. Class.getMethod</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-MethodAccessor-vs-ReflectionFactory"><span class="nav-number">4.</span> <span class="nav-text">4. MethodAccessor vs ReflectionFactory</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-noInflation"><span class="nav-number">4.0.1.</span> <span class="nav-text">4.1 noInflation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-NativeMethodAccessorImpl"><span class="nav-number">4.0.2.</span> <span class="nav-text">4.2 NativeMethodAccessorImpl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-NativeMethodAccessorImpl-invoke0"><span class="nav-number">4.0.3.</span> <span class="nav-text">4.3 NativeMethodAccessorImpl.invoke0</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-JMH-BenchMark"><span class="nav-number">5.</span> <span class="nav-text">5. JMH BenchMark</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-JMH对比结果"><span class="nav-number">5.0.1.</span> <span class="nav-text">5.1 JMH对比结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-JMH-BenchMark代码"><span class="nav-number">5.0.2.</span> <span class="nav-text">5.2 JMH BenchMark代码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-JAVA-Flame-Graph"><span class="nav-number">6.</span> <span class="nav-text">6. JAVA Flame Graph</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7-GeneratedMethodAccessor1是什么？"><span class="nav-number">7.</span> <span class="nav-text">7. GeneratedMethodAccessor1是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-GeneratedMethodAccessor1的生成"><span class="nav-number">7.0.1.</span> <span class="nav-text">7.1 GeneratedMethodAccessor1的生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-GeneratedMethodAccessor1长啥样"><span class="nav-number">7.0.2.</span> <span class="nav-text">7.2 GeneratedMethodAccessor1长啥样</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-MagicAccessorImpl"><span class="nav-number">7.0.3.</span> <span class="nav-text">7.3 MagicAccessorImpl</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8-NativeMethodAccessorImpl-invoke0"><span class="nav-number">8.</span> <span class="nav-text">8. NativeMethodAccessorImpl.invoke0</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#9-其他"><span class="nav-number">9.</span> <span class="nav-text">9. 其他</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-附录"><span class="nav-number">10.</span> <span class="nav-text">10. 附录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#11-引用"><span class="nav-number">11.</span> <span class="nav-text">11. 引用</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
