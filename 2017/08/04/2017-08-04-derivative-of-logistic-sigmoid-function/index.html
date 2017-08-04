@@ -81,7 +81,7 @@
 
 
 
-  <link rel="alternate" href="/atom.xml" title="愤怒的菩提" type="application/atom+xml" />
+  <link rel="alternate" href="/atom.xml" title="编程浪子" type="application/atom+xml" />
 
 
 
@@ -98,11 +98,11 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="为什么 LR 模型要使用 sigmoid 函数">
 <meta property="og:url" content="http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/index.html">
-<meta property="og:site_name" content="愤怒的菩提">
+<meta property="og:site_name" content="编程浪子">
 <meta property="og:description" content="分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。 在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，为什么 LR 模型要使用 sigmoid 函数 里获赞最高的答案。但正如马化腾先生说的，这么说，也对也不对。看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？换言之，一个分析">
 <meta property="og:image" content="http://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Logisticpdfunction.svg/320px-Logisticpdfunction.svg.png">
 <meta property="og:image" content="http://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Logistic_cdf.svg/320px-Logistic_cdf.svg.png">
-<meta property="og:updated_time" content="2017-08-04T10:51:03.000Z">
+<meta property="og:updated_time" content="2017-08-04T11:39:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="为什么 LR 模型要使用 sigmoid 函数">
 <meta name="twitter:description" content="分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。 在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，为什么 LR 模型要使用 sigmoid 函数 里获赞最高的答案。但正如马化腾先生说的，这么说，也对也不对。看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？换言之，一个分析">
@@ -140,7 +140,7 @@
 
 
 
-  <title>为什么 LR 模型要使用 sigmoid 函数 | 愤怒的菩提</title>
+  <title>为什么 LR 模型要使用 sigmoid 函数 | 编程浪子</title>
   
 
 
@@ -186,7 +186,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">愤怒的菩提</span>
+        <span class="site-title">编程浪子</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -278,7 +278,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="愤怒的菩提">
+      <meta itemprop="name" content="编程浪子">
     </span>
 
     
@@ -335,8 +335,8 @@
       
         <pre><code>分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。
 </code></pre><p>在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，<a href="https://www.quora.com/What-is-logistic-regression" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a> 里获赞最高的答案。<br><strong>但正如马化腾先生说的，这么说，也对也不对。</strong><br>看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？<br>换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。<br><a id="more"></a></p>
-<h3 id="那么让我们将问题拆开看看："><a href="#那么让我们将问题拆开看看：" class="headerlink" title="那么让我们将问题拆开看看："></a>那么让我们将问题拆开看看：</h3><p><strong>1, 逻辑回归为什么要使用sigmoid函数.</strong><br><strong>2, LR模型的意义，即为什么有了线性回归(linear regression)还需要逻辑回归(logistic regression)</strong></p>
-<h3 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h3><p>好解释，其实没有什么原因。<br>看上面高赞答案解释一堆，或者下面解释sigmoid函数好用，好求导。其实都不是原因。<br>因为逻辑回归对应Logit Function，即逻辑回归就是sigmoid函数的应用,<br>一个对象的两个描述而已，像原文这么问就像是在问为什么抛物线方程要使用 y= a*x^2+bx+c表示一样。<br>逻辑回归，不过是结果sigmoid函数化的线性回归而已。<br>但，为什么要有这个定义？为什么要将线性回归的值sigmoid化？</p>
+<h3 id="那么让我们将问题拆开来看："><a href="#那么让我们将问题拆开来看：" class="headerlink" title="那么让我们将问题拆开来看："></a>那么让我们将问题拆开来看：</h3><p><strong>1, 逻辑回归为什么要使用sigmoid函数.</strong><br><strong>2, LR模型的意义，即为什么有了线性回归(linear regression)还需要逻辑回归(logistic regression)</strong></p>
+<h3 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h3><p>很好解释：其实没有什么原因。<br>看上面高赞答案解释一堆，或者下面解释sigmoid函数好用，好求导。其实都不是原因。<br>因为逻辑回归对应Logit Function，即逻辑回归就是sigmoid函数的应用,<br>一个对象的两个描述而已，像原文这么问就像是在问为什么抛物线方程要使用 y= a*x^2+bx+c表示一样。<br>逻辑回归，不过是结果sigmoid函数化的线性回归而已。<br>但，为什么要有这个定义？为什么要将线性回归的值sigmoid化？这就是下面要说的。</p>
 <h3 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h3><p>上面解释了为什么LR对应sigmoid函数，但可能会继续好奇为什么有Logistic Regression？常规的linear regression不满足吗？这是一个数学问题, 在许多现代跟统计／概率学相关学术问题里被广泛使用，其实回归分析很多方法，比如linear／logistic／Polynomial等，分别适用于不同模型。<br>我们先看线性回归:</p>
 <p>$$Y = X\beta + \epsilon $$</p>
 <p>$$J(\theta) = \sum_{i=1}^m (h\theta(x^{(i)})-y^{(i)})^2$$</p>
@@ -548,7 +548,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#那么让我们将问题拆开看看："><span class="nav-number">1.</span> <span class="nav-text">那么让我们将问题拆开看看：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题一"><span class="nav-number">2.</span> <span class="nav-text">问题一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题二"><span class="nav-number">3.</span> <span class="nav-text">问题二</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#那么让我们将问题拆开来看："><span class="nav-number">1.</span> <span class="nav-text">那么让我们将问题拆开来看：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题一"><span class="nav-number">2.</span> <span class="nav-text">问题一</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#问题二"><span class="nav-number">3.</span> <span class="nav-text">问题二</span></a></li></ol></div>
             
 
           </div>

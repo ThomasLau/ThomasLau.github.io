@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>愤怒的菩提</title>
+  <title>编程浪子</title>
   
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-08-04T10:51:03.000Z</updated>
+  <updated>2017-08-04T11:39:11.000Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -20,12 +20,12 @@
     <link href="http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/"/>
     <id>http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/</id>
     <published>2017-08-04T13:59:07.000Z</published>
-    <updated>2017-08-04T10:51:03.000Z</updated>
+    <updated>2017-08-04T11:39:11.000Z</updated>
     
     <content type="html"><![CDATA[<pre><code>分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。
 </code></pre><p>在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，<a href="https://www.quora.com/What-is-logistic-regression" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a> 里获赞最高的答案。<br><strong>但正如马化腾先生说的，这么说，也对也不对。</strong><br>看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？<br>换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。<br><a id="more"></a></p>
-<h3 id="那么让我们将问题拆开看看："><a href="#那么让我们将问题拆开看看：" class="headerlink" title="那么让我们将问题拆开看看："></a>那么让我们将问题拆开看看：</h3><p><strong>1, 逻辑回归为什么要使用sigmoid函数.</strong><br><strong>2, LR模型的意义，即为什么有了线性回归(linear regression)还需要逻辑回归(logistic regression)</strong></p>
-<h3 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h3><p>好解释，其实没有什么原因。<br>看上面高赞答案解释一堆，或者下面解释sigmoid函数好用，好求导。其实都不是原因。<br>因为逻辑回归对应Logit Function，即逻辑回归就是sigmoid函数的应用,<br>一个对象的两个描述而已，像原文这么问就像是在问为什么抛物线方程要使用 y= a*x^2+bx+c表示一样。<br>逻辑回归，不过是结果sigmoid函数化的线性回归而已。<br>但，为什么要有这个定义？为什么要将线性回归的值sigmoid化？</p>
+<h3 id="那么让我们将问题拆开来看："><a href="#那么让我们将问题拆开来看：" class="headerlink" title="那么让我们将问题拆开来看："></a>那么让我们将问题拆开来看：</h3><p><strong>1, 逻辑回归为什么要使用sigmoid函数.</strong><br><strong>2, LR模型的意义，即为什么有了线性回归(linear regression)还需要逻辑回归(logistic regression)</strong></p>
+<h3 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h3><p>很好解释：其实没有什么原因。<br>看上面高赞答案解释一堆，或者下面解释sigmoid函数好用，好求导。其实都不是原因。<br>因为逻辑回归对应Logit Function，即逻辑回归就是sigmoid函数的应用,<br>一个对象的两个描述而已，像原文这么问就像是在问为什么抛物线方程要使用 y= a*x^2+bx+c表示一样。<br>逻辑回归，不过是结果sigmoid函数化的线性回归而已。<br>但，为什么要有这个定义？为什么要将线性回归的值sigmoid化？这就是下面要说的。</p>
 <h3 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h3><p>上面解释了为什么LR对应sigmoid函数，但可能会继续好奇为什么有Logistic Regression？常规的linear regression不满足吗？这是一个数学问题, 在许多现代跟统计／概率学相关学术问题里被广泛使用，其实回归分析很多方法，比如linear／logistic／Polynomial等，分别适用于不同模型。<br>我们先看线性回归:</p>
 <p>$$Y = X\beta + \epsilon $$</p>
 <p>$$J(\theta) = \sum_{i=1}^m (h\theta(x^{(i)})-y^{(i)})^2$$</p>
@@ -357,6 +357,35 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
   </entry>
   
   <entry>
+    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
+    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
+    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
+    <published>2015-02-04T03:01:07.000Z</published>
+    <updated>2017-06-16T05:07:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
+<p>原文戳上面的链接，这里摘录：</p>
+<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
+
+When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
+    
+      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>翻墙_二三事</title>
     <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
     <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
@@ -384,35 +413,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
     
       <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
-
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
     
   </entry>
   
