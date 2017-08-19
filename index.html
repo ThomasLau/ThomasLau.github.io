@@ -97,6 +97,7 @@
 <meta property="og:title" content="编程浪子">
 <meta property="og:url" content="http://thomaslau.github.io/index.html">
 <meta property="og:site_name" content="编程浪子">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="编程浪子">
 
@@ -263,6 +264,133 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/08/14/2017-08-14-a_dive_into_Shannon_entropy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="编程浪子">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/08/14/2017-08-14-a_dive_into_Shannon_entropy/" itemprop="url">信息熵的理解</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-14T21:59:07+08:00">
+                2017-08-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <pre><code>记录一下看书收获。
+</code></pre><h1 id="1-什么是熵"><a href="#1-什么是熵" class="headerlink" title="1. 什么是熵"></a>1. 什么是熵</h1><p>让我们先看一下维基百科对玻尔兹曼熵的来源描述和定义：</p>
+<pre><code>熵（Entropy），是一种测量在动力学方面不能做功的能量总数，熵的量度正是能量退化的指标。
+熵亦被用于计算一个系统中的失序现象，也就是计算该系统混乱的程度。
+1877年，玻尔兹曼发现单一系统中的熵跟构成热力学性质的微观状态数量相关。玻尔兹曼并假设：
+S=k*lnΩ
+公式中的k是玻尔兹曼常数，Ω则为该宏观状态中所包含之微观状态数量。这个被称为玻尔兹曼原理的假定是统计力学的基础。
+统计力学则以构成部分的统计行为来描述热力学系统.
+</code></pre><p>这就是玻尔兹曼的Entropy的来源了，而当普朗克来中国讲学时用到entropy这个词时，还没有对应名称，胡刚复教授偷懒地根据公式（dS=dQ/T），把“商”字加火旁来意译“entropy”这个字，创造了“熵”字（胡刚复与叶企孙同样是我国近代物理奠基人）。<br>不过上面是物理学衍生的玻尔兹曼熵，在1948年，克劳德·艾尔伍德·香农将热力学的熵引入到信息论，定义了信息熵的概念，因此它又被称为香农熵。</p>
+<pre><code>在信息论中，熵是接收的每条消息中包含的信息的平均量，又被称为信息熵、信源熵、平均自信息量。
+这里，“消息”代表来自分布或数据流中的事件、样本或特征。
+</code></pre><p>这即是熵的定义了，这里隐含的想法是，比较不可能发生的事情，当它发生了，意味着更多的信息。<br>所以熵也可理解为不确定性的量度[Measure of Uncertainty]，即越随机的信源的熵越大。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/08/14/2017-08-14-a_dive_into_Shannon_entropy/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -331,126 +459,10 @@
       
         
           <pre><code>分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。
-</code></pre><p>在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，<a href="https://www.quora.com/What-is-logistic-regression" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a> 里获赞最高的答案。<br><strong>但正如马化腾先生说的，这么说，也对也不对。</strong><br>看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？<br>换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。<br>
+</code></pre><p>在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，<a href="https://www.zhihu.com/question/35322351" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a> 里获赞最高的答案。<br><strong>但正如马化腾先生说的，这么说，也对也不对。</strong><br>看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？<br>换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。<br>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/08/02/2017-08-02-short_poets_2017_08_02/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程浪子">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/08/02/2017-08-02-short_poets_2017_08_02/" itemprop="url">短文_20170802</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-02T11:59:07+08:00">
-                2017-08-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="寓言"><a href="#寓言" class="headerlink" title="寓言"></a>寓言</h1><p>城南旧城有断墙犹存，余近日每每路过，不免胆战。传闻断墙下曾有一洞，洞内曾有一物，名曰大黄，常叫嚣曰：矢乎矢乎，世之美味也，吾虽行千里亦必食之。<br>一日，景阳冈上偶遇大吊虫，大黄思虑，若得此为盟友，则吾今后富贵功名如探囊取物，唾手可得耳。遂拿出了伊珍藏了三年的矢，与之虎，曰：“嗟，请来食”，说完将脖子扭几扭，实在是标志极了。<br>余不一一，盖因本文主角之后已惨死虎口之下。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/08/02/2017-08-02-short_poets_2017_08_02/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
