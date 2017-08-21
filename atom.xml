@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-08-21T16:09:23.000Z</updated>
+  <updated>2017-08-21T16:11:08.000Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -20,10 +20,10 @@
     <link href="http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/"/>
     <id>http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/</id>
     <published>2017-08-20T13:59:07.000Z</published>
-    <updated>2017-08-21T16:09:23.000Z</updated>
+    <updated>2017-08-21T16:11:08.000Z</updated>
     
     <content type="html"><![CDATA[<ol>
-<li>阿里周洋分享了<a href="http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|双11高可用架构演进之路</a>, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。<br>其实这是一系列，另外一篇<a href="http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|阿里电商架构演变之路</a>，很简略的概括了阿里架构史，其实也是国内很多公司开发的架构史。里面将淘宝架构分为：<br><strong>淘宝从初创开始到今天，我们的技术架构总体上经历了四代：<br>第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。</strong><br>2016年还是很多</li>
+<li>阿里周洋分享了<a href="http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|双11高可用架构演进之路</a>, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。<br>其实这是一系列，另外一篇<a href="http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|阿里电商架构演变之路</a>，很简略的概括了阿里架构史，其实也是国内很多公司开发的架构史。里面将淘宝架构分为：<br><strong>淘宝从初创开始到今天，我们的技术架构总体上经历了四代：<br>第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。</strong></li>
 <li><p><a href="https://www.youtube.com/watch?v=OYpTn0nWKR4" target="_blank" rel="external">10,000 Java performance tips over 15 years - what did I learn</a><br>上面是油管链接，也可以去<a href="https://www.voxxed.com/2017/07/10000-java-performance-tips-15-years/" target="_blank" rel="external">voxxed 2017</a>, <a href="https://cfp.devoxx.co.uk/2017/talks/conf" target="_blank" rel="external">devoxx conf</a>上面一些基于JVM语言／优化等链接还是很值得看的。</p>
 <a id="more"></a>
 <p>作者简介: Jack Shirazi<br>Head of Engineering for Nexmo, the Vonage API, Java Champion since 2005,Founder of javaperformancetuning.com,Author of Java Performance Tuning (O’Reilly),JUG Leader.<br>视频和ppt很值得一看，列举了JAVA优化（主要基于JVM／OS等层面）常见的方法，虽然许多介绍属于蜻蜓点水式的，但作为日常JAVA性能优化参考指南的需求还是可以的。<a href="／images/Devoxx-UK-2017.pdf">这里</a>的链接，以便不好翻墙或查找困难。</p>
@@ -110,7 +110,7 @@ sharedloader,catalinaloader的父类，自然设计目的是为了加载二者�
     <summary type="html">
     
       &lt;ol&gt;
-&lt;li&gt;阿里周洋分享了&lt;a href=&quot;http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;中间件技术峰会分享|双11高可用架构演进之路&lt;/a&gt;, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。&lt;br&gt;其实这是一系列，另外一篇&lt;a href=&quot;http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;中间件技术峰会分享|阿里电商架构演变之路&lt;/a&gt;，很简略的概括了阿里架构史，其实也是国内很多公司开发的架构史。里面将淘宝架构分为：&lt;br&gt;&lt;strong&gt;淘宝从初创开始到今天，我们的技术架构总体上经历了四代：&lt;br&gt;第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。&lt;/strong&gt;&lt;br&gt;2016年还是很多&lt;/li&gt;
+&lt;li&gt;阿里周洋分享了&lt;a href=&quot;http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;中间件技术峰会分享|双11高可用架构演进之路&lt;/a&gt;, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。&lt;br&gt;其实这是一系列，另外一篇&lt;a href=&quot;http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;中间件技术峰会分享|阿里电商架构演变之路&lt;/a&gt;，很简略的概括了阿里架构史，其实也是国内很多公司开发的架构史。里面将淘宝架构分为：&lt;br&gt;&lt;strong&gt;淘宝从初创开始到今天，我们的技术架构总体上经历了四代：&lt;br&gt;第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。&lt;/strong&gt;&lt;/li&gt;
 &lt;li&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=OYpTn0nWKR4&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;10,000 Java performance tips over 15 years - what did I learn&lt;/a&gt;&lt;br&gt;上面是油管链接，也可以去&lt;a href=&quot;https://www.voxxed.com/2017/07/10000-java-performance-tips-15-years/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;voxxed 2017&lt;/a&gt;, &lt;a href=&quot;https://cfp.devoxx.co.uk/2017/talks/conf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;devoxx conf&lt;/a&gt;上面一些基于JVM语言／优化等链接还是很值得看的。&lt;/p&gt;
     
     </summary>
