@@ -81,7 +81,7 @@
 
 
 
-  <link rel="alternate" href="/atom.xml" title="编程浪子" type="application/atom+xml" />
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
 
 
 
@@ -98,10 +98,10 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Weekly Reading 170820">
 <meta property="og:url" content="http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/index.html">
-<meta property="og:site_name" content="编程浪子">
+<meta property="og:site_name" content="e+Thomas">
 <meta property="og:description" content="阿里周洋分享 中间件技术峰会分享|双11高可用架构演进之路, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。其实这是一系列，另外一篇中间件技术峰会分享|阿里电商架构演变之路写到：淘宝从初创开始到今天，我们的技术架构总体上经历了四代：第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-08-20T02:26:47.000Z">
+<meta property="og:updated_time" content="2017-08-21T16:04:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weekly Reading 170820">
 <meta name="twitter:description" content="阿里周洋分享 中间件技术峰会分享|双11高可用架构演进之路, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。其实这是一系列，另外一篇中间件技术峰会分享|阿里电商架构演变之路写到：淘宝从初创开始到今天，我们的技术架构总体上经历了四代：第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。">
@@ -138,7 +138,7 @@
 
 
 
-  <title>Weekly Reading 170820 | 编程浪子</title>
+  <title>Weekly Reading 170820 | e+Thomas</title>
   
 
 
@@ -184,7 +184,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">编程浪子</span>
+        <span class="site-title">e+Thomas</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -276,7 +276,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="编程浪子">
+      <meta itemprop="name" content="e+Thomas">
     </span>
 
     
@@ -342,7 +342,7 @@
 <li><p><a href="http://blog.csdn.net/defonds/article/details/76247842" target="_blank" rel="external">Linux 如何添加一个 Swap 文件 - Defonds 的专栏</a>, 有些情况下，一些开发人员会选择增加swap空间以提升Linux 服务器/桌面系统的性能。本文作者翻译nixCraft创始人Vivek Gite在不创建一个新的分区的前提下添加一个swap文件到Linux系统的文章。<br>虽然有人也强调过多的swap甚至swap有害，不过对个人桌面系统／非大型应用，本文值得一看。</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dd if=/dev/zero of=/swapfile1 bs=1024 count=524288</span></div><div class="line"><span class="comment"># chown root:root /swapfile1 //为交换文件设置合适的文件权限</span></div><div class="line"><span class="comment"># chmod 0600 /swapfile1  //为交换文件设置合适的文件权限</span></div><div class="line"><span class="comment"># mkswap /swapfile1   //设置一个 Linux 交换区域</span></div><div class="line"><span class="comment"># swapon /swapfile1   //启用交换文件</span></div><div class="line"><span class="comment"># vi /etc/fstab       //修改 /etc/fstab 文件</span></div><div class="line">追加一行：</div><div class="line">/swapfile1 none swap sw 0 0</div><div class="line">$ free -m</div><div class="line"><span class="comment"># swapon -s           //如何显示 Linux 上交换区的使用摘要</span></div><div class="line"><span class="comment"># --</span></div><div class="line"><span class="comment"># swapoff /swapfile1  //关闭 Linux 上用于 page 分页以及交换区域的设备和文件</span></div><div class="line"><span class="comment"># swapon -s</span></div></pre></td></tr></table></figure>
 </li>
-<li><p>发表在IBM dw上的文章 <a href="https://www.ibm.com/developerworks/cn/java/j-java8idioms6/index.html" target="_blank" rel="external">为什么完美的lambda表达式只有一行</a><br>作者列举了充满危险的长lambda表达式（该用拆分短小的）, 值得借鉴。<br>不过，如果跟着作者的思路／需求来看，作者说的却是是有道理的，但可惜的是如果我们跳出 lambda函数的范畴，就会发现，或者实践中会发现，其实这么做坏处更多，<a href="https://medium.com/@cindysridharan/small-functions-considered-harmful-91035d316c29" target="_blank" rel="external">这里有篇文章可以解释</a>, 挺欣赏后者对DRY原则和“GoF”的Design Pattern的“have largely gone unchallenged for decades now and direly require reconsideration, especially so since the programming landscape as well as paradigms have evolved vastly in the recent years”质疑态度，如果你真的阅读并写过代码的话，作者质疑了程序员还在奉为圣经的《clean code》，Martin Fowler的function length讨论。在实际开发中，flexibility to accommodate any changes以及可持续／可控的修改也很重要，所以，我认为关键是作出好的Abstraction，不仅仅是模型的抽象，还有架构／代码／变与不变的抽象，受编程书以及大公司教条的误导，有的开发过分关注 int xxx =100这样“写死了”的问题，其实比这更严重的是代码组织架构组织架构死了，才是更严重问题，毕竟前者就算hard code，可是代码改起来好改。所以关键是要做好“Abstract”。</p>
+<li><p>发表在IBM dw上的文章 <a href="https://www.ibm.com/developerworks/cn/java/j-java8idioms6/index.html" target="_blank" rel="external">为什么完美的lambda表达式只有一行</a><br>作者列举了充满危险的长lambda表达式（该用拆分短小的）, 值得借鉴。<br>不过，如果跟着作者的思路／需求来看，作者说的却是是有道理的，但可惜的是如果我们跳出 lambda函数的范畴，就会发现，或者实践中会发现，其实这么做坏处更多，<a href="https://medium.com/@cindysridharan/small-functions-considered-harmful-91035d316c29" target="_blank" rel="external">这里有篇文章可以解释</a>, 挺欣赏后者对DRY原则和“GoF”的Design Pattern的“have largely gone unchallenged for decades now and direly require reconsideration, especially so since the programming landscape as well as paradigms have evolved vastly in the recent years”质疑态度，如果你真的阅读并写过代码的话，作者质疑了程序员还在奉为圣经的《clean code》，Martin Fowler的function length讨论。在实际开发中，flexibility to accommodate any changes以及可持续／可控的修改也很重要，所以，我认为关键是作出好的Abstraction，不仅仅是模型的抽象，还有架构／代码／变与不变的抽象，受编程书以及大公司教条的误导，有的开发过分关注 int xxx =100这样“写死了”的问题，其实比这更严重的是代码组织架构组织架构死了，才是更严重问题，毕竟前者就算hard code，可是代码改起来好改。所以关键是要做好“Abstraction”。</p>
 </li>
 <li><p>kafka-exactly-once引发的争吵。<br>一个老生常谈的问题，源于kafka官宣<a href="https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/" target="_blank" rel="external">Exactly-once Semantics are Possible: Here’s How Kafka Does it</a>kafka 0.11版本引入exactly once的实现“we have hit an exciting milestone the Kafka community has long been waiting for: we have  introduced exactly-once semantics in Apache Kafka in the 0.11 release ”, 可以说是企图对消息幂等思考的致以尾声，并实现:正好一次传递与事务性消息。<br>之后引发许多讨论<a href="https://www.reddit.com/r/programming/comments/6kh65f/exactlyonce_semantics_is_possible_heres_how/" target="_blank" rel="external">Reddit</a>/<a href="https://news.ycombinator.com/item?id=14670801" target="_blank" rel="external">HN</a>， 更多人质疑这是对 FLP理论或两个拜占庭将军的问题的违反，Kafka的co-creator Jay Kreps发文做了解释<a href="https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f" target="_blank" rel="external">exactly-once-support-in-apache-kafka</a>。<br>更多：<a href="https://softwaremill.com/what-kafka-exactly-once-really-means/" target="_blank" rel="external">what-kafka-exactly-once-really-means</a>,里面:</p>
 <pre><code>The features which make the above possible are:
@@ -411,6 +411,7 @@ sharedloader,catalinaloader的父类，自然设计目的是为了加载二者�
 <li><a href="http://hbasefly.com/2017/07/26/transactions-1/" target="_blank" rel="external">数据库事务系列－事务模型基础</a>, 好文，记忆不熟的可以常看，至少可以用来。</li>
 <li><a href="http://www.hascode.com/2017/08/parameterized-tests-with-junit-5/" target="_blank" rel="external">Using JUnit 5 Parameterized Tests</a>系列文章</li>
 <li><a href="http://www.cnblogs.com/yjmyzz/p/7390331.html" target="_blank" rel="external">@Transactional导致AbstractRoutingDataSource动态数据源无法切换的解决办法</a><br>在org.springframework.jdbc.datasource.DataSourceTransactionManager#doBegin 这个类的源代码中找到了答案<br>第7-16行，在开始一个事务前，如果当前上下文的连接对象为空，获取一个连接对象，然后保存起来，下次doBegin再调用时，就直接用这个连接了，根本不做任何切换(类似于缓存命中！）<br>这样就解释得通了： doSomeThing()方法被调用前，加了一段select方法，相当于已经切换到了slave从库，<br>然后再进入doBegin方法时，就直接拿这个从库的链接了，不再进行切换。<br>那为啥其它同样启用事务的方法，又能正常连到主库呢？同样的解释，因为这类方法前面，没有任何其它操作，<br>而xml中的动态数据源配置，默认连接的就是master主库，因此没有问题。</li>
+<li><a href="https://www.zhihu.com/question/63946700" target="_blank" rel="external">如何评价波恩大学 Norbert Blum 关于 P≠NP 的证明</a>，这个链接跟进Norbert Blum 关于 P≠NP 的证明。<br>虽然每隔一段时间都会有证明冒出，虽然基本上认为不相等才是正道，还是有人不死心企图证明之。吾等表示围观还是要围观的。</li>
 <li>最后，来一段中二的 <a href="https://thedailywtf.com/articles/ride-the-url-line" target="_blank" rel="external">Daily WTF 有趣的计算机幽默</a></li>
 </ol>
 

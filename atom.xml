@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>编程浪子</title>
+  <title>e+Thomas</title>
   
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-08-20T02:26:47.000Z</updated>
+  <updated>2017-08-21T16:04:01.000Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/"/>
     <id>http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/</id>
     <published>2017-08-20T13:59:07.000Z</published>
-    <updated>2017-08-20T02:26:47.000Z</updated>
+    <updated>2017-08-21T16:04:01.000Z</updated>
     
     <content type="html"><![CDATA[<ol>
 <li>阿里周洋分享 <a href="http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|双11高可用架构演进之路</a>, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。<br>其实这是一系列，另外一篇<a href="http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|阿里电商架构演变之路</a>写到：<br><strong>淘宝从初创开始到今天，我们的技术架构总体上经历了四代：<br>第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。</strong></li>
@@ -33,7 +33,7 @@
 <li><p><a href="http://blog.csdn.net/defonds/article/details/76247842" target="_blank" rel="external">Linux 如何添加一个 Swap 文件 - Defonds 的专栏</a>, 有些情况下，一些开发人员会选择增加swap空间以提升Linux 服务器/桌面系统的性能。本文作者翻译nixCraft创始人Vivek Gite在不创建一个新的分区的前提下添加一个swap文件到Linux系统的文章。<br>虽然有人也强调过多的swap甚至swap有害，不过对个人桌面系统／非大型应用，本文值得一看。</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dd if=/dev/zero of=/swapfile1 bs=1024 count=524288</span></div><div class="line"><span class="comment"># chown root:root /swapfile1 //为交换文件设置合适的文件权限</span></div><div class="line"><span class="comment"># chmod 0600 /swapfile1  //为交换文件设置合适的文件权限</span></div><div class="line"><span class="comment"># mkswap /swapfile1   //设置一个 Linux 交换区域</span></div><div class="line"><span class="comment"># swapon /swapfile1   //启用交换文件</span></div><div class="line"><span class="comment"># vi /etc/fstab       //修改 /etc/fstab 文件</span></div><div class="line">追加一行：</div><div class="line">/swapfile1 none swap sw 0 0</div><div class="line">$ free -m</div><div class="line"><span class="comment"># swapon -s           //如何显示 Linux 上交换区的使用摘要</span></div><div class="line"><span class="comment"># --</span></div><div class="line"><span class="comment"># swapoff /swapfile1  //关闭 Linux 上用于 page 分页以及交换区域的设备和文件</span></div><div class="line"><span class="comment"># swapon -s</span></div></pre></td></tr></table></figure>
 </li>
-<li><p>发表在IBM dw上的文章 <a href="https://www.ibm.com/developerworks/cn/java/j-java8idioms6/index.html" target="_blank" rel="external">为什么完美的lambda表达式只有一行</a><br>作者列举了充满危险的长lambda表达式（该用拆分短小的）, 值得借鉴。<br>不过，如果跟着作者的思路／需求来看，作者说的却是是有道理的，但可惜的是如果我们跳出 lambda函数的范畴，就会发现，或者实践中会发现，其实这么做坏处更多，<a href="https://medium.com/@cindysridharan/small-functions-considered-harmful-91035d316c29" target="_blank" rel="external">这里有篇文章可以解释</a>, 挺欣赏后者对DRY原则和“GoF”的Design Pattern的“have largely gone unchallenged for decades now and direly require reconsideration, especially so since the programming landscape as well as paradigms have evolved vastly in the recent years”质疑态度，如果你真的阅读并写过代码的话，作者质疑了程序员还在奉为圣经的《clean code》，Martin Fowler的function length讨论。在实际开发中，flexibility to accommodate any changes以及可持续／可控的修改也很重要，所以，我认为关键是作出好的Abstraction，不仅仅是模型的抽象，还有架构／代码／变与不变的抽象，受编程书以及大公司教条的误导，有的开发过分关注 int xxx =100这样“写死了”的问题，其实比这更严重的是代码组织架构组织架构死了，才是更严重问题，毕竟前者就算hard code，可是代码改起来好改。所以关键是要做好“Abstract”。</p>
+<li><p>发表在IBM dw上的文章 <a href="https://www.ibm.com/developerworks/cn/java/j-java8idioms6/index.html" target="_blank" rel="external">为什么完美的lambda表达式只有一行</a><br>作者列举了充满危险的长lambda表达式（该用拆分短小的）, 值得借鉴。<br>不过，如果跟着作者的思路／需求来看，作者说的却是是有道理的，但可惜的是如果我们跳出 lambda函数的范畴，就会发现，或者实践中会发现，其实这么做坏处更多，<a href="https://medium.com/@cindysridharan/small-functions-considered-harmful-91035d316c29" target="_blank" rel="external">这里有篇文章可以解释</a>, 挺欣赏后者对DRY原则和“GoF”的Design Pattern的“have largely gone unchallenged for decades now and direly require reconsideration, especially so since the programming landscape as well as paradigms have evolved vastly in the recent years”质疑态度，如果你真的阅读并写过代码的话，作者质疑了程序员还在奉为圣经的《clean code》，Martin Fowler的function length讨论。在实际开发中，flexibility to accommodate any changes以及可持续／可控的修改也很重要，所以，我认为关键是作出好的Abstraction，不仅仅是模型的抽象，还有架构／代码／变与不变的抽象，受编程书以及大公司教条的误导，有的开发过分关注 int xxx =100这样“写死了”的问题，其实比这更严重的是代码组织架构组织架构死了，才是更严重问题，毕竟前者就算hard code，可是代码改起来好改。所以关键是要做好“Abstraction”。</p>
 </li>
 <li><p>kafka-exactly-once引发的争吵。<br>一个老生常谈的问题，源于kafka官宣<a href="https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/" target="_blank" rel="external">Exactly-once Semantics are Possible: Here’s How Kafka Does it</a>kafka 0.11版本引入exactly once的实现“we have hit an exciting milestone the Kafka community has long been waiting for: we have  introduced exactly-once semantics in Apache Kafka in the 0.11 release ”, 可以说是企图对消息幂等思考的致以尾声，并实现:正好一次传递与事务性消息。<br>之后引发许多讨论<a href="https://www.reddit.com/r/programming/comments/6kh65f/exactlyonce_semantics_is_possible_heres_how/" target="_blank" rel="external">Reddit</a>/<a href="https://news.ycombinator.com/item?id=14670801" target="_blank" rel="external">HN</a>， 更多人质疑这是对 FLP理论或两个拜占庭将军的问题的违反，Kafka的co-creator Jay Kreps发文做了解释<a href="https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f" target="_blank" rel="external">exactly-once-support-in-apache-kafka</a>。<br>更多：<a href="https://softwaremill.com/what-kafka-exactly-once-really-means/" target="_blank" rel="external">what-kafka-exactly-once-really-means</a>,里面:</p>
 <pre><code>The features which make the above possible are:
@@ -102,6 +102,7 @@ sharedloader,catalinaloader的父类，自然设计目的是为了加载二者�
 <li><a href="http://hbasefly.com/2017/07/26/transactions-1/" target="_blank" rel="external">数据库事务系列－事务模型基础</a>, 好文，记忆不熟的可以常看，至少可以用来。</li>
 <li><a href="http://www.hascode.com/2017/08/parameterized-tests-with-junit-5/" target="_blank" rel="external">Using JUnit 5 Parameterized Tests</a>系列文章</li>
 <li><a href="http://www.cnblogs.com/yjmyzz/p/7390331.html" target="_blank" rel="external">@Transactional导致AbstractRoutingDataSource动态数据源无法切换的解决办法</a><br>在org.springframework.jdbc.datasource.DataSourceTransactionManager#doBegin 这个类的源代码中找到了答案<br>第7-16行，在开始一个事务前，如果当前上下文的连接对象为空，获取一个连接对象，然后保存起来，下次doBegin再调用时，就直接用这个连接了，根本不做任何切换(类似于缓存命中！）<br>这样就解释得通了： doSomeThing()方法被调用前，加了一段select方法，相当于已经切换到了slave从库，<br>然后再进入doBegin方法时，就直接拿这个从库的链接了，不再进行切换。<br>那为啥其它同样启用事务的方法，又能正常连到主库呢？同样的解释，因为这类方法前面，没有任何其它操作，<br>而xml中的动态数据源配置，默认连接的就是master主库，因此没有问题。</li>
+<li><a href="https://www.zhihu.com/question/63946700" target="_blank" rel="external">如何评价波恩大学 Norbert Blum 关于 P≠NP 的证明</a>，这个链接跟进Norbert Blum 关于 P≠NP 的证明。<br>虽然每隔一段时间都会有证明冒出，虽然基本上认为不相等才是正道，还是有人不死心企图证明之。吾等表示围观还是要围观的。</li>
 <li>最后，来一段中二的 <a href="https://thedailywtf.com/articles/ride-the-url-line" target="_blank" rel="external">Daily WTF 有趣的计算机幽默</a></li>
 </ol>
 ]]></content>
@@ -567,6 +568,35 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
   </entry>
   
   <entry>
+    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
+    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
+    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
+    <published>2015-02-04T03:01:07.000Z</published>
+    <updated>2017-06-16T05:07:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
+<p>原文戳上面的链接，这里摘录：</p>
+<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
+
+When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
+    
+      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>翻墙_二三事</title>
     <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
     <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
@@ -594,35 +624,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
     
       <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
-
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
     
   </entry>
   
@@ -660,6 +661,28 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
   </entry>
   
   <entry>
+    <title>先秦古文一篇《谏逐客书》</title>
+    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
+    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
+    <published>2015-01-27T03:01:07.000Z</published>
+    <updated>2017-07-28T03:20:09.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
+<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
+    
+  </entry>
+  
+  <entry>
     <title>记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution</title>
     <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E8%AE%B0%E5%BD%95%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0_scaling-postgresql-at-braintree-four-years-of-evolution/"/>
     <id>http://thomaslau.github.io/2015/01/27/2015-01-27-记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution/</id>
@@ -685,28 +708,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
       <category term="MySQL" scheme="http://thomaslau.github.io/tags/MySQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>先秦古文一篇《谏逐客书》</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:09.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
-<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
     
   </entry>
   
