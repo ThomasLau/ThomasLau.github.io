@@ -541,9 +541,9 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
-      <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
-    
       <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
+    
+      <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
     
   </entry>
   
