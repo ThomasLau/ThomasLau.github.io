@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-08-26T01:49:33.000Z</updated>
+  <updated>2017-08-26T02:01:27.000Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -20,40 +20,30 @@
     <link href="http://thomaslau.github.io/2017/08/25/2017-08-26-weekly_reading/"/>
     <id>http://thomaslau.github.io/2017/08/25/2017-08-26-weekly_reading/</id>
     <published>2017-08-25T13:59:07.000Z</published>
-    <updated>2017-08-26T01:49:33.000Z</updated>
+    <updated>2017-08-26T02:01:27.000Z</updated>
     
     <content type="html"><![CDATA[<ol>
-<li><p><a href="http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io" target="_blank" rel="external">优雅停机</a><br>dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：<br>服务提供方<br>· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。<br>· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。<br>服务消费方<br>· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。<br>· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。</p>
-</li>
-<li><p><a href="https://blog.risingstack.com/designing-microservices-architecture-for-failure?from=thomaslau.github.io" target="_blank" rel="external">Designing a Microservices Architecture for Failure</a>，这是译文版的<a href="https://segmentfault.com/a/1190000010799109?from=thomaslau.github.io" target="_blank" rel="external">设计一个容错的微服务架构</a>， infoq好像有类似，这里再推荐下。<br> Graceful Service Degradation, Change management, Health-check and Load Balancing, Self-healing, Failover Caching, Retry Logic, Rate Limiters and Load Shedders, Fail Fast and Independently, Bulkheads, Circuit Breakers, Testing for Failures.</p>
-</li>
-</ol>
-<p>Key Takeways<br>1.Dynamic environments and distributed systems - like microservices - lead to a higher chance of failures.<br>2.Services should fail separately, achieve graceful degradation to improve user experience.<br>3.70% of the outages are caused by changes, reverting code is not a bad thing.<br>Fail fast and independently. Teams have no control over their service dependencies.<br>4.Architectural patterns and techniques like caching, bulkheads, circuit breakers and rate-limiters help to build reliable microservices.</p>
-<ol>
+<li><a href="http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io" target="_blank" rel="external">优雅停机</a><br>dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：<br>服务提供方<br>· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。<br>· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。<br>服务消费方<br>· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。<br>· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。<a id="more"></a></li>
+<li><a href="https://blog.risingstack.com/designing-microservices-architecture-for-failure?from=thomaslau.github.io" target="_blank" rel="external">Designing a Microservices Architecture for Failure</a>，这是译文版的<a href="https://segmentfault.com/a/1190000010799109?from=thomaslau.github.io" target="_blank" rel="external">设计一个容错的微服务架构</a>， infoq好像有类似，这里再推荐下。<br>注意点: Graceful Service Degradation, Change management, Health-check and Load Balancing, Self-healing, Failover Caching, Retry Logic, Rate Limiters and Load Shedders, Fail Fast and Independently, Bulkheads, Circuit Breakers, Testing for Failures.<br>Key Takeways<br>1) Dynamic environments and distributed systems - like microservices - lead to a higher chance of failures.<br>2) Services should fail separately, achieve graceful degradation to improve user experience.<br>3) 70% of the outages are caused by changes, reverting code is not a bad thing.<br>Fail fast and independently. Teams have no control over their service dependencies.<br>4) Architectural patterns and techniques like caching, bulkheads, circuit breakers and rate-limiters help to build reliable microservices.</li>
 <li>grep递归查询<br>习惯用 find . -type f -exec grep -l ‘alvin’ {} \; 的可以试一试grep -rl alvin .<br>递归查询多个目录：grep -ril alvin /home/cato /htdocs/zenf</li>
-<li><a href="https://peadarcoyle.wordpress.com/2017/08/16/why-zalandos-tech-radar-sucks-as-a-stack/" target="_blank" rel="external">WHY ZALANDO’S TECH RADAR SUCKS AS A STACK
+<li><a href="https://peadarcoyle.wordpress.com/2017/08/16/why-zalandos-tech-radar-sucks-as-a-stack/" target="_blank" rel="external">WHY  ZALANDO’S  TECH  RADAR  SUCKS  AS  A  STACK
 </a></li>
-<li><a href="https://www.zhihu.com/question/30508773/answer/205831957" target="_blank" rel="external">反欺诈(Fraud Detection)中所用到的机器学习模型有哪些？</a>, 有点乱，不过有点参考意义。其实答案里提到的解法，看上去不论可视化或者异常检测对比，从描述来看，这都很依赖人工验证。</li>
-</ol>
-<p>8, <a href="http://blog.csdn.net/chdhust/article/details/77507453" target="_blank" rel="external">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</p>
-<ol>
-<li>飒然Hang的<a href="http://www.rowkey.me/blog/2017/08/24/arch/?from=thomaslau.github.io" target="_blank" rel="external">谈谈架构</a><br>核心／非核心架构，</li>
+<li><a href="https://www.zhihu.com/question/30508773/answer/205831957" target="_blank" rel="external">反欺诈(Fraud Detection)中所用到的机器学习模型有哪些？</a>, 有点乱，不过有点参考意义。其实答案里提到的解法，看上去不论可视化或者异常检测对比，从描述来看，这都很依赖人工验证。<br>6, <a href="http://blog.csdn.net/chdhust/article/details/77507453" target="_blank" rel="external">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</li>
+<li>飒然Hang的<a href="http://www.rowkey.me/blog/2017/08/24/arch/?from=thomaslau.github.io" target="_blank" rel="external">谈谈架构</a></li>
 <li>API设计，DDD，REST，CQRS<br><a href="http://blog.didispace.com/use-ddd-design-rest-api/" target="_blank" rel="external">http://blog.didispace.com/use-ddd-design-rest-api/</a><br><a href="http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/" target="_blank" rel="external">http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/</a></li>
 <li><a href="http://blog.didispace.com/spring-cloud-starter-dalston-6-1/" target="_blank" rel="external">Spring Cloud构建微服务架构：服务网关</a>, 算是初步了解下Spring Cloud.<br>文中因为权限带来状态，所以将权限认证放在API GateWay，其实这样gateway就不会有状态了吗?<br>而且，权限，面向具体业务还是通用的？比如内网限制／ip限制这里通用、用户只能更新自己数据这类business logic。</li>
 <li>最近看了Brew的时隔十多年的两篇CAP和Lynch的2002年的CAP证明，发觉他们其实描述的不是同一个东西，至少，他们对一种理论的约束条件定义不同，甚至对Patition tolerance定义也是不同。比如CAP在十多年里就引起许多争论，大多是对A／P理解不同，Brew两篇文章都没有清晰定义。<br>CAP存在的原因，其实就是工程师和理论派的差异的地方了，一个注重理解和实用，哪怕是靠记忆记住，即便是不完全的真理，另一个侧重证明。比如有专家发文为NoSQL没有实现一致性遗憾，比如有自称是CA的，但是后来经验证被认为是CA特性，但是极致情况下表现AP特性。<br>可以看看<a href="https://aphyr.com/tags/jepsen" target="_blank" rel="external">aphyr的jepson</a>系列，实用Jepson验证一些分布式系统。<br>后面会再写篇关于CAP的文章，先立个flag，天气原因，今天就先写到这里了。</li>
-<li>冯·诺伊曼关于拟合大象的比喻。<br><a href="https://www.quora.com/What-exactly-does-John-Von-Neumanns-quote-with-four-parameters-I-can-fit-an-elephant-with-five-I-can-make-him-wiggle-his-trunk-mean" target="_blank" rel="external">What exactly does John Von Neumann’s quote “with four parameters I can fit an elephant, with five I can make him wiggle his trunk” mean?</a><br>, <a href="https://www.johndcook.com/blog/2011/06/21/how-to-fit-an-elephant/" target="_blank" rel="external">How-to-fit-an-elephant/</a><br>以下摘录网上：<br>1953年春天，26岁即是康奈尔大学教授的戴森和自己的学生利用赝标介子理论计算了介子与质子的散射截面，得到了与费米的实验观测值十分相符的结果。喜不自禁的长途跋涉去告之费米，费米扫了一眼说，“有两种方式做理论物理学的计算。一种是我喜欢的，就是要对你正在计算的过程拥有一个清晰的物理图象。另一种是得到精确而且自洽的数学形式体系。这两者都是你的计算不具备的。”<br>戴森当时有点懵了，但他还是斗胆问费米，为什么他在计算中所采用的赝标介子理论算不上是自洽的数学形式体系。得到了简洁的解答之后，绝望的戴森又问费米对理论计算与实验测量结果的相符做何感想。费米反问道：“你们在计算过程中引入了多少个任意参数？”戴森回答说四个。于是费米讲了一句日后很著名的话：“<strong>我记得我的朋友约翰·冯·诺依曼（John von Neumann）曾经说过，用四个参数我可以拟合出一头大象，而用五个参数我可以让它的鼻子摆动。</strong>”对话结束了，沮丧的戴森赶回康奈尔大学，向自己的学生告知了费米的意见。尽管他们决定还是把手头的计算做完并发表，但达成共识：这个工作之后就转换研究方向。<h2 id="故事可能是搞笑成分居多，甚至2010年6月，Jurgen-Mayer也发表了题为“用四个复参数画出一头大象”的有点戏谑的论文。"><a href="#故事可能是搞笑成分居多，甚至2010年6月，Jurgen-Mayer也发表了题为“用四个复参数画出一头大象”的有点戏谑的论文。" class="headerlink" title="故事可能是搞笑成分居多，甚至2010年6月，Jurgen Mayer也发表了题为“用四个复参数画出一头大象”的有点戏谑的论文。"></a>故事可能是搞笑成分居多，甚至2010年6月，Jurgen Mayer也发表了题为“<a href="https://publications.mpi-cbg.de/Mayer_2010_4314.pdf" target="_blank" rel="external">用四个复参数画出一头大象</a>”的有点戏谑的论文。</h2>其实有些理论参数最多达二十几，但是太多参数限制了理论的自由度，不论是从理论分析还是实践，简洁其实是最好的选择。自爱因斯坦玻尔海森堡等黄金时代科学家那一代，费米／奥本海默等是少有的理论和实验均有造诣，他们都参与了原子弹的研发，此后估计物理学理论和实验<a href="http://blog.sciencenet.cn/blog-3779-803730.html" target="_blank" rel="external">似乎走上了不同的道路</a>。<br><a href="http://blog.sciencenet.cn/blog-3779-1071332.html" target="_blank" rel="external">http://blog.sciencenet.cn/blog-3779-1071332.html</a></li>
-</ol>
-<p>这里也有一个<a href="http://www.wolframalpha.com/input/?i=elephant+curve&amp;lk=1&amp;a=ClashPrefs_*PlaneCurve.ElephantCurve-" target="_blank" rel="external">wolframalpha版本的大象拟合</a>, 有兴趣可以输入 heart curve看看，在马上到来的七夕之前，Matrix67也有文章描述怎么画一个breoken heart curve。<br><img alt="Elephant Curve" src="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41" width="480" data-file-width="480" data-file-height="409"></p>
-<p>来源：<a href="https://en.wikiquote.org/wiki/John_von_Neumann" target="_blank" rel="external">wikiquote John_von_Neumann</a></p>
-<ol>
-<li>摘自月光的blog：<br>布林和佩奇到了中国后，在访问百度公司时，百度总裁李彦宏邀请他们吃Subway三明治，布林和佩奇拒绝了。<br>Google中文域名的前期准备活动正在有条不紊的进行之中，直到2005年5月7号，一份意料之外的电子邮件飞进了埃里克·施密特（Eric Schmidt）收件箱中。这份邮件来自微软一位名叫李开复的计算机专家兼高层。“我已经听说Google正准备进军中国市场。”他在邮件中写道：“我想告诉你的是，如果Google真有意在华大干一番，我会有兴趣跟你谈谈。”<br>。。。<br>2009年6月，新出现的问题牵涉到Google搜索建议（Google Suggest），用户在搜索框中输入一两个词字时，就立即显示完整的搜索关键词。Google搜索团队意识到中文用户因嫌打字麻烦通常只会在搜索框中输入一些短的关键词，这一创新功能最初就是针对此问题在中国开发出来的，最后才在全球范围应用开来。但中国官方发现令其不安的内容，搜索建议提供的一些内容与色情有关。<br>2010年3月，Google粉丝在中国总部门前的Google标志边上点亮蜡烛，留下鲜花和卡片，写下祝福的话语。<br>对于Google中国的雇员，这天让人终身难忘。他们中没有人事先到消息。大卫在北京时间上午6点的时候发布了公告。北京和上海的不少Googler都是在同事叫醒他们后，才第一次听到这条消息的。员工涌入办公室，一脸地惊讶。那天下午，Google告诉所有雇员不用上班，给他们发电影片去看《阿凡达》。第二天，所有人都聚集在咖啡厅，与布林以及其他高管开电话会议，几位高管在会议上试图解释Google这样做的原因。这并非易事。Google的新任政府公关负责人朱莉·朱对员工和海外高层做了一次感性的陈词。山景城的高层犹如是战场上抛弃了自己士兵的将军。她争辩道，你们不应该放弃，你们应该继续战斗下。<br>李开复称，如果眼光放长点（20年或30年后）看中国，中国无疑会变得越来越开放。Google撤出大陆的决定只是这一进程的插曲，此次事件的导火索主要是由于中国领导人已经退到底线了。“不出两年的时间，下一代将走上舞台。”李开复说。“他们更年轻，更进步，许多受过美国的教育。许多在商界工作，掌管银行业——他们会变得更加开放。”</li>
+<li><p>冯·诺伊曼关于拟合大象的比喻。<br><a href="https://www.quora.com/What-exactly-does-John-Von-Neumanns-quote-with-four-parameters-I-can-fit-an-elephant-with-five-I-can-make-him-wiggle-his-trunk-mean" target="_blank" rel="external">What exactly does John Von Neumann’s quote “with four parameters I can fit an elephant, with five I can make him wiggle his trunk” mean?</a>, <a href="https://www.johndcook.com/blog/2011/06/21/how-to-fit-an-elephant/" target="_blank" rel="external">How-to-fit-an-elephant/</a><br>以下摘录网上：<br>1953年春天，26岁即是康奈尔大学教授的戴森和自己的学生利用赝标介子理论计算了介子与质子的散射截面，得到了与费米的实验观测值十分相符的结果。喜不自禁的长途跋涉去告之费米，费米扫了一眼说，“有两种方式做理论物理学的计算。一种是我喜欢的，就是要对你正在计算的过程拥有一个清晰的物理图象。另一种是得到精确而且自洽的数学形式体系。这两者都是你的计算不具备的。”<br>戴森当时有点懵了，但他还是斗胆问费米，为什么他在计算中所采用的赝标介子理论算不上是自洽的数学形式体系。得到了简洁的解答之后，绝望的戴森又问费米对理论计算与实验测量结果的相符做何感想。费米反问道：“你们在计算过程中引入了多少个任意参数？”戴森回答说四个。于是费米讲了一句日后很著名的话：“<strong>我记得我的朋友约翰·冯·诺依曼（John von Neumann）曾经说过，用四个参数我可以拟合出一头大象，而用五个参数我可以让它的鼻子摆动。</strong>”对话结束了，沮丧的戴森赶回康奈尔大学，向自己的学生告知了费米的意见。尽管他们决定还是把手头的计算做完并发表，但达成共识：这个工作之后就转换研究方向。</p>
+<p>故事可能是搞笑成分居多，甚至2010年6月，Jurgen Mayer也发表了题为“<a href="https://publications.mpi-cbg.de/Mayer_2010_4314.pdf" target="_blank" rel="external">用四个复参数画出一头大象</a>”的有点戏谑的论文。<br>其实有些理论参数最多达二十几，但是太多参数限制了理论的自由度，不论是从理论分析还是实践，简洁是最好的选择。自爱因斯坦玻尔海森堡等黄金时代科学家那一代，费米／奥本海默等是少有的理论和实验均有造诣，他们都参与了原子弹的研发，此后估计物理学理论和实验<a href="http://blog.sciencenet.cn/blog-3779-803730.html" target="_blank" rel="external">似乎走上了不同的道路</a>。<br><a href="http://blog.sciencenet.cn/blog-3779-1071332.html" target="_blank" rel="external">http://blog.sciencenet.cn/blog-3779-1071332.html</a><br>这里也有一个<a href="http://www.wolframalpha.com/input/?i=elephant+curve&amp;lk=1&amp;a=ClashPrefs_*PlaneCurve.ElephantCurve-" target="_blank" rel="external">wolframalpha版本的大象拟合</a>, 有兴趣可以输入 heart curve看看，在马上到来的七夕之前. Matrix67也有文章描述怎么画一个breoken heart curve。<br><img alt="Elephant Curve" src="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41" width="480" data-file-width="480" data-file-height="409"><br>来源：<a href="https://en.wikiquote.org/wiki/John_von_Neumann" target="_blank" rel="external">wikiquote John_von_Neumann</a></p>
+</li>
+<li>摘自月光的blog：<br>布林和佩奇到了中国后，在访问百度公司时，李彦宏邀请他们吃Subway三明治，布林和佩奇拒绝了。<br>Google中文域名的前期准备活动正在有条不紊的进行之中，直到2005年5月7号，一份意料之外的电子邮件飞进了埃里克·施密特（Eric Schmidt）收件箱中。这份邮件来自微软一位名叫李开复的计算机专家兼高层。“我已经听说Google正准备进军中国市场。”他在邮件中写道：“我想告诉你的是，如果Google真有意在华大干一番，我会有兴趣跟你谈谈。”<br>。。。<br>2009年6月，新出现的问题牵涉到Google搜索建议（Google Suggest），用户在搜索框中输入一两个词字时，就立即显示完整的搜索关键词。Google搜索团队意识到中文用户因嫌打字麻烦通常只会在搜索框中输入一些短的关键词，这一创新功能最初就是针对此问题在中国开发出来的，最后才在全球范围应用开来。但中国官方发现令其不安的内容，搜索建议提供的一些内容与色情有关。<br>2010年3月，粉丝在中国总部门前的Google标志边上点亮蜡烛，留下鲜花和卡片，写下祝福话语。<br>对于Google中国的雇员，这天让人终身难忘。他们中没有人事先到消息。大卫在北京时间上午6点的时候发布了公告。北京和上海的不少Googler都是在同事叫醒他们后，才第一次听到这条消息的。员工涌入办公室，一脸地惊讶。那天下午，Google告诉所有雇员不用上班，给他们发电影片去看《阿凡达》。第二天，所有人都聚集在咖啡厅，与布林以及其他高管开电话会议，几位高管在会议上试图解释Google这样做的原因。这并非易事。Google的新任政府公关负责人朱莉·朱对员工和海外高层做了一次感性的陈词。山景城的高层犹如是战场上抛弃了自己士兵的将军。她争辩道，你们不应该放弃，你们应该继续战斗下。<br>李开复称，如果眼光放长点（20年或30年后）看中国，中国无疑会变得越来越开放。Google撤出大陆的决定只是这一进程的插曲，此次事件的导火索主要是由于中国领导人已经退到底线了。“不出两年的时间，下一代将走上舞台。”李开复说。“他们更年轻，更进步，许多受过美国的教育。许多在商界工作，掌管银行业——他们会变得更加开放。”</li>
 </ol>
 ]]></content>
     
     <summary type="html">
     
       &lt;ol&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&quot;http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;优雅停机&lt;/a&gt;&lt;br&gt;dubbo原
+&lt;li&gt;&lt;a href=&quot;http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;优雅停机&lt;/a&gt;&lt;br&gt;dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：&lt;br&gt;服务提供方&lt;br&gt;· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。&lt;br&gt;· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。&lt;br&gt;服务消费方&lt;br&gt;· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。&lt;br&gt;· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。
     
     </summary>
     
@@ -551,9 +541,9 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
-      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
-    
       <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
+    
+      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
     
   </entry>
   
@@ -617,35 +607,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
   </entry>
   
   <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
-
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
     <title>翻墙_二三事</title>
     <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
     <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
@@ -673,6 +634,35 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
     
     
       <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
+    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
+    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
+    <published>2015-02-04T03:01:07.000Z</published>
+    <updated>2017-06-16T05:07:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
+<p>原文戳上面的链接，这里摘录：</p>
+<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
+
+When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
+    
+      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
     
   </entry>
   
