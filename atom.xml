@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-08-26T02:17:03.000Z</updated>
+  <updated>2017-08-26T02:25:23.000Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -17,10 +17,10 @@
   
   <entry>
     <title>Weekly Reading 170825</title>
-    <link href="http://thomaslau.github.io/2017/08/25/2017-08-26-weekly_reading/"/>
-    <id>http://thomaslau.github.io/2017/08/25/2017-08-26-weekly_reading/</id>
-    <published>2017-08-25T13:59:07.000Z</published>
-    <updated>2017-08-26T02:17:03.000Z</updated>
+    <link href="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading/"/>
+    <id>http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading/</id>
+    <published>2017-08-26T02:29:07.000Z</published>
+    <updated>2017-08-26T02:25:23.000Z</updated>
     
     <content type="html"><![CDATA[<ol>
 <li><a href="http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io" target="_blank" rel="external">优雅停机</a><br>dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：<br>服务提供方<br>· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。<br>· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。<br>服务消费方<br>· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。<br>· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。<a id="more"></a></li>
@@ -32,7 +32,7 @@
 <li><a href="http://blog.csdn.net/chdhust/article/details/77507453" target="_blank" rel="external">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</li>
 <li>飒然Hang的<a href="http://www.rowkey.me/blog/2017/08/24/arch/?from=thomaslau.github.io" target="_blank" rel="external">谈谈架构</a></li>
 <li>API设计，DDD，REST，CQRS<br><a href="http://blog.didispace.com/use-ddd-design-rest-api/" target="_blank" rel="external">http://blog.didispace.com/use-ddd-design-rest-api/</a><br><a href="http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/" target="_blank" rel="external">http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/</a></li>
-<li><a href="http://blog.didispace.com/spring-cloud-starter-dalston-6-1/" target="_blank" rel="external">Spring Cloud构建微服务架构：服务网关</a>, 算是初步了解下Spring Cloud.<br>文中因为权限带来状态，所以将权限认证放在API GateWay，其实这样gateway就不会有状态了吗?<br>而且，权限，面向具体业务还是通用的？比如内网限制／ip限制这里通用、用户只能更新自己数据这类business logic。</li>
+<li><a href="http://blog.didispace.com/spring-cloud-starter-dalston-6-1/" target="_blank" rel="external">Spring Cloud构建微服务架构：服务网关</a>, 算是初步了解下Spring Cloud.<br>文中因为权限带来状态，所以将权限认证放在API GateWay，其实这样gateway也会有状态的。<br>而且，权限，面向具体服务还是整个系统通用，比如内网限制／ip限制这里通用、用户只能更新自己数据这类business logic。</li>
 <li>最近看了Brew的时隔十多年的两篇CAP和Lynch的2002年的CAP证明，发觉他们其实描述的不是同一个东西，至少，他们对一种理论的约束条件定义不同，甚至对Patition tolerance定义也是不同。比如CAP在十多年里就引起许多争论，大多是对A／P理解不同，Brew两篇文章都没有清晰定义。<br>CAP存在的原因，其实就是工程师和理论派的差异的地方了，一个注重理解和实用，哪怕是靠记忆记住，即便是不完全的真理，另一个侧重证明。比如有专家发文为NoSQL没有实现一致性遗憾，比如有自称是CA的，但是后来经验证被认为是CA特性，但是极致情况下表现AP特性。<br>可以看看<a href="https://aphyr.com/tags/jepsen" target="_blank" rel="external">aphyr的jepson</a>系列，实用Jepson验证一些分布式系统。<br>后面会再写篇关于CAP的文章，先立个flag，天气原因，今天就先写到这里了。</li>
 <li><p>冯·诺伊曼关于拟合大象的比喻。<br><a href="https://www.quora.com/What-exactly-does-John-Von-Neumanns-quote-with-four-parameters-I-can-fit-an-elephant-with-five-I-can-make-him-wiggle-his-trunk-mean" target="_blank" rel="external">What exactly does John Von Neumann’s quote “with four parameters I can fit an elephant, with five I can make him wiggle his trunk” mean?</a>, <a href="https://www.johndcook.com/blog/2011/06/21/how-to-fit-an-elephant/" target="_blank" rel="external">How-to-fit-an-elephant/</a><br>以下摘录网上：<br>1953年春天，26岁即是康奈尔大学教授的戴森和自己的学生利用赝标介子理论计算了介子与质子的散射截面，得到了与费米的实验观测值十分相符的结果。喜不自禁的长途跋涉去告之费米，费米扫了一眼说，“有两种方式做理论物理学的计算。一种是我喜欢的，就是要对你正在计算的过程拥有一个清晰的物理图象。另一种是得到精确而且自洽的数学形式体系。这两者都是你的计算不具备的。”<br>戴森当时有点懵了，但他还是斗胆问费米，为什么他在计算中所采用的赝标介子理论算不上是自洽的数学形式体系。得到了简洁的解答之后，绝望的戴森又问费米对理论计算与实验测量结果的相符做何感想。费米反问道：“你们在计算过程中引入了多少个任意参数？”戴森回答说四个。于是费米讲了一句日后很著名的话：“<strong>我记得我的朋友约翰·冯·诺依曼（John von Neumann）曾经说过，用四个参数我可以拟合出一头大象，而用五个参数我可以让它的鼻子摆动。</strong>”对话结束了，沮丧的戴森赶回康奈尔大学，向自己的学生告知了费米的意见。尽管他们决定还是把手头的计算做完并发表，但达成共识：这个工作之后就转换研究方向。</p>
 <p>故事可能是搞笑成分居多，甚至2010年6月，Jurgen Mayer也发表了题为“<a href="https://publications.mpi-cbg.de/Mayer_2010_4314.pdf" target="_blank" rel="external">用四个复参数画出一头大象</a>”的有点戏谑的论文。<br>其实有些理论参数最多达二十几，但是太多参数限制了理论的自由度，不论是从理论分析还是实践，简洁是最好的选择。自爱因斯坦玻尔海森堡等黄金时代科学家那一代，费米／奥本海默等是少有的理论和实验均有造诣，他们都参与了原子弹的研发，此后估计物理学理论和实验<a href="http://blog.sciencenet.cn/blog-3779-803730.html" target="_blank" rel="external">似乎走上了不同的道路</a>。<br><a href="http://blog.sciencenet.cn/blog-3779-1071332.html" target="_blank" rel="external">http://blog.sciencenet.cn/blog-3779-1071332.html</a><br>这里也有一个<a href="http://www.wolframalpha.com/input/?i=elephant+curve&amp;lk=1&amp;a=ClashPrefs_*PlaneCurve.ElephantCurve-" target="_blank" rel="external">wolframalpha版本的大象拟合</a>, 有兴趣可以输入 heart curve看看，在马上到来的七夕之前. Matrix67也有文章描述怎么画一个breoken heart curve。<br><img alt="Elephant Curve" src="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41" width="480" data-file-width="480" data-file-height="409"><br>来源：<a href="https://en.wikiquote.org/wiki/John_von_Neumann" target="_blank" rel="external">wikiquote John_von_Neumann</a></p>
@@ -542,9 +542,9 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
-      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
-    
       <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
+    
+      <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
     
   </entry>
   
