@@ -102,7 +102,7 @@
 <meta property="og:description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41">
-<meta property="og:updated_time" content="2017-08-26T02:01:27.000Z">
+<meta property="og:updated_time" content="2017-08-26T02:17:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weekly Reading 170825">
 <meta name="twitter:description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
@@ -339,7 +339,8 @@
 <li>grep递归查询<br>习惯用 find . -type f -exec grep -l ‘alvin’ {} \; 的可以试一试grep -rl alvin .<br>递归查询多个目录：grep -ril alvin /home/cato /htdocs/zenf</li>
 <li><a href="https://peadarcoyle.wordpress.com/2017/08/16/why-zalandos-tech-radar-sucks-as-a-stack/" target="_blank" rel="external">WHY  ZALANDO’S  TECH  RADAR  SUCKS  AS  A  STACK
 </a></li>
-<li><a href="https://www.zhihu.com/question/30508773/answer/205831957" target="_blank" rel="external">反欺诈(Fraud Detection)中所用到的机器学习模型有哪些？</a>, 有点乱，不过有点参考意义。其实答案里提到的解法，看上去不论可视化或者异常检测对比，从描述来看，这都很依赖人工验证。<br>6, <a href="http://blog.csdn.net/chdhust/article/details/77507453" target="_blank" rel="external">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</li>
+<li><a href="https://www.zhihu.com/question/30508773/answer/205831957" target="_blank" rel="external">反欺诈(Fraud Detection)中所用到的机器学习模型有哪些？</a>, 有点乱，不过有点参考意义。其实答案里提到的解法，看上去不论可视化或者异常检测对比，从描述来看，这都很依赖人工验证。</li>
+<li><a href="http://blog.csdn.net/chdhust/article/details/77507453" target="_blank" rel="external">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</li>
 <li>飒然Hang的<a href="http://www.rowkey.me/blog/2017/08/24/arch/?from=thomaslau.github.io" target="_blank" rel="external">谈谈架构</a></li>
 <li>API设计，DDD，REST，CQRS<br><a href="http://blog.didispace.com/use-ddd-design-rest-api/" target="_blank" rel="external">http://blog.didispace.com/use-ddd-design-rest-api/</a><br><a href="http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/" target="_blank" rel="external">http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/</a></li>
 <li><a href="http://blog.didispace.com/spring-cloud-starter-dalston-6-1/" target="_blank" rel="external">Spring Cloud构建微服务架构：服务网关</a>, 算是初步了解下Spring Cloud.<br>文中因为权限带来状态，所以将权限认证放在API GateWay，其实这样gateway就不会有状态了吗?<br>而且，权限，面向具体业务还是通用的？比如内网限制／ip限制这里通用、用户只能更新自己数据这类business logic。</li>
