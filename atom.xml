@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-09-10T17:16:16.000Z</updated>
+  <updated>2017-09-10T17:18:39.000Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://thomaslau.github.io/2017/09/10/2017-09-10-weekly_reading/"/>
     <id>http://thomaslau.github.io/2017/09/10/2017-09-10-weekly_reading/</id>
     <published>2017-09-10T15:29:07.000Z</published>
-    <updated>2017-09-10T17:16:16.000Z</updated>
+    <updated>2017-09-10T17:18:39.000Z</updated>
     
     <content type="html"><![CDATA[<p>很久没有更新了，最近比较忙。<br>今天刚好是第33个教师节，怀念因吾逃课多次而气哭却依旧对我苦口婆心谆谆教诲到毕业的高二高三班主任。可惜花无重开日，人无再少年。当爱因斯坦霍金这些天才的头脑思考想象时间之箭逆向的时候，凡夫俗子只能哀叹滚滚长江东逝水，但将白发唱黄鸡？<br>所以，第一个链接附上：邓晓芒的<a href="http://mp.weixin.qq.com/s?timestamp=1505063081&amp;src=3&amp;ver=1&amp;signature=Kp1HJzKUfeq7wGa63hXCrde4tCeSDbO9Wdak7eBQqoGKE1BA*cI01Bjlx-Lsw9UNXfO8eyDCdX5iNjtKIjSizZijosJN*8kUz0weBrkuCygcRhN70SlFPgJDD6i5Z*X9rJdeH7xTToGslS7MIUfDpBKNiLgTLPhr2WTLWKwZOQ4=" target="_blank" rel="external">邓晓芒：我的恩师修斋先生</a><br><a id="more"></a><br>-1，<br>不知道何时知道邓晓芒，但是却是自他和刘小枫一段论战时候开始关注。之前因为刘小枫主编很多非常好的系列著作而青睐，至邓后，方知大师。</p>
 <p>下面只附上链接，懒癌复发，提笔忘词，故草草了之了。<br>0，<br><a href="https://stackoverflow.com/questions/3222895/what-is-the-issue-with-the-runtime-discovery-algorithm-of-apache-commons-logging" target="_blank" rel="external">https://stackoverflow.com/questions/3222895/what-is-the-issue-with-the-runtime-discovery-algorithm-of-apache-commons-logging</a></p>
@@ -50,16 +50,9 @@
 <p>22。 <a href="https://www.ziwenxie.site/2017/01/02/unix-network-programming-asynchronous/" target="_blank" rel="external">https://www.ziwenxie.site/2017/01/02/unix-network-programming-asynchronous/</a><br>阻塞式IO(默认)，非阻塞式IO(nonblock)，IO复用(select/poll/epoll)，signal driven IO(信号驱动IO)都是属于同步型IO，因为在第二个阶段: 从内核空间拷贝数据到程序空间的时候不能干别的事。只有异步I/O模型(AIO)才是符合我们上面对于异步型IO操作的含义，在1.wait for data，2.copy data from kernel to user，这两个等待/接收数据的时间段内进程可以干其他的事情，只要等着被通知就可以了。<br>select/poll/epoll<br>即使现在的各个Linux版本普遍引入了copy on write和线程，但实际上进程/线程之间的切换依然还是一笔很大的开销，这个时候我们可以考虑使用上面提到到多路IO复用，回顾一下我们上面提到的多路IO复用模型的基本原理：一个进程可以监视多个文件描述符，一旦某个文件描述符就绪（读/写准备就绪），能够信号通知程序进行相应的读写操作。下面我们就来简单的看一下多路IO复用的三种方式。<br>select<br>int select (int maxfdp1, fd_set <em>readset, fd_set </em>writeset, fd_set <em>exceptset,<br>            const struct timeval </em>timeout);<br>如上面的方法声明所示, select监听三类描述符: readset(读), writeset(写), exceptset(异常), 我们编程的时候可以制定这三个参数监听对应的文件描述符。正如前面提到的,select调用后进程会阻塞, 当select返回后，可以通过遍历fdset，来找到就绪的描述符。<br>select优点在于它的跨平台，但是也有显著的缺点单个进程能够监视的文件描述符的数量存在最大限制，默认设置为1024/2048，虽然设置可以超过这一限制，但是这样也可能会造成效率的降低。而且select扫描的时候也是采用的轮循，算法复杂度为O(n)，这在fdset很多时效率会较低。<br>下面总结一下select的三个缺点，在下面我们来看epool是如何解决这些缺点的：<br>每次调用select，都需要将fd_set从用户态拷贝到内核态。<br>每次调用select都要在内核遍历所有传递过来的fd_set看哪些描述已经准备就绪。<br>select有1024的容量限制。<br>poll<br>int poll (struct pollfd <em>fdarray, unsigned long nfds, int timeout);<br>poll和select并没有太大的区别，但是它是基于链表实现的所以并没有最大数量限制，它将用户传入的数据拷贝到内核空间，然后查询每个fd对应的设备状态，如果设备就绪则在设备等待队列中加入一项并继续遍历，如果遍历完所有fd后没有发现就绪设备，则挂起当前进程，直到设备就绪或者主动超时，被唤醒后它又要再次遍历fd。这个过程经历了多次的遍历。算法复杂度也是O(n)。<br>epoll<br>int epoll_create(int size);<br>int epoll_ctl(int epfd, int op, int fd, struct epoll_event </em>event);<br>int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout);<br>select和poll都只提供了一个函数。而epoll提供了三个函数: epoll_create是创建一个epoll句柄, epoll_ctl是注册要监听的事件类型, epoll_wait则是等待事件的产生。与select相比，epoll几乎没有描述符限制(cat /proc/sys/fs/file-max可查看)。它采用一个文件描述符管理多个描述符，将用户的文件描述符的事件存放到kernel的一个事件表中，这样在程序空间和内核空间的只要做一次拷贝。它去掉了遍历文件描述符这一步骤，采用更加先进的回调(callback)机制，算法复杂度降到了O(1)。p.s: 虽然表面看起来epoll非常好，但是对于连接数少并且连接都十分活跃的情况下，select和poll的性能可能比epoll好，因为epoll是建立在大量的函数回调的基础之上。<br>下面我们来总结一下epoll是如何解决select的三个缺点的：<br>在epoll_ctl每次注册事件到epoll句柄的时候，会将fd拷贝到内核中，保证了每个fd在整个过程中只会拷贝一次。<br>对于第二缺点，epool_ctl为每个fd指定一个回调函数，当设备就绪，就会调用这个回调函数，而这个回调函数会把准备就绪的fd加入一个就绪链表，而不用像select那样去重新遍历一次看有哪些准备就绪的文件描述符。<br>对于第三个缺点，我们上面已经提及到了，epoll几乎没有容量限制，可以通过cat /proc/sys/fs/file-max来查看。</p>
 <p>23.<br><a href="http://lovestblog.cn/blog/2015/05/12/direct-buffer/" target="_blank" rel="external">http://lovestblog.cn/blog/2015/05/12/direct-buffer/</a></p>
 <p>24。<br><a href="https://shipilev.net/jvm-anatomy-park/2-transparent-huge-pages/" target="_blank" rel="external">https://shipilev.net/jvm-anatomy-park/2-transparent-huge-pages/</a></p>
-<ol>
-<li>Translation Lookaside Buffer：TLB<br><a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E8%AD%AF%E5%BE%8C%E5%82%99%E7%B7%A9%E8%A1%9D%E5%8D%80" target="_blank" rel="external">https://zh.wikipedia.org/wiki/%E8%BD%89%E8%AD%AF%E5%BE%8C%E5%82%99%E7%B7%A9%E8%A1%9D%E5%8D%80</a><br><a href="https://baike.baidu.com/item/TLB" target="_blank" rel="external">https://baike.baidu.com/item/TLB</a></li>
-</ol>
-<p>26<br><a href="http://blog.csdn.net/dm_vincent/article/details/76735888" target="_blank" rel="external">http://blog.csdn.net/dm_vincent/article/details/76735888</a><br>本文分析了Spring Boot启动时的关键步骤，主要包含以下两个方面：<br>SpringApplication实例的构建过程<br>其中主要涉及到了初始化器(Initializer)以及监听器(Listener)这两大概念，它们都通过META-INF/spring.factories完成定义。<br>SpringApplication实例run方法的执行过程<br>其中主要有一个SpringApplicationRunListeners的概念，它作为Spring Boot容器初始化时各阶段事件的中转器，将事件派发给感兴趣的Listeners(在SpringApplication实例的构建过程中得到的)。这些阶段性事件将容器的初始化过程给构造起来，提供了比较强大的可扩展性。<br>如果从可扩展性的角度出发，应用开发者可以在Spring Boot容器的启动阶段，扩展哪些内容呢：<br>初始化器(Initializer)<br>监听器(Listener)<br>容器刷新后置Runners(ApplicationRunner或者CommandLineRunner接口的实现类)<br>启动期间在Console打印Banner的具体实现类</p>
-<ol>
-<li>MySQL索引<br><a href="https://www.kancloud.cn/kancloud/mysql-design-reference/47425" target="_blank" rel="external">https://www.kancloud.cn/kancloud/mysql-design-reference/47425</a><br>28.<br><a href="https://www.confluent.io/blog/publishing-apache-kafka-new-york-times/?utm_source=wanqu.co&amp;utm_campaign=Wanqu+Daily&amp;utm_medium=website" target="_blank" rel="external">https://www.confluent.io/blog/publishing-apache-kafka-new-york-times/?utm_source=wanqu.co&amp;utm_campaign=Wanqu+Daily&amp;utm_medium=website</a><br>29.<br><a href="http://www.baeldung.com/java-stream-indices" target="_blank" rel="external">http://www.baeldung.com/java-stream-indices</a></li>
-<li>Spring Boot实现自动配置的基础<br><a href="http://blog.csdn.net/dm_vincent/article/details/77435515" target="_blank" rel="external">http://blog.csdn.net/dm_vincent/article/details/77435515</a><br>31.百度开源项目推荐<br><a href="http://itindex.net/detail/57429-%E7%99%BE%E5%BA%A6-%E5%BC%80%E6%BA%90-%E9%A1%B9%E7%9B%AE" target="_blank" rel="external">http://itindex.net/detail/57429-%E7%99%BE%E5%BA%A6-%E5%BC%80%E6%BA%90-%E9%A1%B9%E7%9B%AE</a><br>32.<br>Lucene’s near-real-time segment index replication<br><a href="http://blog.mikemccandless.com/2017/09/lucenes-near-real-time-segment-index.html" target="_blank" rel="external">http://blog.mikemccandless.com/2017/09/lucenes-near-real-time-segment-index.html</a><br>33.<br>不使用synchronized和lock，如何实现一个线程安全的单例？<br><a href="http://www.hollischuang.com/archives/1860" target="_blank" rel="external">http://www.hollischuang.com/archives/1860</a></li>
-<li>reddit搜索简史<br><a href="https://redditblog.com/2017/09/07/the-search-for-better-search-at-reddit/" target="_blank" rel="external">https://redditblog.com/2017/09/07/the-search-for-better-search-at-reddit/</a><br>35.<br>分布式学习资源list Resources for Getting Started with Distributed Systems<br><a href="https://caitiem.com/2017/09/07/getting-started-with-distributed-systems/" target="_blank" rel="external">https://caitiem.com/2017/09/07/getting-started-with-distributed-systems/</a></li>
-<li><a href="http://www.cakesolutions.net/teamblogs/scalameta-tut-cache" target="_blank" rel="external">http://www.cakesolutions.net/teamblogs/scalameta-tut-cache</a></li>
-</ol>
+<p>25.<br>Translation Lookaside Buffer：TLB<br><a href="https://zh.wikipedia.org/wiki/%E8%BD%89%E8%AD%AF%E5%BE%8C%E5%82%99%E7%B7%A9%E8%A1%9D%E5%8D%80" target="_blank" rel="external">https://zh.wikipedia.org/wiki/%E8%BD%89%E8%AD%AF%E5%BE%8C%E5%82%99%E7%B7%A9%E8%A1%9D%E5%8D%80</a><br><a href="https://baike.baidu.com/item/TLB" target="_blank" rel="external">https://baike.baidu.com/item/TLB</a></p>
+<p>26.<br><a href="http://blog.csdn.net/dm_vincent/article/details/76735888" target="_blank" rel="external">http://blog.csdn.net/dm_vincent/article/details/76735888</a><br>本文分析了Spring Boot启动时的关键步骤，主要包含以下两个方面：<br>SpringApplication实例的构建过程<br>其中主要涉及到了初始化器(Initializer)以及监听器(Listener)这两大概念，它们都通过META-INF/spring.factories完成定义。<br>SpringApplication实例run方法的执行过程<br>其中主要有一个SpringApplicationRunListeners的概念，它作为Spring Boot容器初始化时各阶段事件的中转器，将事件派发给感兴趣的Listeners(在SpringApplication实例的构建过程中得到的)。这些阶段性事件将容器的初始化过程给构造起来，提供了比较强大的可扩展性。<br>如果从可扩展性的角度出发，应用开发者可以在Spring Boot容器的启动阶段，扩展哪些内容呢：<br>初始化器(Initializer)<br>监听器(Listener)<br>容器刷新后置Runners(ApplicationRunner或者CommandLineRunner接口的实现类)<br>启动期间在Console打印Banner的具体实现类</p>
+<p>27.<br>MySQL索引<br><a href="https://www.kancloud.cn/kancloud/mysql-design-reference/47425" target="_blank" rel="external">https://www.kancloud.cn/kancloud/mysql-design-reference/47425</a><br>28.<br><a href="https://www.confluent.io/blog/publishing-apache-kafka-new-york-times/?utm_source=wanqu.co&amp;utm_campaign=Wanqu+Daily&amp;utm_medium=website" target="_blank" rel="external">https://www.confluent.io/blog/publishing-apache-kafka-new-york-times/?utm_source=wanqu.co&amp;utm_campaign=Wanqu+Daily&amp;utm_medium=website</a><br>29.<br><a href="http://www.baeldung.com/java-stream-indices" target="_blank" rel="external">http://www.baeldung.com/java-stream-indices</a><br>30.<br>Spring Boot实现自动配置的基础<br><a href="http://blog.csdn.net/dm_vincent/article/details/77435515" target="_blank" rel="external">http://blog.csdn.net/dm_vincent/article/details/77435515</a><br>31.<br>百度开源项目推荐<br><a href="http://itindex.net/detail/57429-%E7%99%BE%E5%BA%A6-%E5%BC%80%E6%BA%90-%E9%A1%B9%E7%9B%AE" target="_blank" rel="external">http://itindex.net/detail/57429-%E7%99%BE%E5%BA%A6-%E5%BC%80%E6%BA%90-%E9%A1%B9%E7%9B%AE</a><br>32.<br>Lucene’s near-real-time segment index replication<br><a href="http://blog.mikemccandless.com/2017/09/lucenes-near-real-time-segment-index.html" target="_blank" rel="external">http://blog.mikemccandless.com/2017/09/lucenes-near-real-time-segment-index.html</a><br>33.<br>不使用synchronized和lock，如何实现一个线程安全的单例？<br><a href="http://www.hollischuang.com/archives/1860" target="_blank" rel="external">http://www.hollischuang.com/archives/1860</a><br>34.<br>reddit搜索简史<br><a href="https://redditblog.com/2017/09/07/the-search-for-better-search-at-reddit/" target="_blank" rel="external">https://redditblog.com/2017/09/07/the-search-for-better-search-at-reddit/</a><br>35.<br>分布式学习资源list Resources for Getting Started with Distributed Systems<br><a href="https://caitiem.com/2017/09/07/getting-started-with-distributed-systems/" target="_blank" rel="external">https://caitiem.com/2017/09/07/getting-started-with-distributed-systems/</a><br>36.<br><a href="http://www.cakesolutions.net/teamblogs/scalameta-tut-cache" target="_blank" rel="external">http://www.cakesolutions.net/teamblogs/scalameta-tut-cache</a></p>
 ]]></content>
     
     <summary type="html">
@@ -602,9 +595,9 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
     
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
-      <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
-    
       <category term="Eclipse" scheme="http://thomaslau.github.io/tags/Eclipse/"/>
+    
+      <category term="JVM" scheme="http://thomaslau.github.io/tags/JVM/"/>
     
   </entry>
   
@@ -762,28 +755,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
   </entry>
   
   <entry>
-    <title>先秦古文一篇《谏逐客书》</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:09.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
-<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
     <title>记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution</title>
     <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E8%AE%B0%E5%BD%95%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0_scaling-postgresql-at-braintree-four-years-of-evolution/"/>
     <id>http://thomaslau.github.io/2015/01/27/2015-01-27-记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution/</id>
@@ -809,6 +780,28 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
       <category term="MySQL" scheme="http://thomaslau.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>先秦古文一篇《谏逐客书》</title>
+    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
+    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
+    <published>2015-01-27T03:01:07.000Z</published>
+    <updated>2017-07-28T03:20:09.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
+<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
     
   </entry>
   
