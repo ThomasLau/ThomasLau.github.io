@@ -1,0 +1,736 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,weeklyreading," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
+<meta name="keywords" content="Tech,weeklyreading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weekly Reading 170825">
+<meta property="og:url" content="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading copy/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41">
+<meta property="og:updated_time" content="2017-08-26T02:25:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Weekly Reading 170825">
+<meta name="twitter:description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
+<meta name="twitter:image" content="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading copy/"/>
+
+
+
+
+
+  <title>Weekly Reading 170825 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading copy/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Weekly Reading 170825</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-26T10:29:07+08:00">
+                2017-08-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
+<li><a href="http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io" target="_blank" rel="external">优雅停机</a><br>dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：<br>服务提供方<br>· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。<br>· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。<br>服务消费方<br>· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。<br>· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。<a id="more"></a></li>
+<li><a href="https://blog.risingstack.com/designing-microservices-architecture-for-failure?from=thomaslau.github.io" target="_blank" rel="external">Designing a Microservices Architecture for Failure</a>，这是译文版的<a href="https://segmentfault.com/a/1190000010799109?from=thomaslau.github.io" target="_blank" rel="external">设计一个容错的微服务架构</a>， infoq好像有类似，这里再推荐下。<br>注意点: Graceful Service Degradation, Change management, Health-check and Load Balancing, Self-healing, Failover Caching, Retry Logic, Rate Limiters and Load Shedders, Fail Fast and Independently, Bulkheads, Circuit Breakers, Testing for Failures.<br>Key Takeways<br>1) Dynamic environments and distributed systems - like microservices - lead to a higher chance of failures.<br>2) Services should fail separately, achieve graceful degradation to improve user experience.<br>3) 70% of the outages are caused by changes, reverting code is not a bad thing.<br>Fail fast and independently. Teams have no control over their service dependencies.<br>4) Architectural patterns and techniques like caching, bulkheads, circuit breakers and rate-limiters help to build reliable microservices.</li>
+<li>grep递归查询<br>习惯用 find . -type f -exec grep -l ‘alvin’ {} \; 的可以试一试grep -rl alvin .<br>递归查询多个目录：grep -ril alvin /home/cato /htdocs/zenf</li>
+<li><a href="https://peadarcoyle.wordpress.com/2017/08/16/why-zalandos-tech-radar-sucks-as-a-stack/" target="_blank" rel="external">WHY  ZALANDO’S  TECH  RADAR  SUCKS  AS  A  STACK
+</a></li>
+<li><a href="https://www.zhihu.com/question/30508773/answer/205831957" target="_blank" rel="external">反欺诈(Fraud Detection)中所用到的机器学习模型有哪些？</a>, 有点乱，不过有点参考意义。其实答案里提到的解法，看上去不论可视化或者异常检测对比，从描述来看，这都很依赖人工验证。</li>
+<li><a href="http://blog.csdn.net/chdhust/article/details/77507453" target="_blank" rel="external">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</li>
+<li>飒然Hang的<a href="http://www.rowkey.me/blog/2017/08/24/arch/?from=thomaslau.github.io" target="_blank" rel="external">谈谈架构</a></li>
+<li>API设计，DDD，REST，CQRS<br><a href="http://blog.didispace.com/use-ddd-design-rest-api/" target="_blank" rel="external">http://blog.didispace.com/use-ddd-design-rest-api/</a><br><a href="http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/" target="_blank" rel="external">http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/</a></li>
+<li><a href="http://blog.didispace.com/spring-cloud-starter-dalston-6-1/" target="_blank" rel="external">Spring Cloud构建微服务架构：服务网关</a>, 算是初步了解下Spring Cloud.<br>文中因为权限带来状态，所以将权限认证放在API GateWay，其实这样gateway也会有状态的。<br>而且，权限，面向具体服务还是整个系统通用，比如内网限制／ip限制这里通用、用户只能更新自己数据这类business logic。</li>
+<li>最近看了Brew的时隔十多年的两篇CAP和Lynch的2002年的CAP证明，发觉他们其实描述的不是同一个东西，至少，他们对一种理论的约束条件定义不同，甚至对Patition tolerance定义也是不同。比如CAP在十多年里就引起许多争论，大多是对A／P理解不同，Brew两篇文章都没有清晰定义。<br>CAP存在的原因，其实就是工程师和理论派的差异的地方了，一个注重理解和实用，哪怕是靠记忆记住，即便是不完全的真理，另一个侧重证明。比如有专家发文为NoSQL没有实现一致性遗憾，比如有自称是CA的，但是后来经验证被认为是CA特性，但是极致情况下表现AP特性。<br>可以看看<a href="https://aphyr.com/tags/jepsen" target="_blank" rel="external">aphyr的jepson</a>系列，实用Jepson验证一些分布式系统。<br>后面会再写篇关于CAP的文章，先立个flag，天气原因，今天就先写到这里了。</li>
+<li><p>冯·诺伊曼关于拟合大象的比喻。<br><a href="https://www.quora.com/What-exactly-does-John-Von-Neumanns-quote-with-four-parameters-I-can-fit-an-elephant-with-five-I-can-make-him-wiggle-his-trunk-mean" target="_blank" rel="external">What exactly does John Von Neumann’s quote “with four parameters I can fit an elephant, with five I can make him wiggle his trunk” mean?</a>, <a href="https://www.johndcook.com/blog/2011/06/21/how-to-fit-an-elephant/" target="_blank" rel="external">How-to-fit-an-elephant/</a><br>以下摘录网上：<br>1953年春天，26岁即是康奈尔大学教授的戴森和自己的学生利用赝标介子理论计算了介子与质子的散射截面，得到了与费米的实验观测值十分相符的结果。喜不自禁的长途跋涉去告之费米，费米扫了一眼说，“有两种方式做理论物理学的计算。一种是我喜欢的，就是要对你正在计算的过程拥有一个清晰的物理图象。另一种是得到精确而且自洽的数学形式体系。这两者都是你的计算不具备的。”<br>戴森当时有点懵了，但他还是斗胆问费米，为什么他在计算中所采用的赝标介子理论算不上是自洽的数学形式体系。得到了简洁的解答之后，绝望的戴森又问费米对理论计算与实验测量结果的相符做何感想。费米反问道：“你们在计算过程中引入了多少个任意参数？”戴森回答说四个。于是费米讲了一句日后很著名的话：“<strong>我记得我的朋友约翰·冯·诺依曼（John von Neumann）曾经说过，用四个参数我可以拟合出一头大象，而用五个参数我可以让它的鼻子摆动。</strong>”对话结束了，沮丧的戴森赶回康奈尔大学，向自己的学生告知了费米的意见。尽管他们决定还是把手头的计算做完并发表，但达成共识：这个工作之后就转换研究方向。</p>
+<p>故事可能是搞笑成分居多，甚至2010年6月，Jurgen Mayer也发表了题为“<a href="https://publications.mpi-cbg.de/Mayer_2010_4314.pdf" target="_blank" rel="external">用四个复参数画出一头大象</a>”的有点戏谑的论文。<br>其实有些理论参数最多达二十几，但是太多参数限制了理论的自由度，不论是从理论分析还是实践，简洁是最好的选择。自爱因斯坦玻尔海森堡等黄金时代科学家那一代，费米／奥本海默等是少有的理论和实验均有造诣，他们都参与了原子弹的研发，此后估计物理学理论和实验<a href="http://blog.sciencenet.cn/blog-3779-803730.html" target="_blank" rel="external">似乎走上了不同的道路</a>。<br><a href="http://blog.sciencenet.cn/blog-3779-1071332.html" target="_blank" rel="external">http://blog.sciencenet.cn/blog-3779-1071332.html</a><br>这里也有一个<a href="http://www.wolframalpha.com/input/?i=elephant+curve&amp;lk=1&amp;a=ClashPrefs_*PlaneCurve.ElephantCurve-" target="_blank" rel="external">wolframalpha版本的大象拟合</a>, 有兴趣可以输入 heart curve看看，在马上到来的七夕之前. Matrix67也有文章描述怎么画一个breoken heart curve。<br><img alt="Elephant Curve" src="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41" width="480" data-file-width="480" data-file-height="409"><br>来源：<a href="https://en.wikiquote.org/wiki/John_von_Neumann" target="_blank" rel="external">wikiquote John_von_Neumann</a></p>
+</li>
+<li>摘自月光的blog：<br>布林和佩奇到了中国后，在访问百度公司时，李彦宏邀请他们吃Subway三明治，布林和佩奇拒绝了。<br>Google中文域名的前期准备活动正在有条不紊的进行之中，直到2005年5月7号，一份意料之外的电子邮件飞进了埃里克·施密特（Eric Schmidt）收件箱中。这份邮件来自微软一位名叫李开复的计算机专家兼高层。“我已经听说Google正准备进军中国市场。”他在邮件中写道：“我想告诉你的是，如果Google真有意在华大干一番，我会有兴趣跟你谈谈。”<br>。。。<br>2009年6月，新出现的问题牵涉到Google搜索建议（Google Suggest），用户在搜索框中输入一两个词字时，就立即显示完整的搜索关键词。Google搜索团队意识到中文用户因嫌打字麻烦通常只会在搜索框中输入一些短的关键词，这一创新功能最初就是针对此问题在中国开发出来的，最后才在全球范围应用开来。但中国官方发现令其不安的内容，搜索建议提供的一些内容与色情有关。<br>2010年3月，粉丝在中国总部门前的Google标志边上点亮蜡烛，留下鲜花和卡片，写下祝福话语。<br>对于Google中国的雇员，这天让人终身难忘。他们中没有人事先到消息。大卫在北京时间上午6点的时候发布了公告。北京和上海的不少Googler都是在同事叫醒他们后，才第一次听到这条消息的。员工涌入办公室，一脸地惊讶。那天下午，Google告诉所有雇员不用上班，给他们发电影片去看《阿凡达》。第二天，所有人都聚集在咖啡厅，与布林以及其他高管开电话会议，几位高管在会议上试图解释Google这样做的原因。这并非易事。Google的新任政府公关负责人朱莉·朱对员工和海外高层做了一次感性的陈词。山景城的高层犹如是战场上抛弃了自己士兵的将军。她争辩道，你们不应该放弃，你们应该继续战斗下。<br>李开复称，如果眼光放长点（20年或30年后）看中国，中国无疑会变得越来越开放。Google撤出大陆的决定只是这一进程的插曲，此次事件的导火索主要是由于中国领导人已经退到底线了。“不出两年的时间，下一代将走上舞台。”李开复说。“他们更年轻，更进步，许多受过美国的教育。许多在商界工作，掌管银行业——他们会变得更加开放。”</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/weeklyreading/" rel="tag"># weeklyreading</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/20/2017-08-20-weekly_reading/" rel="next" title="Weekly Reading 170820">
+                <i class="fa fa-chevron-left"></i> Weekly Reading 170820
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/10/2017-09-10-weekly_reading/" rel="prev" title="Weekly Reading 170825">
+                Weekly Reading 170825 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">22</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
