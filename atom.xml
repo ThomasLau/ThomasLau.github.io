@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2017-09-10T17:23:35.000Z</updated>
+  <updated>2018-03-25T07:12:45.596Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,63 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Elasticsearch几点体会</title>
+    <link href="http://thomaslau.github.io/2018/03/25/2018-03-25-pearls_of_Elasticsearch/"/>
+    <id>http://thomaslau.github.io/2018/03/25/2018-03-25-pearls_of_Elasticsearch/</id>
+    <published>2018-03-25T07:12:07.000Z</published>
+    <updated>2018-03-25T07:12:45.596Z</updated>
+    
+    <content type="html"><![CDATA[<p>很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。</p>
+<p>1，<br><strong> 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 </strong><br>考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&gt;128G内存），分配两个端口。比如9300/19300.<br>比如集群在 10.135.30.12:9200/9300 是一个master节点，之后拷贝配置新增如下一个节点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cluster.name: elasts</div><div class="line">node.master: false</div><div class="line">node.data: true</div><div class="line">transport.tcp.port: 19300</div><div class="line">discovery.zen.ping.unicast.hosts: ["10.135.30.12"]</div></pre></td></tr></table></figure>
+<p>会发现该节点启动成功，但是<strong><em>没有加入到elasts这个cluster里</em></strong>。 设置为debug级别再启动，不仔细看是发现不了问题的。</p>
+<p>官方是这么解释：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Unicast discovery provides the following settings with the discovery.zen.ping.unicast.hosts:</div><div class="line">Either an array setting or a comma delimited setting. Each value should be <span class="keyword">in</span> the form of host:port or host (</div><div class="line"><span class="built_in">where</span> port defaults to the setting transport.profiles.default.port falling back to transport.tcp.port <span class="keyword">if</span> not <span class="built_in">set</span>). </div><div class="line">Note that IPv6 hosts must be bracketed. Defaults to 127.0.0.1, [::1]</div></pre></td></tr></table></figure>
+<p>简单来讲就是上述节点默认使用配置里的 transport.tcp.port 这个端口做discover，而不是 9300.<br>所以建议配置 discovery.zen.ping.unicast.hosts 的时候一定配置端口（使用2.x之后的单播即可）</p>
+<p>那么原文 “ort defaults to the setting transport.profiles.default.port falling back to transport.tcp.port if not set”是什么意思？<br>5.2.2代码为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div></pre></td><td class="code"><pre><div class="line">UnicastZenPing.java</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnicastZenPing</span> <span class="keyword">extends</span> <span class="title">AbstractComponent</span> <span class="keyword">implements</span> <span class="title">ZenPing</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String ACTION_NAME = <span class="string">"internal:discovery/zen/unicast"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Setting&lt;List&lt;String&gt;&gt; DISCOVERY_ZEN_PING_UNICAST_HOSTS_SETTING =</div><div class="line">        Setting.listSetting(<span class="string">"discovery.zen.ping.unicast.hosts"</span>, emptyList(), Function.identity(),</div><div class="line">            Property.NodeScope);</div><div class="line">    ...</div><div class="line">        <span class="keyword">if</span> (DISCOVERY_ZEN_PING_UNICAST_HOSTS_SETTING.exists(settings)) &#123;</div><div class="line">            configuredHosts = DISCOVERY_ZEN_PING_UNICAST_HOSTS_SETTING.get(settings);</div><div class="line">            <span class="comment">// we only limit to 1 addresses, makes no sense to ping 100 ports</span></div><div class="line">            limitPortCounts = LIMIT_FOREIGN_PORTS_COUNT;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="comment">// if unicast hosts are not specified, fill with simple defaults on the local machine</span></div><div class="line">            configuredHosts = transportService.getLocalAddresses();</div><div class="line">            limitPortCounts = LIMIT_LOCAL_PORTS_COUNT;</div><div class="line">        &#125;</div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;DiscoveryNode&gt; <span class="title">resolveHostsLists</span><span class="params">(</span></span></div><div class="line">        ...</div><div class="line">        <span class="keyword">final</span> List&lt;String&gt; hosts,</div><div class="line">        ...) <span class="keyword">throws</span> InterruptedException &#123;</div><div class="line">        ...</div><div class="line">        <span class="comment">// create tasks to submit to the executor service; we will wait up to resolveTimeout for these tasks to complete</span></div><div class="line">        <span class="keyword">final</span> List&lt;Callable&lt;TransportAddress[]&gt;&gt; callables =</div><div class="line">            hosts.stream()</div><div class="line">                .map(hn -&gt; (Callable&lt;TransportAddress[]&gt;) () -&gt; transportService.addressesFromString(hn, limitPortCounts))</div><div class="line">                .collect(Collectors.toList());</div><div class="line">        <span class="keyword">final</span> List&lt;Future&lt;TransportAddress[]&gt;&gt; futures =</div><div class="line">            executorService.invokeAll(callables, resolveTimeout.nanos(), TimeUnit.NANOSECONDS);</div><div class="line">        <span class="keyword">final</span> List&lt;DiscoveryNode&gt; discoveryNodes = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="comment">// ExecutorService#invokeAll guarantees that the futures are returned in the iteration order of the tasks so we can associate the</span></div><div class="line">        <span class="comment">// hostname with the corresponding task by iterating together</span></div><div class="line">        <span class="keyword">final</span> Iterator&lt;String&gt; it = hosts.iterator();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">final</span> Future&lt;TransportAddress[]&gt; future : futures) &#123;</div><div class="line">            <span class="keyword">final</span> String hostname = it.next();</div><div class="line">            <span class="keyword">if</span> (!future.isCancelled()) &#123;</div><div class="line">                <span class="keyword">assert</span> future.isDone();</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    <span class="keyword">final</span> TransportAddress[] addresses = future.get();</div><div class="line">                    logger.trace(<span class="string">"resolved host [&#123;&#125;] to &#123;&#125;"</span>, hostname, addresses);</div><div class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> addressId = <span class="number">0</span>; addressId &lt; addresses.length; addressId++) &#123;</div><div class="line">                        discoveryNodes.add(</div><div class="line">                            <span class="keyword">new</span> DiscoveryNode(</div><div class="line">                                nodeId_prefix + hostname + <span class="string">"_"</span> + addressId + <span class="string">"#"</span>,</div><div class="line">                                addresses[addressId],</div><div class="line">                                emptyMap(),</div><div class="line">                                emptySet(),</div><div class="line">                                Version.CURRENT.minimumCompatibilityVersion()));</div><div class="line">                    &#125;</div><div class="line">                &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> ExecutionException e) &#123;</div><div class="line">                    <span class="keyword">assert</span> e.getCause() != <span class="keyword">null</span>;</div><div class="line">                    <span class="keyword">final</span> String message = <span class="string">"failed to resolve host ["</span> + hostname + <span class="string">"]"</span>;</div><div class="line">                    logger.warn(message, e.getCause());</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                logger.warn(<span class="string">"timed out after [&#123;&#125;] resolving host [&#123;&#125;]"</span>, resolveTimeout, hostname);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> discoveryNodes;</div><div class="line">    &#125;</div><div class="line">...</div><div class="line"></div><div class="line">TransportService.java</div><div class="line">    <span class="keyword">public</span> TransportAddress[] addressesFromString(String address, <span class="keyword">int</span> perAddressLimit) <span class="keyword">throws</span> UnknownHostException &#123;</div><div class="line">        <span class="keyword">return</span> transport.addressesFromString(address, perAddressLimit);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">TcpTransport.java</div><div class="line">    <span class="keyword">public</span> TransportAddress[] addressesFromString(String address, <span class="keyword">int</span> perAddressLimit) <span class="keyword">throws</span> UnknownHostException &#123;</div><div class="line">        <span class="keyword">return</span> parse(address, settings.get(<span class="string">"transport.profiles.default.port"</span>, TransportSettings.PORT.get(settings)), perAddressLimit);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Pattern BRACKET_PATTERN = Pattern.compile(<span class="string">"^\\[(.*:.*)\\](?::([\\d\\-]*))?$"</span>);</div><div class="line">    <span class="comment">/** parse a hostname+port range spec into its equivalent addresses */</span></div><div class="line">    <span class="keyword">static</span> TransportAddress[] parse(String hostPortString, String defaultPortRange, <span class="keyword">int</span> perAddressLimit) <span class="keyword">throws</span> UnknownHostException &#123;</div><div class="line">        Objects.requireNonNull(hostPortString);</div><div class="line">        String host;</div><div class="line">        String portString = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (hostPortString.startsWith(<span class="string">"["</span>)) &#123;</div><div class="line">            <span class="comment">// Parse a bracketed host, typically an IPv6 literal.</span></div><div class="line">            Matcher matcher = BRACKET_PATTERN.matcher(hostPortString);</div><div class="line">            <span class="keyword">if</span> (!matcher.matches()) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Invalid bracketed host/port range: "</span> + hostPortString);</div><div class="line">            &#125;</div><div class="line">            host = matcher.group(<span class="number">1</span>);</div><div class="line">            portString = matcher.group(<span class="number">2</span>);  <span class="comment">// could be null</span></div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">int</span> colonPos = hostPortString.indexOf(<span class="string">':'</span>);</div><div class="line">            <span class="keyword">if</span> (colonPos &gt;= <span class="number">0</span> &amp;&amp; hostPortString.indexOf(<span class="string">':'</span>, colonPos + <span class="number">1</span>) == -<span class="number">1</span>) &#123;</div><div class="line">                <span class="comment">// Exactly 1 colon.  Split into host:port.</span></div><div class="line">                host = hostPortString.substring(<span class="number">0</span>, colonPos);</div><div class="line">                portString = hostPortString.substring(colonPos + <span class="number">1</span>);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// 0 or 2+ colons.  Bare hostname or IPv6 literal.</span></div><div class="line">                host = hostPortString;</div><div class="line">                <span class="comment">// 2+ colons and not bracketed: exception</span></div><div class="line">                <span class="keyword">if</span> (colonPos &gt;= <span class="number">0</span>) &#123;</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"IPv6 addresses must be bracketed: "</span> + hostPortString);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// if port isn't specified, fill with the default</span></div><div class="line">        <span class="keyword">if</span> (portString == <span class="keyword">null</span> || portString.isEmpty()) &#123;</div><div class="line">            portString = defaultPortRange;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// generate address for each port in the range</span></div><div class="line">        Set&lt;InetAddress&gt; addresses = <span class="keyword">new</span> HashSet&lt;&gt;(Arrays.asList(InetAddress.getAllByName(host)));</div><div class="line">        List&lt;TransportAddress&gt; transportAddresses = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        <span class="keyword">int</span>[] ports = <span class="keyword">new</span> PortsRange(portString).ports();</div><div class="line">        <span class="keyword">int</span> limit = Math.min(ports.length, perAddressLimit);</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; limit; i++) &#123;</div><div class="line">            <span class="keyword">for</span> (InetAddress address : addresses) &#123;</div><div class="line">                transportAddresses.add(<span class="keyword">new</span> InetSocketTransportAddress(address, ports[i]));</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> transportAddresses.toArray(<span class="keyword">new</span> TransportAddress[transportAddresses.size()]);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">TransportSettings.java</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Setting&lt;String&gt; PORT =</div><div class="line">        <span class="keyword">new</span> Setting&lt;&gt;(<span class="string">"transport.tcp.port"</span>, <span class="string">"9300-9400"</span>, Function.identity(), Property.NodeScope);</div></pre></td></tr></table></figure>
+<p>也可看到，es这块debug的日志有所欠缺，如果把UnicastZenPing这个操作时候的实际的端口log下来，方便快速定位问题。</p>
+<p>2,<br><strong> ES索引性能的优化 </strong><br>之前文章已推荐<a href="https://www.paypal-engineering.com/2016/08/10/powering-transactions-search-with-elastic-learnings-from-the-field/" target="_blank" rel="external">Ebay一篇文章</a>总结过将Elasticsearch优化到极致的技巧，这里就不再重复，来看点不一样的：<br>不过，这里也不会讨论，诸如 优化索引的 index.refresh_interval，优化segment的index.merge，甚至磁盘的索引均衡（扩分片/reroute）/replia数减少。更不会讨论诸如索引字段的分词/exclude/_all字段禁用/优化_source字段等。</p>
+<p>来看下面三个参数：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">index.translog.durability: async</div><div class="line">index.translog.sync_interval: 90s</div><div class="line">index.translog.flush_threshold_size: 1024mb</div></pre></td></tr></table></figure>
+<p>主要是 index.translog.durability，看文档 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.2/index-modules-translog.html" target="_blank" rel="external">Translog</a></p>
+<p> <strong><em>Translog settingsedit</em></strong><br>The data in the transaction log is only persisted to disk when the translog is fsynced and committed. In the event of hardware failure, any data written since the previous translog commit will be lost.</p>
+<p>By default, Elasticsearch fsyncs and commits the translog every 5 seconds if index.translog.durability is set to async or if set to request (default) at the end of every index, delete, update, or bulk request. In fact, Elasticsearch will only report success of an index, delete, update, or bulk request to the client after the transaction log has been successfully fsynced and committed on the primary and on every allocated replica.</p>
+<p>The following dynamically updatable per-index settings control the behaviour of the transaction log:</p>
+<ul>
+<li><strong> index.translog.sync_interval </strong><br>How often the translog is fsynced to disk and committed, regardless of write operations. Defaults to 5s. Values less than 100ms are not allowed.</li>
+<li><strong> index.translog.durability </strong><br>Whether or not to fsync and commit the translog after every index, delete, update, or bulk request. This setting accepts the following parameters:<ul>
+<li>request<br>(default) fsync and commit after every request. In the event of hardware failure, all acknowledged writes will already have been committed to disk.</li>
+<li>async<br>fsync and commit in the background every sync_interval. In the event of hardware failure, all acknowledged writes since the last automatic commit will be discarded.</li>
+</ul>
+</li>
+</ul>
+<p>即，为了保证数据不丢失，es translog默认的额持久化策略是 每次请求都会flush。这里暂不代码展开分析，如果应用允许少量的几率丢失数据，那么这里可以设置为异步，并且增加translog大小周期性的flush。</p>
+<p>需要注意的是，index.translog.durability 并不是一个dynamic property，即，如果修改索引的该配置，可以删除重建，不过也可以先close该索引，更新setting后再open打开索引。</p>
+<p>对于大量请求（每天索引数据量10+亿条，每日索引数据500+GB，1备份，保留5天数据，32CPU，128g内存，机械硬盘，四台实体机），上面的配置优化还是很明显的。</p>
+<p>3，<br><strong> 这里简单列个5.x相比2.x的改变 </strong>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">curl -XPOST &apos;localhost:9200/_cluster/reroute&apos; -d &apos;&#123; </div><div class="line">  &quot;commands&quot; : [ </div><div class="line">      &#123; &quot;allocate_empty_primary&quot; : </div><div class="line">          &#123; &quot;index&quot; : &quot;INDEX&quot;, &quot;shard&quot; : 0, &quot;node&quot;: &quot;&lt;NODE_NAME&gt;&quot;&#125;</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">&#125;&apos;</div><div class="line">curl -XPOST  localhost:9200/_cluster/reroute -d &apos;&#123;</div><div class="line">  &quot;commands&quot; : [ </div><div class="line">    &#123;</div><div class="line">        &quot;move&quot; :&#123;</div><div class="line">            &quot;index&quot; : &quot;za-2018.03.23&quot;, &quot;shard&quot; : 0, &quot;from_node&quot; : &quot;node-20.50&quot;, &quot;to_node&quot; : &quot;node-20.39&quot;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;&apos;</div></pre></td></tr></table></figure>
+<ul>
+<li>上述node均可用名字代替，而不必查询id</li>
+<li>reroute的commands，相比细化了下，如 allocate_empty_primary，这在集群状态为red，分片数据确实并且不可恢复的时候还是有用的。</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。&lt;/p&gt;
+&lt;p&gt;1，&lt;br&gt;&lt;strong&gt; 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 &lt;/strong&gt;&lt;br&gt;考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="Elasticsearch" scheme="http://thomaslau.github.io/tags/Elasticsearch/"/>
+    
+  </entry>
   
   <entry>
     <title>Weekly Reading 170910</title>
@@ -748,6 +805,28 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
   </entry>
   
   <entry>
+    <title>先秦古文一篇《谏逐客书》</title>
+    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
+    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
+    <published>2015-01-27T03:01:07.000Z</published>
+    <updated>2017-07-28T03:20:09.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
+<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
+    
+  </entry>
+  
+  <entry>
     <title>记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution</title>
     <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E8%AE%B0%E5%BD%95%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0_scaling-postgresql-at-braintree-four-years-of-evolution/"/>
     <id>http://thomaslau.github.io/2015/01/27/2015-01-27-记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution/</id>
@@ -773,28 +852,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
       <category term="MySQL" scheme="http://thomaslau.github.io/tags/MySQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>先秦古文一篇《谏逐客书》</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:09.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
-<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
     
   </entry>
   
@@ -927,50 +984,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
       <category term="twitter" scheme="http://thomaslau.github.io/tags/twitter/"/>
     
       <category term="performance" scheme="http://thomaslau.github.io/tags/performance/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>antirez的抱怨</title>
-    <link href="http://thomaslau.github.io/2014/11/12/2014-11-12-%20antirez%E7%9A%84%E6%8A%B1%E6%80%A8/"/>
-    <id>http://thomaslau.github.io/2014/11/12/2014-11-12- antirez的抱怨/</id>
-    <published>2014-11-12T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>针对他人twitter上的争论，其实antirez正文写的是很平淡客观的，今天偶然翻看评论，antirez对一位留言者做了回复，这里不难明白作者标题的含义了<br>Dermot Haughey留言：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Always shocked at how rude and dismissive the software community can be.</div><div class="line">People really need to abandon their egos in search of cooperation. </div><div class="line">Jumping on a prominent member of the open source communtity because you</div><div class="line">misunderstood what they said isn&apos;t going to &apos;win&apos; you any points in the longrun</div></pre></td></tr></table></figure>
-<a id="more"></a>
-<p>antirez回复：</p>
-<pre><code>Unfortunately they win points... in some way. An example with a person
- that is not very famous in the community nor was involved in this tweets 
- exchange: there was this early times Redis user that always tried to
-  contribute, which was fine. However all hits contribs where 
-  half-finished, or broken, or some other problem like that, so I politely 
-  refused the contribs. He got frustrated and started to point the finger 
-  at me for me distributed systems misunderstandings, and so forth, and 
-  started to write blog posts about abstract concepts that made he seem 
-  smart. No real content, no real code shipped for years, just blabla, and 
-  endorsing systems which are super safe during partitions and all the 
-  rest is shit and so forth. Know what? He started to be hired by 
-  companies in this space. However if you look at the hires story you see 
-  him jumping each 6 months to a new company since the fact he is not able 
-  to actually do work is something people eventually realize. Now every 
-  time there is some Redis drama and he adds his voice I think that in 
-  this world we can&apos;t have good things, really.
-</code></pre><p><a href="http://antirez.com/news/82" target="_blank" rel="external">这里可见原文</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;针对他人twitter上的争论，其实antirez正文写的是很平淡客观的，今天偶然翻看评论，antirez对一位留言者做了回复，这里不难明白作者标题的含义了&lt;br&gt;Dermot Haughey留言：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;Always shocked at how rude and dismissive the software community can be.&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;People really need to abandon their egos in search of cooperation. &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;Jumping on a prominent member of the open source communtity because you&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;misunderstood what they said isn&amp;apos;t going to &amp;apos;win&amp;apos; you any points in the longrun&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
     
   </entry>
   
