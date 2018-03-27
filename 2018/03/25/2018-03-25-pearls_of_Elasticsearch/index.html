@@ -101,7 +101,7 @@
 <meta property="og:site_name" content="e+Thomas">
 <meta property="og:description" content="很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。 1， 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&amp;gt;128G内存），分配两个端口。比如9300/19300.比如集群在 10.135.30.12:9200/9300 是一个master节点，之后拷贝配置新增如下一个节点： 1234">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-25T07:12:45.596Z">
+<meta property="og:updated_time" content="2018-03-27T16:12:25.799Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Elasticsearch几点体会">
 <meta name="twitter:description" content="很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。 1， 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&amp;gt;128G内存），分配两个端口。比如9300/19300.比如集群在 10.135.30.12:9200/9300 是一个master节点，之后拷贝配置新增如下一个节点： 1234">
@@ -334,8 +334,7 @@
         <p>很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。</p>
 <p>1，<br><strong> 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 </strong><br>考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&gt;128G内存），分配两个端口。比如9300/19300.<br>比如集群在 10.135.30.12:9200/9300 是一个master节点，之后拷贝配置新增如下一个节点：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cluster.name: elasts</div><div class="line">node.master: false</div><div class="line">node.data: true</div><div class="line">transport.tcp.port: 19300</div><div class="line">discovery.zen.ping.unicast.hosts: ["10.135.30.12"]</div></pre></td></tr></table></figure>
-<p>会发现该节点启动成功，但是<strong><em>没有加入到elasts这个cluster里</em></strong>。 设置为debug级别再启动，不仔细看是发现不了问题的。</p>
-<p>官方是这么解释：</p>
+<p>会发现该节点启动成功，但是<strong><em>没有加入到elasts这个cluster里</em></strong>。 设置为debug级别再启动，不仔细看是发现不了问题的。<br><a id="more"></a><br>官方是这么解释：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Unicast discovery provides the following settings with the discovery.zen.ping.unicast.hosts:</div><div class="line">Either an array setting or a comma delimited setting. Each value should be <span class="keyword">in</span> the form of host:port or host (</div><div class="line"><span class="built_in">where</span> port defaults to the setting transport.profiles.default.port falling back to transport.tcp.port <span class="keyword">if</span> not <span class="built_in">set</span>). </div><div class="line">Note that IPv6 hosts must be bracketed. Defaults to 127.0.0.1, [::1]</div></pre></td></tr></table></figure>
 <p>简单来讲就是上述节点默认使用配置里的 transport.tcp.port 这个端口做discover，而不是 9300.<br>所以建议配置 discovery.zen.ping.unicast.hosts 的时候一定配置端口（使用2.x之后的单播即可）</p>
 <p>那么原文 “ort defaults to the setting transport.profiles.default.port falling back to transport.tcp.port if not set”是什么意思？<br>5.2.2代码为例</p>

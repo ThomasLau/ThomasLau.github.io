@@ -101,7 +101,7 @@
 <meta property="og:site_name" content="e+Thomas">
 <meta property="og:description" content="下面是之前2-3个月积攒的文摘，清空一下，所以有些看起来可能是不够“新鲜”了。 1, Dubbo源代码分析九：优雅停机http://manzhizhen.iteye.com/blog/2404220这几天从dubbo-admin有机会看了一点dubbo代码，对上述shutdown方式，有了点体会。可以说2.5.3版本 dubbo和dubbo-admin交互还是有多处bug的，比如可以对比 com.">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-27T16:10:23.805Z">
+<meta property="og:updated_time" content="2018-03-27T16:14:52.759Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Weekly Reading 180328">
 <meta name="twitter:description" content="下面是之前2-3个月积攒的文摘，清空一下，所以有些看起来可能是不够“新鲜”了。 1, Dubbo源代码分析九：优雅停机http://manzhizhen.iteye.com/blog/2404220这几天从dubbo-admin有机会看了一点dubbo代码，对上述shutdown方式，有了点体会。可以说2.5.3版本 dubbo和dubbo-admin交互还是有多处bug的，比如可以对比 com.">
@@ -333,7 +333,19 @@
       
         <p>下面是之前2-3个月积攒的文摘，清空一下，所以有些看起来可能是不够“新鲜”了。</p>
 <p>1, Dubbo源代码分析九：优雅停机<br><a href="http://manzhizhen.iteye.com/blog/2404220" target="_blank" rel="external">http://manzhizhen.iteye.com/blog/2404220</a><br>这几天从dubbo-admin有机会看了一点dubbo代码，对上述shutdown方式，有了点体会。<br>可以说2.5.3版本 dubbo和dubbo-admin交互还是有多处bug的，比如可以对比 com.alibaba.dubbo.registry.integration.RegistryProtocol在2.5.3和2.5.8版本的实现（doChangeLocalExport/notify方法）。</p>
-<p>2, JMX最佳实践与详解<br><a href="http://shift-alt-ctrl.iteye.com/blog/2404103" target="_blank" rel="external">http://shift-alt-ctrl.iteye.com/blog/2404103</a> 文中这里列举下Java已经内置的多个MXBean实现。</p>
+<p>3，python根据项目生成requirements.txt<br>查看一些python项目，很多并未采用requirements.txt方式，编译起来耗费时间，今天学到了可以用 pip freeze的方式：</p>
+<pre><code>python项目中必须包含一个 requirements.txt 文件，用于记录所有依赖包及其精确的版本号。以便新环境部署。
+在虚拟环境中使用pip生成：
+(venv) $ pip freeze &gt;requirements.txt
+这种方式配合virtualenv 才好使，否则把整个环境中的包都列出来了。
+使用 pipreqs
+这个工具的好处是可以通过对项目目录的扫描，自动发现使用了那些类库，自动生成依赖清单。
+缺点是可能会有些偏差，需要检查并自己调整下。
+# pip install pipreqs
+# 使用方式也比较简单
+pipreqs ./
+</code></pre><a id="more"></a>
+<p>3, JMX最佳实践与详解<br><a href="http://shift-alt-ctrl.iteye.com/blog/2404103" target="_blank" rel="external">http://shift-alt-ctrl.iteye.com/blog/2404103</a> 文中这里列举下Java已经内置的多个MXBean实现。</p>
 <pre><code>1、BufferPoolMXBean：
    有关“direct”、“mapped” buffer的资源信息；如果Application为网络IO系统（比如Netty编程）、或者有大量文件操作，你应该考虑关注此MXBean。
 2、ClassLoadingMXBean：
@@ -351,18 +363,7 @@
 8、ThreadMXBean：
    有关运行时线程状态的资源信息，比如“CPU高耗线程”、“死锁线程”等，可以帮助我们优化并发操作等。
 </code></pre><p>实际很少用到MXBean来做一些metric/hanck技术，像Kafka也内置了一些MXBean，作为系统运行状态的参考，业界也有一些工具可以将这些MXBean打点至如grafana上展示。</p>
-<p>3，根据项目生成requirements.txt</p>
-<pre><code>python项目中必须包含一个 requirements.txt 文件，用于记录所有依赖包及其精确的版本号。以便新环境部署。
-在虚拟环境中使用pip生成：
-(venv) $ pip freeze &gt;requirements.txt
-这种方式配合virtualenv 才好使，否则把整个环境中的包都列出来了。
-使用 pipreqs
-这个工具的好处是可以通过对项目目录的扫描，自动发现使用了那些类库，自动生成依赖清单。
-缺点是可能会有些偏差，需要检查并自己调整下。
-# pip install pipreqs
-# 使用方式也比较简单
-pipreqs ./
-</code></pre><p>4，暴力美学，“星星之火可以燎原”<br>记得，有诗人吟送道，大概类似，“我在春天种下希望的种子，秋天收获希望“的句子，或者类似句子。<br>但是，太祖的“星星之火可以燎原”，只是八个字，显然更有境界。</p>
+<p>4，暴力美学，“星星之火可以燎原”<br>记得，有诗人吟送道，大概类似，“我在春天种下希望的种子，秋天收获希望“的句子，或者类似句子。<br>但是，太祖的“星星之火可以燎原”，只是八个字，显然更有境界。</p>
 <p>5， Latency Sensitive Microservices<br><a href="https://www.infoq.com/presentations/microservices-trading-system" target="_blank" rel="external">https://www.infoq.com/presentations/microservices-trading-system</a></p>
 <p>6, 分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较。文章简洁明了<br><a href="https://www.jianshu.com/p/ed54162d720c" target="_blank" rel="external">https://www.jianshu.com/p/ed54162d720c</a></p>
 <p>7，Significant Software Development Developments of 2017<br>需要自备梯子。2017年几个重大软件研发事件备忘录，想不到去年发生这么多大事<br><a href="http://marxsoftware.blogspot.com/2017/12/big-news-2017.html" target="_blank" rel="external">http://marxsoftware.blogspot.com/2017/12/big-news-2017.html</a></p>
