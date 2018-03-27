@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2018-03-25T07:12:45.596Z</updated>
+  <updated>2018-03-27T16:10:23.805Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,122 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Weekly Reading 180328</title>
+    <link href="http://thomaslau.github.io/2018/03/28/2018-03-28-weekly_reading/"/>
+    <id>http://thomaslau.github.io/2018/03/28/2018-03-28-weekly_reading/</id>
+    <published>2018-03-27T16:09:07.000Z</published>
+    <updated>2018-03-27T16:10:23.805Z</updated>
+    
+    <content type="html"><![CDATA[<p>下面是之前2-3个月积攒的文摘，清空一下，所以有些看起来可能是不够“新鲜”了。</p>
+<p>1, Dubbo源代码分析九：优雅停机<br><a href="http://manzhizhen.iteye.com/blog/2404220" target="_blank" rel="external">http://manzhizhen.iteye.com/blog/2404220</a><br>这几天从dubbo-admin有机会看了一点dubbo代码，对上述shutdown方式，有了点体会。<br>可以说2.5.3版本 dubbo和dubbo-admin交互还是有多处bug的，比如可以对比 com.alibaba.dubbo.registry.integration.RegistryProtocol在2.5.3和2.5.8版本的实现（doChangeLocalExport/notify方法）。</p>
+<p>2, JMX最佳实践与详解<br><a href="http://shift-alt-ctrl.iteye.com/blog/2404103" target="_blank" rel="external">http://shift-alt-ctrl.iteye.com/blog/2404103</a> 文中这里列举下Java已经内置的多个MXBean实现。</p>
+<pre><code>1、BufferPoolMXBean：
+   有关“direct”、“mapped” buffer的资源信息；如果Application为网络IO系统（比如Netty编程）、或者有大量文件操作，你应该考虑关注此MXBean。
+2、ClassLoadingMXBean：
+   有关JVM类加载相关的资源信息；如果Application为序列化相关的组件、脚本化集成组件、有较多代理类（包括动态加载，OSGI）等，你应该关注此MXBean。
+3、GarbageCollectorMXBean：
+   有关JVM GC相关的资源，包括GC时长、GC次数和相关内存状态。
+4、MemoryPoolMXBean：
+   有关JVM中“内存池”的相关资源信息，可以配合MemoryManagerMXBean一起使用。一个Application中可能有多个“内存池”实例，我们可以通过MemoryManagerMXBean获取内存池的列表，并查看此内存池的存量和GC相关信息。
+5、OperatingSystemMXBean：
+   有关操作系统的相关资源信息，比如CPU负载等。
+6、PlatformManagedObject：
+   内部接口，所有的JAVA平台有关的MXBean都扩展此接口，比如上述几个MXBean；通常应用程序不应该实现它。
+7、RuntimeMXBean：
+   有关runtime的信息，比如VM的参数、版本等。
+8、ThreadMXBean：
+   有关运行时线程状态的资源信息，比如“CPU高耗线程”、“死锁线程”等，可以帮助我们优化并发操作等。
+</code></pre><p>实际很少用到MXBean来做一些metric/hanck技术，像Kafka也内置了一些MXBean，作为系统运行状态的参考，业界也有一些工具可以将这些MXBean打点至如grafana上展示。</p>
+<p>3，根据项目生成requirements.txt</p>
+<pre><code>python项目中必须包含一个 requirements.txt 文件，用于记录所有依赖包及其精确的版本号。以便新环境部署。
+在虚拟环境中使用pip生成：
+(venv) $ pip freeze &gt;requirements.txt
+这种方式配合virtualenv 才好使，否则把整个环境中的包都列出来了。
+使用 pipreqs
+这个工具的好处是可以通过对项目目录的扫描，自动发现使用了那些类库，自动生成依赖清单。
+缺点是可能会有些偏差，需要检查并自己调整下。
+# pip install pipreqs
+# 使用方式也比较简单
+pipreqs ./
+</code></pre><p>4，暴力美学，“星星之火可以燎原”<br>记得，有诗人吟送道，大概类似，“我在春天种下希望的种子，秋天收获希望“的句子，或者类似句子。<br>但是，太祖的“星星之火可以燎原”，只是八个字，显然更有境界。</p>
+<p>5， Latency Sensitive Microservices<br><a href="https://www.infoq.com/presentations/microservices-trading-system" target="_blank" rel="external">https://www.infoq.com/presentations/microservices-trading-system</a></p>
+<p>6, 分布式数据库中间件TDDL、Amoeba、Cobar、MyCAT架构比较。文章简洁明了<br><a href="https://www.jianshu.com/p/ed54162d720c" target="_blank" rel="external">https://www.jianshu.com/p/ed54162d720c</a></p>
+<p>7，Significant Software Development Developments of 2017<br>需要自备梯子。2017年几个重大软件研发事件备忘录，想不到去年发生这么多大事<br><a href="http://marxsoftware.blogspot.com/2017/12/big-news-2017.html" target="_blank" rel="external">http://marxsoftware.blogspot.com/2017/12/big-news-2017.html</a></p>
+<p>8,踩坑无数，<a href="https://tech.meituan.com/%E6%95%B0%E6%8D%AE%E5%BA%93%E9%AB%98%E5%8F%AF%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E6%BC%94%E8%BF%9B%E4%B8%8E%E8%AE%BE%E6%83%B3.html" target="_blank" rel="external">美团点评高可用数据库架构演进</a>，好文。<br><a href="https://tech.meituan.com/数据库高可用架构的演进与设想.html" target="_blank" rel="external">https://tech.meituan.com/数据库高可用架构的演进与设想.html</a><br>MMM（Master-Master replication manager for MySQL）-&gt; MHA（MySQL Master High Availability）-&gt; MHA+Zebra (DAL)</p>
+<p>9, 如何设计一个DNS<br><a href="http://www.infoq.com/cn/articles/how-to-design-dns" target="_blank" rel="external">http://www.infoq.com/cn/articles/how-to-design-dns</a></p>
+<p>10，2017双11核心技术揭秘—阿里数据库进入全网秒级实时监控时代 | 阿里中间件团队博客<br><a href="http://jm.taobao.org/2017/12/27/20172703/" target="_blank" rel="external">http://jm.taobao.org/2017/12/27/20172703/</a></p>
+<p>11，Linux IO磁盘篇整理小记 - 朱小厮的博客 - CSDN博客<br>一篇磁盘性能简单分析的文章，可以收藏以备查询<br><a href="http://blog.csdn.net/u013256816/article/details/78945085" target="_blank" rel="external">http://blog.csdn.net/u013256816/article/details/78945085</a></p>
+<p>12，Peter Norvig，大牛<br><a href="http://norvig.com/" target="_blank" rel="external">http://norvig.com/</a></p>
+<p>13， Docker 公司已死 ！ | IT瘾<br><a href="http://itindex.net/detail/57847-docker-%E5%85%AC%E5%8F%B8" target="_blank" rel="external">http://itindex.net/detail/57847-docker-%E5%85%AC%E5%8F%B8</a><br>mac安装kubernetes并运行echoserver - 简书<br><a href="https://www.jianshu.com/p/a42eeb66a19c" target="_blank" rel="external">https://www.jianshu.com/p/a42eeb66a19c</a><br>很早之前看的，好像后来有文章反对，不过值得参考下。</p>
+<p>14, uber 技术总结<br><a href="https://eng.uber.com/2017-highlights/" target="_blank" rel="external">https://eng.uber.com/2017-highlights/</a><br><a href="https://eng.uber.com/2017-open-source/" target="_blank" rel="external">https://eng.uber.com/2017-open-source/</a></p>
+<p>15， Kafka#3：分布式设计 - 程序园<br><a href="http://www.voidcn.com/article/p-risahvbp-ez.html" target="_blank" rel="external">http://www.voidcn.com/article/p-risahvbp-ez.html</a></p>
+<p>16，百亿访问量的监控平台如何炼成？ – 运维派<br><a href="http://www.yunweipai.com/archives/24462.html" target="_blank" rel="external">http://www.yunweipai.com/archives/24462.html</a></p>
+<p>17，美团点评联盟广告场景化定向排序机制<br><a href="https://tech.meituan.com/targeting_agentscore.html" target="_blank" rel="external">https://tech.meituan.com/targeting_agentscore.html</a></p>
+<p>18，加密数字货币和传统分布式系统共识机制 | 温国兵的随想录<br><a href="https://dbarobin.com/2017/12/27/blockchain-consensus/" target="_blank" rel="external">https://dbarobin.com/2017/12/27/blockchain-consensus/</a></p>
+<p>19，Kafka 高性能吞吐揭秘 - 友盟博客 - SegmentFault<br><a href="https://segmentfault.com/a/1190000003985468" target="_blank" rel="external">https://segmentfault.com/a/1190000003985468</a><br>关于Kafka日志留存策略的讨论 - huxihx - 博客园<br><a href="http://www.cnblogs.com/huxi2b/p/8042099.html" target="_blank" rel="external">http://www.cnblogs.com/huxi2b/p/8042099.html</a></p>
+<p>20 JVMTI 参考<br><a href="http://blog.caoxudong.info/blog/2017/12/07/jvmti_reference" target="_blank" rel="external">http://blog.caoxudong.info/blog/2017/12/07/jvmti_reference</a></p>
+<p>21,<br>如果你使用kafka new-consumer API 即：__consumer_offset存储你的消费信息，当</p>
+<p>kafka-client设置props.put(“auto.commit.interval.ms”, “3000”) </p>
+<p>则，对于server端，不论client是否消费新的数据，都是每6秒提交offset，server都写入consumeroffset，server不会做去重判断的，也就是每个三秒都会提交offset到__consumer_offset这个topic存储数据</p>
+<p>22，Intel meltdown &amp; spectre的几篇文章以及对spark/elasticsearch的影响，好消息。<br><a href="http://www.infoq.com/cn/news/2018/01/meltdown-spectre" target="_blank" rel="external">http://www.infoq.com/cn/news/2018/01/meltdown-spectre</a><br><a href="https://databricks.com/blog/2018/01/13/meltdown-and-spectre-performance-impact-on-big-data-workloads-in-the-cloud.html" target="_blank" rel="external">https://databricks.com/blog/2018/01/13/meltdown-and-spectre-performance-impact-on-big-data-workloads-in-the-cloud.html</a><br><a href="https://www.elastic.co/blog/performance-impact-of-meltdown-on-elasticsearch" target="_blank" rel="external">https://www.elastic.co/blog/performance-impact-of-meltdown-on-elasticsearch</a></p>
+<p>23，新晋Java Champions，包括一位JVM（SUN/OpenJDK）专家，曾在infoq 网站/现场 听过，网站上视频，很值得一听。<br><a href="https://www.infoq.com/news/2018/01/JavaChampions2017" target="_blank" rel="external">https://www.infoq.com/news/2018/01/JavaChampions2017</a></p>
+<p>24，简介听起来不错<br>经历400多天打磨，HSF的架构和性能有哪些新突破？<br><a href="http://jm.taobao.org/2018/01/16/post180116/" target="_blank" rel="external">http://jm.taobao.org/2018/01/16/post180116/</a></p>
+<p>25，JSON-B和Yasson详解，新的JAVA EE API官方规范，以及Eclipse的实现 Yasson<br><a href="http://blog.csdn.net/chszs/article/details/79059116" target="_blank" rel="external">http://blog.csdn.net/chszs/article/details/79059116</a><br>转眼间，似乎已经定下来改名叫 Jakarta EE了</p>
+<p>26，ElasticSearch如何支持深度分页<br><a href="http://arganzheng.life/deep-pagination-in-elasticsearch.html" target="_blank" rel="external">http://arganzheng.life/deep-pagination-in-elasticsearch.html</a></p>
+<p>学习了，对于超过默认10000条的除了使用ES的 Scan and scroll API之外，文章还提供了官方的 Search After 机制，不过要在ES 5.0版本后。</p>
+<pre><code>search_after使用方式上跟scroll很像，但是相对于scroll它是无状态的(stateless)，没有search context开销；
+而且它是每次请求都实时计算的，所以也没有一致性问题（相反，有索引变化的话，每次排序顺序会变化呢）。
+但是比起from+size方式，还是有同样的问题没法解决：就是只能顺序的翻页，不能随意跳页
+</code></pre><p>27，Elasticsearch Performance Tuning Practice at eBay<br><a href="https://www.ebayinc.com/stories/blogs/tech/elasticsearch-performance-tuning-practice-at-ebay/" target="_blank" rel="external">https://www.ebayinc.com/stories/blogs/tech/elasticsearch-performance-tuning-practice-at-ebay/</a><br>具体不列举了，infoq还有翻译的，这里简单总结下：</p>
+<pre><code>From our experience, if the index is smaller than 1G, it’s fine to set the shard number to 1. For most scenarios, we can leave the shard number as the default value 5, but if shard size exceeds 30GB, we should increase the shard number to split the index into more shards. The shard number cannot be changed once an index is created, but we can create a new index and use the reindex API to move data.
+Increase refresh interval. As we mentioned in the tune indexing performance section, Elasticsearch creates new segment every time a refresh happens. Increasing the refresh interval would help reduce the segment count and reduce the IO cost for search. And, the cache would be invalid once a refresh happens and data is changed. Increasing the refresh interval can make Elasticsearch utilize cache more efficiently.
+Use filter context instead of query context if possible. A query clause is used to answer “How well does this document match this clause?” A filter clause is used to answer “Does this document match this clause?” Elasticsearch only needs to answer “Yes” or “No.” It does not need to calculate a relevancy score for a filter clause, and the filter results can be cached. See Query and filter context for details. 
+Node query cache. Node query cache only caches queries that are being used in a filter context. Unlike a query clause, a filter clause is a &quot;Yes&quot; or &quot;No&quot; question. Elasticsearch used a bit set mechanism to cache filter results, so that later queries with the same filter will be accelerated. Note that only segments that hold more than 10,000 documents (or 3% of the total documents, whichever is larger) will enable a query cache. For more details, see All about caching.
+We can use the following request to check whether a node query cache is having an effect.
+GET index_name/_stats?filter_path=indices.**.query_cache
+Sort by _doc if you don’t care about the order in which documents are returned
+</code></pre><p>28，最近打算kafka官方提个建议：consumeroffset设置为30个。<br>kafka默认consumeroffset设置为50个partition，50=5<em>5</em>2，这对于部署kafka机器除非5的倍数，否则不会均匀分布的，而对于kafka的partition分配策略 hash(group_id)%50，可能效果也是不理想的。而30=2<em>3</em>5，可选择性就多点，但hash(group_id)%30还要具体数据验证。</p>
+<p>29, Spring Boot 2.0 New Features: Infrastructure Changes<br><a href="https://springuni.com/spring-boot-2-infrastructure-changes/" target="_blank" rel="external">https://springuni.com/spring-boot-2-infrastructure-changes/</a><br>值得了解下</p>
+<p>30,<br>“Go out there and have huge dreams, then show up to work the next morning and relentlessly incrementally achieve them.”<br>~ from the book, How Google Works</p>
+<p>31，<br><a href="https://www.elastic.co/blog/categorizing-non-english-log-messages-in-machine-learning-for-elasticsearch" target="_blank" rel="external">https://www.elastic.co/blog/categorizing-non-english-log-messages-in-machine-learning-for-elasticsearch</a></p>
+<p>32，有趣，我已经想象到教主九泉下有知，会不会来一句“意不意外惊不惊喜?”<br><a href="https://www.theverge.com/2018/2/16/17020246/apple-park-headquarters-employees-injury-glass-doors-design" target="_blank" rel="external">https://www.theverge.com/2018/2/16/17020246/apple-park-headquarters-employees-injury-glass-doors-design</a></p>
+<p>33，值得参考下<br><a href="https://rcoh.me/posts/cache-oblivious-datastructures/" target="_blank" rel="external">https://rcoh.me/posts/cache-oblivious-datastructures/</a></p>
+<p>34，基于日志trace的智能故障定位系统 - 百度搜索运维团队技术负责人<br><a href="http://www.infoq.com/cn/presentations/intelligent-fault-location-system-based-on-log-trace" target="_blank" rel="external">http://www.infoq.com/cn/presentations/intelligent-fault-location-system-based-on-log-trace</a></p>
+<p>35，语言设计，值得参考<br><a href="https://www.iravid.com/posts/slick-and-shapeless.html" target="_blank" rel="external">https://www.iravid.com/posts/slick-and-shapeless.html</a></p>
+<p>36， Java版WAF实现<br><a href="https://www.yangguo.info/2018/01/11/Gateway/" target="_blank" rel="external">https://www.yangguo.info/2018/01/11/Gateway/</a><br>API网关的开源解决方案那么多，为什么我们却还要选择自研？<br><a href="https://github.com/chengdedeng/waf" target="_blank" rel="external">https://github.com/chengdedeng/waf</a></p>
+<ul>
+<li><a href="https://www.yangguo.info/2017/11/13/HttpProxy研发心得/" target="_blank" rel="external">https://www.yangguo.info/2017/11/13/HttpProxy研发心得/</a></li>
+<li><a href="https://www.yangguo.info/2017/06/06/Java版WAF实现/" target="_blank" rel="external">https://www.yangguo.info/2017/06/06/Java版WAF实现/</a></li>
+</ul>
+<p>37，<br><a href="http://blog.llvm.org/2018/03/clang-is-now-used-to-build-chrome-for.html" target="_blank" rel="external">http://blog.llvm.org/2018/03/clang-is-now-used-to-build-chrome-for.html</a></p>
+<p>38，批判的看待，而不是听风就是雨<br><a href="http://www.flax.co.uk/blog/2018/03/02/no-elastic-x-pack-not-going-open-source-according-elastic/" target="_blank" rel="external">http://www.flax.co.uk/blog/2018/03/02/no-elastic-x-pack-not-going-open-source-according-elastic/</a></p>
+<p>39，杂文：<br>美团外卖原生广告推荐实践<br><a href="http://www.infoq.com/cn/presentations/the-recommended-practice-of-meituan-takeout-ad" target="_blank" rel="external">http://www.infoq.com/cn/presentations/the-recommended-practice-of-meituan-takeout-ad</a><br>阿里巴巴监控之路<br><a href="http://www.infoq.com/cn/presentations/the-road-of-monitoring-in-alibaba" target="_blank" rel="external">http://www.infoq.com/cn/presentations/the-road-of-monitoring-in-alibaba</a><br>阿里异地多活与同城双活的架构演进<br><a href="http://www.infoq.com/cn/presentations/the-structure-of-alibaba-double-living-in-the-same-city" target="_blank" rel="external">http://www.infoq.com/cn/presentations/the-structure-of-alibaba-double-living-in-the-same-city</a></p>
+<p>40， Steve Jobs: Everything in this world… was created by people no smarter than you.<br><a href="http://muratbuffalo.blogspot.com/2018/02/think-before-you-code.html" target="_blank" rel="external">http://muratbuffalo.blogspot.com/2018/02/think-before-you-code.html</a></p>
+<p>41，<br><a href="https://fosdem.org/2018/schedule/event/unix_evolution/" target="_blank" rel="external">https://fosdem.org/2018/schedule/event/unix_evolution/</a></p>
+<p>42，kibana几个有趣使用<br><a href="https://logz.io/blog/kibana-hacks/" target="_blank" rel="external">https://logz.io/blog/kibana-hacks/</a></p>
+<p>43， 快速定位生产故障问题-JVM进程CPU占用率高于100%<br><a href="http://blog.csdn.net/flysqrlboy/article/details/79314521" target="_blank" rel="external">http://blog.csdn.net/flysqrlboy/article/details/79314521</a><br>实施要点：<br>top -Hbp ‘pid’ 定位问题线程<br>jstack ‘pid’ | grep ‘thread_id’ 找出问题代码</p>
+<p>44，<a href="http://blog.codefx.org/java/application-class-data-sharing/" target="_blank" rel="external">http://blog.codefx.org/java/application-class-data-sharing/</a></p>
+<p>45，<br><a href="http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/" target="_blank" rel="external">http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/</a></p>
+<p>46，来自stackoverflow的调查<br><a href="https://insights.stackoverflow.com/survey/2018/" target="_blank" rel="external">https://insights.stackoverflow.com/survey/2018/</a></p>
+<p>47，Kubernetes的抗脆弱性<br><a href="http://www.infoq.com/cn/articles/antifragility-in-kubernetes" target="_blank" rel="external">http://www.infoq.com/cn/articles/antifragility-in-kubernetes</a></p>
+<p>48，Java10来了，来看看它一同发布的全新JIT编译器<br><a href="https://mp.weixin.qq.com/s/fNDBX6pxw2Xa5afZpVaBEg" target="_blank" rel="external">https://mp.weixin.qq.com/s/fNDBX6pxw2Xa5afZpVaBEg</a><br><em>与interpreter，GC等JVM的其他子系统相比，JIT compiler并不依赖于诸如直接内存访问的底层语言特性。它可以看成一个输入Java bytecode输出二进制码的黑盒，其实现方式取决于开发者对开发效率，可维护性等的要求。Graal是一个以Java为主要编程语言，面向Java bytecode的编译器。与用C++实现的C1及C2相比，它的模块化更加明显，也更加容易维护。Graal既可以作为动态编译器，在运行时编译热点方法；亦可以作为静态编译器，实现AOT编译。在Java 10中，Graal作为试验性JIT compiler一同发布（JEP 317）。这篇文章将介绍Graal在动态编译上的应用。有关静态编译，可查阅JEP 295或Substrate VM</em></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;下面是之前2-3个月积攒的文摘，清空一下，所以有些看起来可能是不够“新鲜”了。&lt;/p&gt;
+&lt;p&gt;1, Dubbo源代码分析九：优雅停机&lt;br&gt;&lt;a href=&quot;http://manzhizhen.iteye.com/blog/2404220&quot; target=&quot;_blank&quot; 
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="weeklyreading" scheme="http://thomaslau.github.io/tags/weeklyreading/"/>
+    
+  </entry>
   
   <entry>
     <title>Elasticsearch几点体会</title>
@@ -120,8 +236,8 @@
   
   <entry>
     <title>Weekly Reading 170825</title>
-    <link href="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading%20copy/"/>
-    <id>http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading copy/</id>
+    <link href="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading/"/>
+    <id>http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading/</id>
     <published>2017-08-26T02:29:07.000Z</published>
     <updated>2017-08-26T02:25:23.000Z</updated>
     
@@ -712,35 +828,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
   </entry>
   
   <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
-
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
     <title>翻墙_二三事</title>
     <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
     <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
@@ -768,6 +855,35 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
     
     
       <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
+    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
+    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
+    <published>2015-02-04T03:01:07.000Z</published>
+    <updated>2017-06-16T05:07:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
+<p>原文戳上面的链接，这里摘录：</p>
+<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
+
+When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
+    
+      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
     
   </entry>
   
@@ -913,77 +1029,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
     
     
       <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins</title>
-    <link href="http://thomaslau.github.io/2014/11/21/2014-11-21-%20%5B%E8%BD%AC%5Dhow-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/"/>
-    <id>http://thomaslau.github.io/2014/11/21/2014-11-21- [转]how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins/</id>
-    <published>2014-11-21T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:27.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>原文见：<a href="http://highscalability.com/blog/2014/9/8/how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins.html" target="_blank" rel="external">how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins</a></p>
-<p>原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）</p>
-<ul>
-<li>Why Redis?</li>
-<li>Hybrid List</li>
-<li>BTree</li>
-<li>Cluster Management</li>
-<li>Data Insight</li>
-<li>Wish List for Redis</li>
-</ul>
-<p>几个好的总结：<br>（嗯，第六点？）</p>
-<ol>
-<li><p><strong>Scale demands predictability.</strong><br>The larger the cluster, the more customers, the more predictable and deterministic you want your service to be. When there’s one customer and there’s a problem you can dig into a problem and it’s intriguing. When you have 70 customers you can’t keep up. </p>
-<a id="more"></a>
-</li>
-<li><p><strong>Tail latencies matter.</strong><br>When you do fanouts to a lot of shards, when one is slow your entire query will be slow. </p>
-</li>
-</ol>
-<ol>
-<li><strong>Deterministic configuration is operationally important.</strong><br>Twitter is moving towards a container environment. Mesos is used as the job scheduler. The scheduler fulfills the request for the amount of CPU, memory etc. A monitor kills any job that goes over its resource requirement. Redis causes a problem in a container environment. Redis introduces external fragmentation, meaning you use more memory to store the same amount of data. If you don’t want to be killed you have to compensate for that with oversupply. You have to think my memory fragmentation ratio won’t go over 5%, but I’ll allocate 10% more as a buffer space. Maybe even 20%. Or I think I’ll get 5000 connections per host, but just in case let me allocate memory for 10,000 connections. The result is a huge potential for waste. Super low latency services don’t play well with Mesos today, so these jobs are isolated from other jobs.</li>
-</ol>
-<ol>
-<li><strong>Knowing your resource usage at runtime is really helpful.</strong><br>In a large cluster bad stuff happens. You think you are safe but things happen and behaviour is unexpected. Most services today can’t degrade gracefully. For example, when a limit of 10GB of RAM is reached then requests are rejected until there’s free RAM. This only fails a small percentage of traffic that’s proportional to the resource that they require. That’s graceful. Garbage collection problems are not graceful, traffic just gets dropped on the floor, this problem affects a lot of teams in a lot of companies every day. </li>
-</ol>
-<ol>
-<li><strong>Push computation to the data.</strong><br>If you look at relative network speeds, CPU speeds, and disk speeds, it makes sense to do computation before going to disk and do computation before going to the network. An example is summarizing logs on a node before they are pushed to a centralized monitoring service. LUA in Redis another way to apply computation close to the data.</li>
-</ol>
-<ol>
-<li><strong>LUA is not production ready in Redis today.</strong><br>On demand scripting means service providers can’t guarantee their SLA. A loaded script can do anything. What service provider would want to take the risk of blowing their SLA because of someone elses code? A deployment model would be better. It would allow for code review and benchmarking, so resource usage and performance could be properly calculated. </li>
-</ol>
-<ol>
-<li><strong>Redis as the next high performance stream processing platform.</strong><br>It has pub-sub and scripting. Why not?</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;原文见：&lt;a href=&quot;http://highscalability.com/blog/2014/9/8/how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;how-twitter-uses-redis-to-scale-105tb-ram-39mm-qps-10000-ins&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;原文讲述作者在twitter使用redis进行scale-105tb-ram-39mm-qps-10000-ins的一些经验（其实主要列举了搭建large-scale系统需要考虑的一些情况，这点还是很值得看一下的；也讨论了这种环境下使用redis需要考虑的因素）&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Why Redis?&lt;/li&gt;
-&lt;li&gt;Hybrid List&lt;/li&gt;
-&lt;li&gt;BTree&lt;/li&gt;
-&lt;li&gt;Cluster Management&lt;/li&gt;
-&lt;li&gt;Data Insight&lt;/li&gt;
-&lt;li&gt;Wish List for Redis&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;几个好的总结：&lt;br&gt;（嗯，第六点？）&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;Scale demands predictability.&lt;/strong&gt;&lt;br&gt;The larger the cluster, the more customers, the more predictable and deterministic you want your service to be. When there’s one customer and there’s a problem you can dig into a problem and it’s intriguing. When you have 70 customers you can’t keep up. &lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="redis" scheme="http://thomaslau.github.io/tags/redis/"/>
-    
-      <category term="twitter" scheme="http://thomaslau.github.io/tags/twitter/"/>
-    
-      <category term="performance" scheme="http://thomaslau.github.io/tags/performance/"/>
     
   </entry>
   
