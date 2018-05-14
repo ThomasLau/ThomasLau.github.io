@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2018-05-08T17:59:27.085Z</updated>
+  <updated>2018-05-14T16:44:12.145Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,96 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Many Links 0515</title>
+    <link href="http://thomaslau.github.io/2018/05/15/2018-05-15-many_links_0515/"/>
+    <id>http://thomaslau.github.io/2018/05/15/2018-05-15-many_links_0515/</id>
+    <published>2018-05-14T16:09:07.000Z</published>
+    <updated>2018-05-14T16:44:12.145Z</updated>
+    
+    <content type="html"><![CDATA[<p>1.<br>插件化、热补丁中绕不开的Proguard的坑<br><a href="https://tech.meituan.com/mt_proguard.html" target="_blank" rel="external">https://tech.meituan.com/mt_proguard.html</a><br>一直对proguard混淆感兴趣，可惜未深入看过，本文当入门似乎有点深，但是分析思路很好。<br><blockquote><p>ProGuard是2002年由比利时程序员Eric Lafortune发布的一款优秀的开源代码优化、混淆工具，适用于Java和Android应用，目标是让程序更小，运行更快，在Java界处于垄断地位。<br>主要分为三个模块：Shrinker（压缩器）、Optimizer（优化器）、Obfuscator（混淆器）、Retrace（堆栈反混淆）。<br>Shrinker 通过引用标记算法，将没用到的代码移除掉。<br>Optimizer 通过复杂的算法（Partial Evaluation &amp;Peephole optimization，这部分算法我们不再展开介绍）对字节码进行优化，代码优化会使部分代码块的结构出现变动。<br>Obfuscator 通过一个混淆名称发生器产生a、b、c的毫无意义名称来替换原来正常的名称，增加逆向的难度。<br>Retrace 经过ProGuard处理后的字节码运行的堆栈已经跟没有处理之前的不一样了，除了出现名称上的变化还伴随着逻辑上的变化，程序崩溃后，开发者需要借助Retrace将错误堆栈恢复为没有经过ProGuard处理的样子。<br>…<br>本文则主要介绍了Java优化&amp;混淆工具ProGuard的基本原理、ProGuard的几个模块之间的相互关系与影响、以及增量混淆使用-applymapping遇到部分方法映射错乱的Bug，Bug出现的原因以及修复方案。</p>
+</blockquote></p>
+<p>2.<br>What we talk about when we talk about monads<br><a href="https://arxiv.org/pdf/1803.10195v1.pdf" target="_blank" rel="external">https://arxiv.org/pdf/1803.10195v1.pdf</a><br>作者Tomas Petricek，看似简介monad，但感觉是在探讨一种理解编程语言的思维/框架。<br>有时间可以用这篇短文打发一下：<br><blockquote><p>More generally, we present a framework for understanding programming concepts that considers them at three levels: formal, metaphorical and implementation. We base such observations on established results about the scientific method and mathematical entities – cognitive sciences suggest that the metaphors used when thinking about monads are more important than widely accepted, while philosophy of science explains how the research paradigm from which monads originate influences and restricts their use.<br>Finally, we provide evidence for why a broader philosophical, sociological look at programming concepts should be of interest for programmers. It lets us understand programming concepts better and, fundamentally, choose more appropriate abstractions as illustrated in a number of case studies that conclude the paper.</p>
+</blockquote></p>
+<p>3。<br>【算法】CTR预估中的贝叶斯平滑方法（一）<br><a href="https://blog.csdn.net/dengxing1234/article/details/77965536" target="_blank" rel="external">https://blog.csdn.net/dengxing1234/article/details/77965536</a><br>学习了：<br><blockquote><p>广告形式：<br>互联网广告可以分为以下三种：<br>1）展示广告（display ad）<br>2）搜索广告（sponsored search ad）<br>3）上下文广告（contextual ad）</p>
+<p>竞价模式：<br>对于在线广告，主要有以下几种竞价模式：<br>1）pay-per-impression（按展示付费）：广告商按照广告被展示的次数付费，这是一种最普遍的竞价模型。缺点在于没有考虑投放广告的效果。<br>2）pay-per-action（按行为付费）：只有在广告产生了销售或者类似的一些转化时，广告商才付费。缺点在于追踪用户的交易行为相对比较困难。<br>3）pay-per-click（按用户点击付费）：根据用户是否会点击广告来付费。这时候就需要对广告的点击率（CTR）进行精确的预估。</p>
+<p>遇到的困难：<br>由于数据的稀疏性，对广告进行CTR预估是比较具有挑战性的，预估出来的CTR的可靠性不高，且具有较大的方差。主要有以下两类场景：<br>1）当广告的展示次数较少的时候，对其直接进行CTR的统计计算会导致一个偏高的结果。比如某个广告只展示了1次，被点击了1次，则纯粹的统计CTR=1.0，这显然是过分高估了。<br>2）当广告的展示次数很大，但点击次数很少或几乎没有的时候，对其直接进行CTR的统计计算会导致一个偏低的结果。比如某个广告没有被点击过，则纯粹的统计CTR=0.0，这显然是过分低估了。</p>
+</blockquote><br>4.<br>全栈虚拟机GraalVM初体验<br><a href="http://mp.weixin.qq.com/s/XiQW3Sbv_jHUYK7aoXy_Rg" target="_blank" rel="external">http://mp.weixin.qq.com/s/XiQW3Sbv_jHUYK7aoXy_Rg</a><br>最近公众号/知乎/infoq系列关于GraalVM 引用/收藏也较多的一篇文章：<br><blockquote><p>js 运行在GraalVM之上的javascript命令行<br>node 跟普通的node一样，区别是运行在GraalVM之上<br>java 跟普通的java一样，区别是运行在GraalVM之上<br>lli 运行在GraalVM之上的llvm字节码执行器，C和C++代码会编译成llvm字节码，然后通过它来运行<br>native-image 预编译程序文件生成快速二进制文件，用于加速启动程序<br>gu 其它的语言像Python、Ruby和R的支持都是通过gu进行安装的</p>
+</blockquote></p>
+<p>5.<br>真空里有什么<br><a href="https://www.zhihu.com/question/21734569/answer/32903623" target="_blank" rel="external">https://www.zhihu.com/question/21734569/answer/32903623</a><br>一个不明觉厉的回答，事实上，要理解有些困难，传统物理真空就是没有任何物质的空间状态，但是这里我们要理解的真空并不是传统的定义。<br>一种很民科的解释是，现代科学无法自圆其说，尤其在实验和量子论共同推波助澜下，于是创造了答案里的概念。<br>可以搜一搜 赛先生 一篇普及真空里有什么的文章。<br>另一个有趣的问题<br>自然数之和为什么等于-1/12<br><a href="https://www.zhihu.com/question/22506418" target="_blank" rel="external">https://www.zhihu.com/question/22506418</a></p>
+<p>6.<br>高性能数据库连接池的内幕<br><a href="https://yq.aliyun.com/articles/59497" target="_blank" rel="external">https://yq.aliyun.com/articles/59497</a><br>值得一看，一个数据库连接池需要考虑哪些基本问题，也包含几大知名连接池的简单对比，就不详细贴了。</p>
+<p>7.<br>同6，这里推荐一个很好的实现，Springboot 2默认的连接池，HikariCP，这篇文章有更详细的对比<br>很鸡血的技术文章，也很有趣，不说了，去感受下作者浓浓的技术激情吧：<br><a href="http://blog.didispace.com/Springboot-2-0-HikariCP-default-reason/" target="_blank" rel="external">http://blog.didispace.com/Springboot-2-0-HikariCP-default-reason/</a></p>
+<blockquote><p>HiKariCP是数据库连接池的一个后起之秀，号称性能最好，可以完美地PK掉其他连接池，是一个高性能的JDBC连接池，基于BoneCP做了不少的改进和优化。其作者还有另外一个开源作品——高性能的JSON解析器HikariJSON。<br>它，超快，快到连Spring Boot 2都宣布支持了。<br>代码体积更是少的可怜，130kb</p>
+</blockquote>
+<p>8.<br><a href="http://highscalability.com/blog/2018/4/27/stuff-the-internet-says-on-scalability-for-april-27th-2018.html" target="_blank" rel="external">http://highscalability.com/blog/2018/4/27/stuff-the-internet-says-on-scalability-for-april-27th-2018.html</a><br><blockquote><p>@kwchang: ‘The internet went from a democratizing free space to having power very centralized; crypto decentralization is a reaction to that’ - @starkness #Angels #cryptointro<br>Lynn Langit: To me, containers are the new VMs. All this frenzy about containers, and more specifically container management systems — look, somebody has to manage the things. I want to pay the cloud providers to do it so I don’t have to.<br>@kellabyte: Many-core servers are a huge problem. We have no idea how to write software to actually use the hardware properly. For example, in Go, there’s no IO library that can go faster than 10GbE.<br>Markus Winand: Don’t say relational database when referring to SQL databases. SQL is really more than just relational.<br>Catalin Cimpanu: A loud sound emitted by a fire suppression system has destroyed the hard drives of a Swedish data center, downing Nasdaq operations across Northern Europe.<br>@brendangregg: context switching &amp; CPU cache invalidations are both CPU utilization. I’d look for single-threaded/single-CPU bottlenecks first, then off-CPU analysis.</p>
+</blockquote></p>
+<p>9.<br><a href="http://blog.pragmaticengineer.com/distributed-architecture-concepts-i-have-learned-while-building-payments-systems/" target="_blank" rel="external">http://blog.pragmaticengineer.com/distributed-architecture-concepts-i-have-learned-while-building-payments-systems/</a><br>Uber工程师的一篇文章：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">SLA</div><div class="line">Horizontal vs vertical scaling</div><div class="line">Consistency</div><div class="line">Data Durability</div><div class="line">Message Persistence and Durability</div><div class="line">Idempotency</div><div class="line">Sharding and Quorum</div><div class="line">The Actor Model</div><div class="line">Reactive Architecture</div><div class="line">Closing</div></pre></td></tr></table></figure></p>
+<p>上述几点可考虑纳入设计考量点，不多评论了，作者自己总结：<br><blockquote><p>This write-up has been strictly focused on the planning and architecting of these systems. There is a whole lot of things to be said about building, deploying and migrating between high-load systems as well as operating them reliably. But all those topics are other posts.</p>
+</blockquote></p>
+<p>10.<br>关于ES shard分配/路由，看完这一篇就够了<br><a href="https://blog.csdn.net/iceman1952/article/details/79957290" target="_blank" rel="external">https://blog.csdn.net/iceman1952/article/details/79957290</a><br>这是一篇译文，原文（Every shard deserves a home）于2016-11-11发布在elastic官方博客，可以保存方便即时查阅。</p>
+<p>11.<br><a href="http://hbasefly.com/2018/05/02/timeseries-database-7/" target="_blank" rel="external">http://hbasefly.com/2018/05/02/timeseries-database-7/</a><br>任何一个数据库系统内核关注的重点无非：数据在内存中如何存储、在文件中如何存储、索引结构如何存储、数据写入流程以及数据读取流程。关于InfluxDB存储内核，笔者在之前的文章中已经比较全面的介绍了数据的文件存储格式、倒排索引存储实现以及数据写入流程，本篇文章重点介绍InfluxDB中时序数据的读取流程</p>
+<p>12.<br><a href="https://www.elastic.co/blog/composite-aggregations-elasticsearch-pizza-delivery-metrics" target="_blank" rel="external">https://www.elastic.co/blog/composite-aggregations-elasticsearch-pizza-delivery-metrics</a><br>Composite aggregations are a powerful new feature in Elasticsearch 6.1.  To show the full power of the feature, we’ll walk through creating an analytics service for Sliceline, a fictional pizza delivery company.<br>Composite aggregations allow us to:<br>Quickly paginate through aggregation results<br>Build new indices from aggregation results<br>Develop APIs backed by Elasticsearch aggregations with consistent response times for large result sets</p>
+<p>13.<br>Turning a MacBook into a Touchscreen with $1 of Hardware<br><a href="https://www.anishathalye.com/2018/04/03/macbook-touchscreen/" target="_blank" rel="external">https://www.anishathalye.com/2018/04/03/macbook-touchscreen/</a><br>只需1美元，作者在自己的MacBook的摄像头前巧妙的加装了一面小镜子，反射到摄像头，捕捉手指对屏幕的触控，并使用视觉识别，将摄像头拍摄的画面转换为触控反馈。<br>见过很多实现触摸的办法，外接镜面，外接ipad，airbar，本文介绍方法可以说，不仅便宜，而且非常的hack了。<br>不过不知道触摸效果怎样。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;1.&lt;br&gt;插件化、热补丁中绕不开的Proguard的坑&lt;br&gt;&lt;a href=&quot;https://tech.meituan.com/mt_proguard.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://tech.meituan.c
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="weeklyreading" scheme="http://thomaslau.github.io/tags/weeklyreading/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Many Links 0513</title>
+    <link href="http://thomaslau.github.io/2018/05/13/2018-05-13-many_links_0513/"/>
+    <id>http://thomaslau.github.io/2018/05/13/2018-05-13-many_links_0513/</id>
+    <published>2018-05-13T01:45:07.000Z</published>
+    <updated>2018-05-14T16:40:35.671Z</updated>
+    
+    <content type="html"><![CDATA[<p>1.<br>论喝鸡汤，还是要认准大品牌。</p>
+<p>超市里买鸡蛋还要看价格质量产地挑选，何况是鸡汤文？</p>
+<p>记得曾经看过有人分享“苔花如米小，也学牡丹开”，初看时，还是很感动的，有种壁立千仞，迎风招展的味道。</p>
+<p>说不出哪里的好，但又感觉哪里不对。</p>
+<p>偶尔看到一句话，醒悟。</p>
+<p>“一花一世界”</p>
+<p><i>我这里拷贝一段话： “恒河沙等之恒河沙。一沙一世界国土中。所有众生。各具一心。则其心有若干种。如来以清净五眼。皆尽见而知之”。<i></i></i></p>
+<p>是了，这里对比下，看出佛家的见识，几千年积累下来的，静坐卧行都在思禅思出来的见识。</p>
+<p>前者有些小家子气，或许在一个年轻气盛嘴角红润的年龄段会感动肺腑，自信。</p>
+<p>然而我更喜欢“一花一世界”，这种早已超越，甚至无须自信的意境，简直是大智慧。</p>
+<p>就像一个曾经美国总统肯尼迪的一个故事：</p>
+<p>肯尼迪去NASA访问，在洗手间碰到一位清洁工，或许是出于美国总统的义务，肯尼迪鼓舞到“感谢你把房间打扫得这样干净”，然而清洁工回答说：“不，总统先生，我不是在拖地板，我是在帮助我们登月。”<br><a id="more"></a><br>2.<br>早已接受了很多网络词汇，今天想起，为什么曾经会流行“屌丝/黑木耳”等，其实，每个时代有每个时代的词汇，犹如潘驴邓小闲。</p>
+<p>其实，这些词汇和 “国民岳父”，“国民老公”，以及很早的“大众情人”反应的人群，没什么区别。</p>
+<p>想引用《扎拉图斯特如是说》中一段，但想想，不如“仁者见仁智者见智”来的干脆。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;1.&lt;br&gt;论喝鸡汤，还是要认准大品牌。&lt;/p&gt;
+&lt;p&gt;超市里买鸡蛋还要看价格质量产地挑选，何况是鸡汤文？&lt;/p&gt;
+&lt;p&gt;记得曾经看过有人分享“苔花如米小，也学牡丹开”，初看时，还是很感动的，有种壁立千仞，迎风招展的味道。&lt;/p&gt;
+&lt;p&gt;说不出哪里的好，但又感觉哪里不对。&lt;/p&gt;
+&lt;p&gt;偶尔看到一句话，醒悟。&lt;/p&gt;
+&lt;p&gt;“一花一世界”&lt;/p&gt;
+&lt;p&gt;&lt;i&gt;我这里拷贝一段话： “恒河沙等之恒河沙。一沙一世界国土中。所有众生。各具一心。则其心有若干种。如来以清净五眼。皆尽见而知之”。&lt;i&gt;&lt;/i&gt;&lt;/i&gt;&lt;/p&gt;
+&lt;p&gt;是了，这里对比下，看出佛家的见识，几千年积累下来的，静坐卧行都在思禅思出来的见识。&lt;/p&gt;
+&lt;p&gt;前者有些小家子气，或许在一个年轻气盛嘴角红润的年龄段会感动肺腑，自信。&lt;/p&gt;
+&lt;p&gt;然而我更喜欢“一花一世界”，这种早已超越，甚至无须自信的意境，简直是大智慧。&lt;/p&gt;
+&lt;p&gt;就像一个曾经美国总统肯尼迪的一个故事：&lt;/p&gt;
+&lt;p&gt;肯尼迪去NASA访问，在洗手间碰到一位清洁工，或许是出于美国总统的义务，肯尼迪鼓舞到“感谢你把房间打扫得这样干净”，然而清洁工回答说：“不，总统先生，我不是在拖地板，我是在帮助我们登月。”&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Thoughts" scheme="http://thomaslau.github.io/tags/Thoughts/"/>
+    
+  </entry>
   
   <entry>
     <title>Many Links</title>
@@ -924,35 +1014,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
   </entry>
   
   <entry>
-    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
-    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
-    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
-    <published>2015-02-04T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
-<p>原文戳上面的链接，这里摘录：</p>
-<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
-
-When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
-</code></pre>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
-    
-      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
     <title>翻墙_二三事</title>
     <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%E7%BF%BB%E5%A2%99_%E4%BA%8C%E4%B8%89%E4%BA%8B/"/>
     <id>http://thomaslau.github.io/2015/02/04/2015-02-04-翻墙_二三事/</id>
@@ -984,6 +1045,35 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
   </entry>
   
   <entry>
+    <title>Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs</title>
+    <link href="http://thomaslau.github.io/2015/02/04/2015-02-04-%5Bantirez%E5%A6%82%E6%98%AF%E8%AF%B4%5DWhy_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/"/>
+    <id>http://thomaslau.github.io/2015/02/04/2015-02-04-[antirez如是说]Why_we_dont_have_benchmarks_comparing_Redis_with_other_DBs/</id>
+    <published>2015-02-04T03:01:07.000Z</published>
+    <updated>2017-06-16T05:07:33.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>Antirez于前几日发布了一篇blog，<a href="http://antirez.com/news/85" target="_blank" rel="external">Why we don’t have benchmarks comparing Redis with other DBs</a></p>
+<p>原文戳上面的链接，这里摘录：</p>
+<pre><code>Redis speed could be one selling point for new users, so following the trend of comparative “advertising” it should be logical to have a few comparisons at Redis.io. However there are two problems with this. One is of goals: I don’t want to convince developers to adopt Redis, we just do our best in order to provide a suitable product, and we are happy if people can get work done with it, that’s where my marketing wishes end. There is more: it is almost always impossible to compare different systems in a fair way.
+
+When you compare two databases, to get fair numbers, they need to share *a lot*: data model, exact durability guarantees, data replication safety, availability during partitions, and so forth: often a system will score in a lower way than another system since it sacrifices speed to provide less “hey look at me” qualities but that are very important nonetheless. Moreover the testing suite is a complex matter as well unless different database systems talk the same exact protocol: differences in the client library alone can contribute for large differences.
+</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Antirez于前几日发布了一篇blog，&lt;a href=&quot;http://antirez.com/news/85&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Why we don’t have benchmarks comparing Redis wit
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="antirez" scheme="http://thomaslau.github.io/tags/antirez/"/>
+    
+      <category term="Redis" scheme="http://thomaslau.github.io/tags/Redis/"/>
+    
+  </entry>
+  
+  <entry>
     <title>短句2</title>
     <link href="http://thomaslau.github.io/2015/02/01/2015-02-01-%E7%9F%AD%E5%8F%A52/"/>
     <id>http://thomaslau.github.io/2015/02/01/2015-02-01-短句2/</id>
@@ -1008,57 +1098,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
 &lt;p&gt;也在这一刻悟到，&lt;/p&gt;
 &lt;p&gt;有更多更有意义的事。&lt;/p&gt;
 &lt;p&gt;–2015于携程年会散场
-    
-    </summary>
-    
-    
-      <category term="Life" scheme="http://thomaslau.github.io/tags/Life/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E8%AE%B0%E5%BD%95%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0_scaling-postgresql-at-braintree-four-years-of-evolution/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-记录一篇文章_scaling-postgresql-at-braintree-four-years-of-evolution/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-06-16T05:07:15.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>braintree的MySQL迁移Postgresql遇到的问题及解决方案</p>
-<p><a href="https://www.braintreepayments.com/braintrust/scaling-postgresql-at-braintree-four-years-of-evolution" target="_blank" rel="external">https://www.braintreepayments.com/braintrust/scaling-postgresql-at-braintree-four-years-of-evolution</a></p>
-<p>一个酷酷的网页</p>
-<p><a href="https://www.braintreepayments.com/about" target="_blank" rel="external">https://www.braintreepayments.com/about</a></p>
-<p>link2</p>
-<p><a href="https://speakerdeck.com/pgr0ss/high-availability-at-braintree" target="_blank" rel="external">https://speakerdeck.com/pgr0ss/high-availability-at-braintree</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;braintree的MySQL迁移Postgresql遇到的问题及解决方案&lt;/p&gt;
-&lt;p&gt;&lt;a href=&quot;https://www.braintreepayments.com/braintrust/scaling-postgresql-at-braintree-four-y
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="MySQL" scheme="http://thomaslau.github.io/tags/MySQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>先秦古文一篇《谏逐客书》</title>
-    <link href="http://thomaslau.github.io/2015/01/27/2015-01-27-%E5%85%88%E7%A7%A6%E5%8F%A4%E6%96%87%E4%B8%80%E7%AF%87%E3%80%8A%E8%B0%8F%E9%80%90%E5%AE%A2%E4%B9%A6%E3%80%8B/"/>
-    <id>http://thomaslau.github.io/2015/01/27/2015-01-27-先秦古文一篇《谏逐客书》/</id>
-    <published>2015-01-27T03:01:07.000Z</published>
-    <updated>2017-07-28T03:20:09.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。<br><a id="more"></a><br>　　今陛下致昆山之玉，有随和之宝，垂明月之珠，服太阿之剑，乘纤离之马，建翠凤之旗，树灵鼍之鼓。此数宝者，秦不生一焉，而陛下说之，何也？必秦国之所生然后可，则是夜光之璧，不饰朝廷；犀象之器，不为玩好；郑、卫之女不充后宫，而骏良駃騠不实外厩，江南金锡不为用，西蜀丹青不为采。所以饰后宫，充下陈，娱心意，说耳目者，必出于秦然后可，则是宛珠之簪，傅玑之珥，阿缟之衣，锦绣之饰不进于前，而随俗雅化，佳冶窈窕，赵女不立于侧也。夫击瓮叩缶弹筝搏髀，而歌呼呜呜快耳者，真秦之声也；《郑》、《卫》、《桑间》，《韶》、《虞》、《武》、《象》者，异国之乐也。今弃击瓮叩缶而就《郑》、《卫》，退弹筝而取《昭》、《虞》，若是者何也？快意当前，适观而已矣。今取人则不然。不问可否，不论曲直，非秦者去，为客者逐。然则是所重者在乎色乐珠玉，而所轻者在乎人民也。此非所以跨海内、制诸侯之术也。</p>
-<p>　　臣闻地广者粟多，国大者人众，兵强则士勇。是以泰山不让土壤，故能成其大；河海不择细流，故能就其深；王者不却众庶，故能明其德。是以地无四方，民无异国，四时充美，鬼神降福，此五帝三王之所以无敌也。今乃弃黔首以资敌国，却宾客以业诸侯，使天下之士退而不敢西向，裹足不入秦，此所谓“借寇兵而赍盗粮”者也。夫物不产于秦，可宝者多；士不产于秦，而愿忠者众。今逐客以资敌国，损民以益雠，内自虚而外树怨于诸侯，求国无危，不可得也。(泰山 一作：太山) </p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;　　臣闻吏议逐客，窃以为过矣。昔穆公求士，西取由余于戎，东得百里奚于宛，迎蹇叔于宋，来邳豹、公孙支于晋。此五子者，不产于秦，而穆公用之，并国二十，遂霸西戎。孝公用商鞅之法，移风易俗，民以殷盛，国以富强，百姓乐用，诸侯亲服，获楚、魏之师，举地千里，至今治强。惠王用张仪之计，拔三川之地，西并巴、蜀，北收上郡，南取汉中，包九夷，制鄢、郢，东据成皋之险，割膏腴之壤，遂散六国之众，使之西面事秦，功施到今。昭王得范雎，废穰侯，逐华阳，强公室，杜私门，蚕食诸侯，使秦成帝业。此四君者，皆以客之功。由此观之，客何负于秦哉！向使四君却客而不内，疏士而不用，是使国无富利之实，而秦无强大之名也。&lt;br&gt;
     
     </summary>
     

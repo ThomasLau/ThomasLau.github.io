@@ -264,6 +264,267 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/05/15/2018-05-15-many_links_0515/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/15/2018-05-15-many_links_0515/" itemprop="url">Many Links 0515</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-15T00:09:07+08:00">
+                2018-05-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>1.<br>插件化、热补丁中绕不开的Proguard的坑<br><a href="https://tech.meituan.com/mt_proguard.html" target="_blank" rel="external">https://tech.meituan.com/mt_proguard.html</a><br>一直对proguard混淆感兴趣，可惜未深入看过，本文当入门似乎有点深，但是分析思路很好。<br><blockquote><p>ProGuard是2002年由比利时程序员Eric Lafortune发布的一款优秀的开源代码优化、混淆工具，适用于Java和Android应用，目标是让程序更小，运行更快，在Java界处于垄断地位。<br>主要分为三个模块：Shrinker（压缩器）、Optimizer（优化器）、Obfuscator（混淆器）、Retrace（堆栈反混淆）。<br>Shrinker 通过引用标记算法，将没用到的代码移除掉。<br>Optimizer 通过复杂的算法（Partial Evaluation &amp;Peephole optimization，这部分算法我们不再展开介绍）对字节码进行优化，代码优化会使部分代码块的结构出现变动。<br>Obfuscator 通过一个混淆名称发生器产生a、b、c的毫无意义名称来替换原来正常的名称，增加逆向的难度。<br>Retrace 经过ProGuard处理后的字节码运行的堆栈已经跟没有处理之前的不一样了，除了出现名称上的变化还伴随着逻辑上的变化，程序崩溃后，开发者需要借助Retrace将错误堆栈恢复为没有经过ProGuard处理的样子。<br>…<br>本文则主要介绍了Java优化&amp;混淆工具ProGuard的基本原理、ProGuard的几个模块之间的相互关系与影响、以及增量混淆使用-applymapping遇到部分方法映射错乱的Bug，Bug出现的原因以及修复方案。</p>
+</blockquote></p>
+<p>2.<br>What we talk about when we talk about monads<br><a href="https://arxiv.org/pdf/1803.10195v1.pdf" target="_blank" rel="external">https://arxiv.org/pdf/1803.10195v1.pdf</a><br>作者Tomas Petricek，看似简介monad，但感觉是在探讨一种理解编程语言的思维/框架。<br>有时间可以用这篇短文打发一下：<br><blockquote><p>More generally, we present a framework for understanding programming concepts that considers them at three levels: formal, metaphorical and implementation. We base such observations on established results about the scientific method and mathematical entities – cognitive sciences suggest that the metaphors used when thinking about monads are more important than widely accepted, while philosophy of science explains how the research paradigm from which monads originate influences and restricts their use.<br>Finally, we provide evidence for why a broader philosophical, sociological look at programming concepts should be of interest for programmers. It lets us understand programming concepts better and, fundamentally, choose more appropriate abstractions as illustrated in a number of case studies that conclude the paper.</p>
+</blockquote></p>
+<p>3。<br>【算法】CTR预估中的贝叶斯平滑方法（一）<br><a href="https://blog.csdn.net/dengxing1234/article/details/77965536" target="_blank" rel="external">https://blog.csdn.net/dengxing1234/article/details/77965536</a><br>学习了：<br><blockquote><p>广告形式：<br>互联网广告可以分为以下三种：<br>1）展示广告（display ad）<br>2）搜索广告（sponsored search ad）<br>3）上下文广告（contextual ad）</p>
+<p>竞价模式：<br>对于在线广告，主要有以下几种竞价模式：<br>1）pay-per-impression（按展示付费）：广告商按照广告被展示的次数付费，这是一种最普遍的竞价模型。缺点在于没有考虑投放广告的效果。<br>2）pay-per-action（按行为付费）：只有在广告产生了销售或者类似的一些转化时，广告商才付费。缺点在于追踪用户的交易行为相对比较困难。<br>3）pay-per-click（按用户点击付费）：根据用户是否会点击广告来付费。这时候就需要对广告的点击率（CTR）进行精确的预估。</p>
+<p>遇到的困难：<br>由于数据的稀疏性，对广告进行CTR预估是比较具有挑战性的，预估出来的CTR的可靠性不高，且具有较大的方差。主要有以下两类场景：<br>1）当广告的展示次数较少的时候，对其直接进行CTR的统计计算会导致一个偏高的结果。比如某个广告只展示了1次，被点击了1次，则纯粹的统计CTR=1.0，这显然是过分高估了。<br>2）当广告的展示次数很大，但点击次数很少或几乎没有的时候，对其直接进行CTR的统计计算会导致一个偏低的结果。比如某个广告没有被点击过，则纯粹的统计CTR=0.0，这显然是过分低估了。</p>
+</blockquote><br>4.<br>全栈虚拟机GraalVM初体验<br><a href="http://mp.weixin.qq.com/s/XiQW3Sbv_jHUYK7aoXy_Rg" target="_blank" rel="external">http://mp.weixin.qq.com/s/XiQW3Sbv_jHUYK7aoXy_Rg</a><br>最近公众号/知乎/infoq系列关于GraalVM 引用/收藏也较多的一篇文章：<br><blockquote><p>js 运行在GraalVM之上的javascript命令行<br>node 跟普通的node一样，区别是运行在GraalVM之上<br>java 跟普通的java一样，区别是运行在GraalVM之上<br>lli 运行在GraalVM之上的llvm字节码执行器，C和C++代码会编译成llvm字节码，然后通过它来运行<br>native-image 预编译程序文件生成快速二进制文件，用于加速启动程序<br>gu 其它的语言像Python、Ruby和R的支持都是通过gu进行安装的</p>
+</blockquote></p>
+<p>5.<br>真空里有什么<br><a href="https://www.zhihu.com/question/21734569/answer/32903623" target="_blank" rel="external">https://www.zhihu.com/question/21734569/answer/32903623</a><br>一个不明觉厉的回答，事实上，要理解有些困难，传统物理真空就是没有任何物质的空间状态，但是这里我们要理解的真空并不是传统的定义。<br>一种很民科的解释是，现代科学无法自圆其说，尤其在实验和量子论共同推波助澜下，于是创造了答案里的概念。<br>可以搜一搜 赛先生 一篇普及真空里有什么的文章。<br>另一个有趣的问题<br>自然数之和为什么等于-1/12<br><a href="https://www.zhihu.com/question/22506418" target="_blank" rel="external">https://www.zhihu.com/question/22506418</a></p>
+<p>6.<br>高性能数据库连接池的内幕<br><a href="https://yq.aliyun.com/articles/59497" target="_blank" rel="external">https://yq.aliyun.com/articles/59497</a><br>值得一看，一个数据库连接池需要考虑哪些基本问题，也包含几大知名连接池的简单对比，就不详细贴了。</p>
+<p>7.<br>同6，这里推荐一个很好的实现，Springboot 2默认的连接池，HikariCP，这篇文章有更详细的对比<br>很鸡血的技术文章，也很有趣，不说了，去感受下作者浓浓的技术激情吧：<br><a href="http://blog.didispace.com/Springboot-2-0-HikariCP-default-reason/" target="_blank" rel="external">http://blog.didispace.com/Springboot-2-0-HikariCP-default-reason/</a></p>
+<blockquote><p>HiKariCP是数据库连接池的一个后起之秀，号称性能最好，可以完美地PK掉其他连接池，是一个高性能的JDBC连接池，基于BoneCP做了不少的改进和优化。其作者还有另外一个开源作品——高性能的JSON解析器HikariJSON。<br>它，超快，快到连Spring Boot 2都宣布支持了。<br>代码体积更是少的可怜，130kb</p>
+</blockquote>
+<p>8.<br><a href="http://highscalability.com/blog/2018/4/27/stuff-the-internet-says-on-scalability-for-april-27th-2018.html" target="_blank" rel="external">http://highscalability.com/blog/2018/4/27/stuff-the-internet-says-on-scalability-for-april-27th-2018.html</a><br><blockquote><p>@kwchang: ‘The internet went from a democratizing free space to having power very centralized; crypto decentralization is a reaction to that’ - @starkness #Angels #cryptointro<br>Lynn Langit: To me, containers are the new VMs. All this frenzy about containers, and more specifically container management systems — look, somebody has to manage the things. I want to pay the cloud providers to do it so I don’t have to.<br>@kellabyte: Many-core servers are a huge problem. We have no idea how to write software to actually use the hardware properly. For example, in Go, there’s no IO library that can go faster than 10GbE.<br>Markus Winand: Don’t say relational database when referring to SQL databases. SQL is really more than just relational.<br>Catalin Cimpanu: A loud sound emitted by a fire suppression system has destroyed the hard drives of a Swedish data center, downing Nasdaq operations across Northern Europe.<br>@brendangregg: context switching &amp; CPU cache invalidations are both CPU utilization. I’d look for single-threaded/single-CPU bottlenecks first, then off-CPU analysis.</p>
+</blockquote></p>
+<p>9.<br><a href="http://blog.pragmaticengineer.com/distributed-architecture-concepts-i-have-learned-while-building-payments-systems/" target="_blank" rel="external">http://blog.pragmaticengineer.com/distributed-architecture-concepts-i-have-learned-while-building-payments-systems/</a><br>Uber工程师的一篇文章：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">SLA</div><div class="line">Horizontal vs vertical scaling</div><div class="line">Consistency</div><div class="line">Data Durability</div><div class="line">Message Persistence and Durability</div><div class="line">Idempotency</div><div class="line">Sharding and Quorum</div><div class="line">The Actor Model</div><div class="line">Reactive Architecture</div><div class="line">Closing</div></pre></td></tr></table></figure></p>
+<p>上述几点可考虑纳入设计考量点，不多评论了，作者自己总结：<br><blockquote><p>This write-up has been strictly focused on the planning and architecting of these systems. There is a whole lot of things to be said about building, deploying and migrating between high-load systems as well as operating them reliably. But all those topics are other posts.</p>
+</blockquote></p>
+<p>10.<br>关于ES shard分配/路由，看完这一篇就够了<br><a href="https://blog.csdn.net/iceman1952/article/details/79957290" target="_blank" rel="external">https://blog.csdn.net/iceman1952/article/details/79957290</a><br>这是一篇译文，原文（Every shard deserves a home）于2016-11-11发布在elastic官方博客，可以保存方便即时查阅。</p>
+<p>11.<br><a href="http://hbasefly.com/2018/05/02/timeseries-database-7/" target="_blank" rel="external">http://hbasefly.com/2018/05/02/timeseries-database-7/</a><br>任何一个数据库系统内核关注的重点无非：数据在内存中如何存储、在文件中如何存储、索引结构如何存储、数据写入流程以及数据读取流程。关于InfluxDB存储内核，笔者在之前的文章中已经比较全面的介绍了数据的文件存储格式、倒排索引存储实现以及数据写入流程，本篇文章重点介绍InfluxDB中时序数据的读取流程</p>
+<p>12.<br><a href="https://www.elastic.co/blog/composite-aggregations-elasticsearch-pizza-delivery-metrics" target="_blank" rel="external">https://www.elastic.co/blog/composite-aggregations-elasticsearch-pizza-delivery-metrics</a><br>Composite aggregations are a powerful new feature in Elasticsearch 6.1.  To show the full power of the feature, we’ll walk through creating an analytics service for Sliceline, a fictional pizza delivery company.<br>Composite aggregations allow us to:<br>Quickly paginate through aggregation results<br>Build new indices from aggregation results<br>Develop APIs backed by Elasticsearch aggregations with consistent response times for large result sets</p>
+<p>13.<br>Turning a MacBook into a Touchscreen with $1 of Hardware<br><a href="https://www.anishathalye.com/2018/04/03/macbook-touchscreen/" target="_blank" rel="external">https://www.anishathalye.com/2018/04/03/macbook-touchscreen/</a><br>只需1美元，作者在自己的MacBook的摄像头前巧妙的加装了一面小镜子，反射到摄像头，捕捉手指对屏幕的触控，并使用视觉识别，将摄像头拍摄的画面转换为触控反馈。<br>见过很多实现触摸的办法，外接镜面，外接ipad，airbar，本文介绍方法可以说，不仅便宜，而且非常的hack了。<br>不过不知道触摸效果怎样。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/05/13/2018-05-13-many_links_0513/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/13/2018-05-13-many_links_0513/" itemprop="url">Many Links 0513</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-13T09:45:07+08:00">
+                2018-05-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>1.<br>论喝鸡汤，还是要认准大品牌。</p>
+<p>超市里买鸡蛋还要看价格质量产地挑选，何况是鸡汤文？</p>
+<p>记得曾经看过有人分享“苔花如米小，也学牡丹开”，初看时，还是很感动的，有种壁立千仞，迎风招展的味道。</p>
+<p>说不出哪里的好，但又感觉哪里不对。</p>
+<p>偶尔看到一句话，醒悟。</p>
+<p>“一花一世界”</p>
+<p><i>我这里拷贝一段话： “恒河沙等之恒河沙。一沙一世界国土中。所有众生。各具一心。则其心有若干种。如来以清净五眼。皆尽见而知之”。<i></i></i></p>
+<p>是了，这里对比下，看出佛家的见识，几千年积累下来的，静坐卧行都在思禅思出来的见识。</p>
+<p>前者有些小家子气，或许在一个年轻气盛嘴角红润的年龄段会感动肺腑，自信。</p>
+<p>然而我更喜欢“一花一世界”，这种早已超越，甚至无须自信的意境，简直是大智慧。</p>
+<p>就像一个曾经美国总统肯尼迪的一个故事：</p>
+<p>肯尼迪去NASA访问，在洗手间碰到一位清洁工，或许是出于美国总统的义务，肯尼迪鼓舞到“感谢你把房间打扫得这样干净”，然而清洁工回答说：“不，总统先生，我不是在拖地板，我是在帮助我们登月。”<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/13/2018-05-13-many_links_0513/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/05/09/2018-05-09-many_links/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1213,245 +1474,6 @@ S=k*lnΩ
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/" itemprop="url">为什么 LR 模型要使用 sigmoid 函数</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-04T21:59:07+08:00">
-                2017-08-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <pre><code>分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。
-</code></pre><p>在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，<a href="https://www.zhihu.com/question/35322351" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a> 里获赞最高的答案。<br><strong>但正如马化腾先生说的，这么说，也对也不对。</strong><br>看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？<br>换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/07/31/2017-07-31-Blogs_2017_07_31/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/07/31/2017-07-31-Blogs_2017_07_31/" itemprop="url">Blogs_20170731</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-31T21:01:07+08:00">
-                2017-07-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h1 id="Blogs"><a href="#Blogs" class="headerlink" title="Blogs"></a>Blogs</h1><p>1, <a href="https://medium.com/the-mission/10-000-hours-with-claude-shannon-12-lessons-on-life-and-learning-from-a-genius-e8b9297bee8f" target="_blank" rel="external">10,000 Hours With Claude Shannon: How A Genius Thinks, Works, and Lives</a><br>上个世纪，尤其是前50年，伟大的天才很多，开拓的天才屈指可数，有些是大众皆知如爱因斯坦，图灵，而知道香农就没有那么多。作者总结了香农许多习惯，试图解密为何香农会有那么多的时间创造，或者思考。<br>2，<a href="http://www.makers.com/margaret-hamilton" target="_blank" rel="external">Makers专访Margaret Hamilton, NASA’s First Software Engineer</a></p>
-<pre><code>Meet Margaret H. Hamilton, the woman who led man to the moon. 
-On July 20th, 1969, minutes before Apollo 11&apos;s scheduled touch-down, 
-there was a computer error that would have changed history had it not been 
-for Margaret&apos;s programming that overrode the glitch and ultimately made 
-&quot;one small step for man, and a giant leap for mankind&quot; a reality.
-</code></pre>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/07/31/2017-07-31-Blogs_2017_07_31/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1501,7 +1523,7 @@ for Margaret&apos;s programming that overrode the glitch and ultimately made
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-count">28</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1514,7 +1536,7 @@ for Margaret&apos;s programming that overrode the glitch and ultimately made
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">24</span>
+                <span class="site-state-item-count">25</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
