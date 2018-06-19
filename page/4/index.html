@@ -95,7 +95,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="e+Thomas">
-<meta property="og:url" content="http://thomaslau.github.io/tags/JVM/index.html">
+<meta property="og:url" content="http://thomaslau.github.io/page/4/index.html">
 <meta property="og:site_name" content="e+Thomas">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -127,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://thomaslau.github.io/tags/JVM/"/>
+  <link rel="canonical" href="http://thomaslau.github.io/page/4/"/>
 
 
 
 
 
-  <title>标签: JVM | e+Thomas</title>
+  <title>e+Thomas</title>
   
 
 
@@ -168,7 +168,9 @@
     
   
 
-  <div class="container sidebar-position-left  ">
+  <div class="container sidebar-position-left 
+   page-home 
+ ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -251,73 +253,143 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-collapse">
-    <div class="collection-title">
-      <h1>JVM<small>标签</small>
-      </h1>
-    </div>
-
+  <section id="posts" class="posts-expand">
     
       
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/" itemprop="url">
-              
-                <span itemprop="name">从noInflation看Java Method.invoke</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-07-25T21:01:07+08:00"
-              content="2017-07-25" >
-          07-25
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2015/07/05/2015-07-05-Eclipse看jvmcode插件/" itemprop="url">
-              
-                <span itemprop="name">Eclipse看jvmcode插件</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2015-07-05T11:01:07+08:00"
-              content="2015-07-05" >
-          07-05
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-    
-  </div>
 
   
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2014/10/30/2014-10-30- openresty/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014/10/30/2014-10-30- openresty/" itemprop="url">openresty</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-10-30T11:01:07+08:00">
+                2014-10-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>发现一个不错的nginx扩展(不仅仅是扩展了)，<a href="http://openresty.org/cn/" target="_blank" rel="external">openresty.org</a> 有详细的介绍，这里摘录一下：</p>
+<pre><code>OpenResty （也称为 ngx_openresty）是一个全功能的 Web 应用服务器，它打包了标准的 Nginx 核心，
+很多的常用的第三方模块，以及它们的大多数依赖项。
+OpenResty 通过汇聚各种设计精良的 Nginx 模块,
+从而将 Nginx 有效的变成一个强大的 Web 应用服务器,
+这样, Web 开发人员可以使用 Lua 脚本语言调动 Nginx 支持的各种C以及Lua 模块,
+快速构造出足以胜任 10K+ 并发连接响应的超高性能Web 应用系统.
+
+OpenResty 的目标是让你的Web服务直接跑在 Nginx 服务内部,
+充分利用 Nginx 的非阻塞 I/O 模型,
+不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如
+MySQL,PostgreSQL,~Memcaches 以及 ~Redis 等都进行一致的高性能响应.
+</code></pre><p>openresty的主要作者是 agentzh，中文名：章亦春，<a href="https://github.com/agentzh" target="_blank" rel="external">GitHub Page</a>。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/10/30/2014-10-30- openresty/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+  </nav>
+
 
 
           </div>
