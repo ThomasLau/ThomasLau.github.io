@@ -1,0 +1,724 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,weeklyreading," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="1.题记：遇到个使用Spring xml方式配置Hikari，因为一个Bean的命名原因导致爆出 SQLFeatureNotSupportedException，追溯原因过程其实很简单，但是找到问题所在确实浪费不少时间。2.先看源码。由于某些原因，只能使用 Spring XML方式配置 Hikari的 datasource，我自己使用jdk 1.7版本，不过粗看了下适用1.8+的Hikari代码，">
+<meta name="keywords" content="Tech,weeklyreading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring + Hikari的一个SQLFeatureNotSupportedException问题">
+<meta property="og:url" content="http://thomaslau.github.io/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="1.题记：遇到个使用Spring xml方式配置Hikari，因为一个Bean的命名原因导致爆出 SQLFeatureNotSupportedException，追溯原因过程其实很简单，但是找到问题所在确实浪费不少时间。2.先看源码。由于某些原因，只能使用 Spring XML方式配置 Hikari的 datasource，我自己使用jdk 1.7版本，不过粗看了下适用1.8+的Hikari代码，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-07-05T17:00:55.712Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring + Hikari的一个SQLFeatureNotSupportedException问题">
+<meta name="twitter:description" content="1.题记：遇到个使用Spring xml方式配置Hikari，因为一个Bean的命名原因导致爆出 SQLFeatureNotSupportedException，追溯原因过程其实很简单，但是找到问题所在确实浪费不少时间。2.先看源码。由于某些原因，只能使用 Spring XML方式配置 Hikari的 datasource，我自己使用jdk 1.7版本，不过粗看了下适用1.8+的Hikari代码，">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/"/>
+
+
+
+
+
+  <title>Spring + Hikari的一个SQLFeatureNotSupportedException问题 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring + Hikari的一个SQLFeatureNotSupportedException问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-06T01:09:07+08:00">
+                2018-07-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>1.<br><i>题记：</i><br>遇到个使用Spring xml方式配置Hikari，因为一个Bean的命名原因导致爆出 SQLFeatureNotSupportedException，追溯原因过程其实很简单，但是找到问题所在确实浪费不少时间。<br>2.<br>先看源码。<br>由于某些原因，只能使用 Spring XML方式配置 Hikari的 datasource，我自己使用jdk 1.7版本，不过粗看了下适用1.8+的Hikari代码，应该也是存在这个问题的。<br><a id="more"></a><br>参考Hikari官方的参数配置，如果在你的xml里这么配置 Hikari的 datasource<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"jdbcTemplate"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.core.JdbcTemplate"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"dataSource"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSource"</span> <span class="attr">class</span>=<span class="string">"com.zaxxer.hikari.HikariDataSource"</span> <span class="attr">destroy-method</span>=<span class="string">"close"</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span> <span class="attr">value</span>=<span class="string">"com.mysql.jdbc.Driver"</span> /&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"jdbcUrl"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.url&#125;"</span> /&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.username&#125;"</span> /&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;jdbc.password&#125;"</span> /&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maximumPoolSize"</span> <span class="attr">value</span>=<span class="string">"20"</span> /&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"minimumIdle"</span> <span class="attr">value</span>=<span class="string">"2"</span> /&gt;</span></div><div class="line">    <span class="comment">&lt;!-- &lt;property name="dataSource" &gt; &lt;null/&gt;&lt;/property&gt; --&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionTestQuery"</span> <span class="attr">value</span>=<span class="string">"select 1 "</span> /&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSourceProperties"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">props</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"cachePrepStmts"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"prepStmtCacheSize"</span>&gt;</span>250<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"prepStmtCacheSqlLimit"</span>&gt;</span>2048<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">prop</span> <span class="attr">key</span>=<span class="string">"useServerPrepStmts"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">prop</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">props</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>那么，当你的程序运行到到从该dataSource取connection时候，很可能会遇到下面这样的异常：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Caused by: java.sql.SQLFeatureNotSupportedException</div><div class="line">    at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:119)</div><div class="line">    at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:341)</div><div class="line">    at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:193)</div><div class="line">    at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:428)</div><div class="line">    at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:499)</div><div class="line">    at com.zaxxer.hikari.pool.HikariPool.&lt;init&gt;(HikariPool.java:112)</div><div class="line">    at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:97)</div><div class="line">    at org.springframework.jdbc.datasource.DataSourceUtils.doGetConnection(DataSourceUtils.java:111)</div><div class="line">    at org.springframework.jdbc.datasource.DataSourceUtils.getConnection(DataSourceUtils.java:77)</div><div class="line">    ... 7 more</div></pre></td></tr></table></figure></p>
+<p>即这个dataSource不能使用。<br>我先说一下解决办法：<br>这个异常其实是 id=”dataSource”/ref=”dataSource” 导致的，如果改一下名字，任何非 dataSource的名字，就会神奇的发现，程序正常运行了。<br>3.<br>原因呢？<br>看 <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/HikariDataSource.java##L133" target="_blank" rel="external">HikariDataSource.java</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/** &#123;<span class="doctag">@inheritDoc</span>&#125; */</span></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Connection <span class="title">getConnection</span><span class="params">(String username, String password)</span> <span class="keyword">throws</span> SQLException</span></div><div class="line">&#123;</div><div class="line">   <span class="keyword">throw</span> <span class="keyword">new</span> SQLFeatureNotSupportedException();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>发现这里并没有错，的的确确该抛异常了，所以，正常的 getConnection()不是在这个类/方法里。<br>实际上，正常是在 Hikari的 <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/util/DriverDataSource.java#L123" target="_blank" rel="external">DriverDataSource</a> 这个类里<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Connection <span class="title">getConnection</span><span class="params">()</span> <span class="keyword">throws</span> SQLException</span></div><div class="line">&#123;</div><div class="line">   <span class="keyword">return</span> driver.connect(jdbcUrl, driverProperties);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Connection <span class="title">getConnection</span><span class="params">(String username, String password)</span> <span class="keyword">throws</span> SQLException</span></div><div class="line">&#123;</div><div class="line">   <span class="keyword">return</span> getConnection();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>那么是什么导致 DataSource使用了错误的实现类？<br>从HikariDataSource构造函数入口，到 getConnection 看起，追踪到 -&gt; <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/pool/HikariPool.java#L106" target="_blank" rel="external">HikariPool(this)</a> -&gt; <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/pool/PoolBase.java#L88" target="_blank" rel="external">PoolBase(final HikariConfig config)</a> -&gt; <a href="https://github.com/brettwooldridge/HikariCP/blob/dev/src/main/java/com/zaxxer/hikari/pool/PoolBase.java#L323" target="_blank" rel="external">initializeDataSource()</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initializeDataSource</span><span class="params">()</span></span></div><div class="line">&#123;</div><div class="line">   <span class="keyword">final</span> String jdbcUrl = config.getJdbcUrl();</div><div class="line">   <span class="keyword">final</span> String username = config.getUsername();</div><div class="line">   <span class="keyword">final</span> String password = config.getPassword();</div><div class="line">   <span class="keyword">final</span> String dsClassName = config.getDataSourceClassName();</div><div class="line">   <span class="keyword">final</span> String driverClassName = config.getDriverClassName();</div><div class="line">   <span class="keyword">final</span> Properties dataSourceProperties = config.getDataSourceProperties();</div><div class="line"></div><div class="line">   DataSource dataSource = config.getDataSource();</div><div class="line">   <span class="keyword">if</span> (dsClassName != <span class="keyword">null</span> &amp;&amp; dataSource == <span class="keyword">null</span>) &#123;</div><div class="line">      dataSource = createInstance(dsClassName, DataSource.class);</div><div class="line">      PropertyElf.setTargetFromProperties(dataSource, dataSourceProperties);</div><div class="line">   &#125;</div><div class="line">   <span class="keyword">else</span> <span class="keyword">if</span> (jdbcUrl != <span class="keyword">null</span> &amp;&amp; dataSource == <span class="keyword">null</span>) &#123;</div><div class="line">      dataSource = <span class="keyword">new</span> DriverDataSource(jdbcUrl, driverClassName, dataSourceProperties, username, password);</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   <span class="keyword">if</span> (dataSource != <span class="keyword">null</span>) &#123;</div><div class="line">      setLoginTimeout(dataSource);</div><div class="line">      createNetworkTimeoutExecutor(dataSource, dsClassName, jdbcUrl);</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   <span class="keyword">this</span>.dataSource = dataSource;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这里似乎看起来正常，但是，如果我们仔细看 DataSource dataSource = config.getDataSource()，也就是说 HikariConfig 其实有 get/setDataSource属性<br>再看看我们xml里定义的bean，bean id=”dataSource” class=”com.zaxxer.hikari.HikariDataSource”<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HikariDataSource</span> <span class="keyword">extends</span> <span class="title">HikariConfig</span> <span class="keyword">implements</span> <span class="title">DataSource</span>, <span class="title">Closeable</span></span>&#123;</div><div class="line">    ....</div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HikariConfig</span> <span class="keyword">implements</span> <span class="title">HikariConfigMXBean</span></span></div><div class="line">&#123;</div><div class="line">   ...</div><div class="line">   <span class="keyword">private</span> DataSource dataSource;</div><div class="line">   <span class="comment">/**</span></div><div class="line">    * Set a &#123;<span class="doctag">@link</span> DataSource&#125; for the pool to explicitly wrap.  This setter is not</div><div class="line">    * available through property file based initialization.</div><div class="line">    *</div><div class="line">    * <span class="doctag">@param</span> dataSource a specific &#123;<span class="doctag">@link</span> DataSource&#125; to be wrapped by the pool</div><div class="line">    */</div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setDataSource</span><span class="params">(DataSource dataSource)</span></span></div><div class="line">   &#123;</div><div class="line">      <span class="keyword">this</span>.dataSource = dataSource;</div><div class="line">   &#125;</div><div class="line">   ...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>发现没有，HikariDataSource 其实还有一个 setDataSource 属性，即我们xml里定义的 id=”dataSource” 其实还是会将自己注入给自己的！<br>这也就是为什么上文中 initializeDataSource 方法里，最终实例化的不是 DriverDataSource 而是自己。</p>
+<p>所以，改一个名字就可以了。</p>
+<hr>
+<p>4.<br>关于 SpringBoot<br>这令我好奇，默认支持使用Hikari作为datasource的SpringBoot是怎么实例化HikariDataSource？会有上述问题吗？<br>这部分代码在<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration</div><div class="line">    <span class="meta">@ConditionalOnClass</span>(HikariDataSource.class)</div><div class="line">        <span class="meta">@ConditionalOnProperty</span>(name = <span class="string">"spring.datasource.type"</span>, havingValue = <span class="string">"com.zaxxer.hikari.HikariDataSource"</span>, matchIfMissing = <span class="keyword">true</span>)</div><div class="line">        <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Hikari</span> <span class="keyword">extends</span> <span class="title">DataSourceConfiguration</span> </span>&#123;</div><div class="line">            <span class="meta">@Bean</span></div><div class="line">            <span class="meta">@ConfigurationProperties</span>(prefix = <span class="string">"spring.datasource.hikari"</span>)</div><div class="line">            <span class="function"><span class="keyword">public</span> HikariDataSource <span class="title">dataSource</span><span class="params">(DataSourceProperties properties)</span> </span>&#123;</div><div class="line">                <span class="keyword">return</span> createDataSource(properties, HikariDataSource.class);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration</div><div class="line">    <span class="keyword">protected</span> &lt;T&gt; <span class="function">T <span class="title">createDataSource</span><span class="params">(DataSourceProperties properties,</span></span></div><div class="line">            Class&lt;? extends DataSource&gt; type) &#123;</div><div class="line">        <span class="keyword">return</span> (T) properties.initializeDataSourceBuilder().type(type).build();</div><div class="line">    &#125;</div><div class="line">...</div></pre></td></tr></table></figure></p>
+<p>不深入了，看下去，反射生成，并且未设置datasource属性，即实际是没有这个问题的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/weeklyreading/" rel="tag"># weeklyreading</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/05/2018-07-05-many_links_0705/" rel="next" title="Many Links 0705">
+                <i class="fa fa-chevron-left"></i> Many Links 0705
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
