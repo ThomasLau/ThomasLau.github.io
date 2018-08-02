@@ -1,0 +1,726 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,weeklyreading," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="1.继续 SCALA TIMES 上的分享https://mailchi.mp/softwaremill/scala-times-issue-2607957Akka anti-patterns: Java serializationPractical Cats: Functor and ApplicativeImplicits, type classes, and extension method">
+<meta name="keywords" content="Tech,weeklyreading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Many Links 0803">
+<meta property="og:url" content="http://thomaslau.github.io/2018/08/03/2018-08-03-many_links_0803/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="1.继续 SCALA TIMES 上的分享https://mailchi.mp/softwaremill/scala-times-issue-2607957Akka anti-patterns: Java serializationPractical Cats: Functor and ApplicativeImplicits, type classes, and extension method">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-08-02T17:26:31.674Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Many Links 0803">
+<meta name="twitter:description" content="1.继续 SCALA TIMES 上的分享https://mailchi.mp/softwaremill/scala-times-issue-2607957Akka anti-patterns: Java serializationPractical Cats: Functor and ApplicativeImplicits, type classes, and extension method">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2018/08/03/2018-08-03-many_links_0803/"/>
+
+
+
+
+
+  <title>Many Links 0803 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/08/03/2018-08-03-many_links_0803/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Many Links 0803</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-03T01:09:07+08:00">
+                2018-08-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>1.<br>继续 SCALA TIMES 上的分享<br><a href="https://mailchi.mp/softwaremill/scala-times-issue-2607957" target="_blank" rel="external">https://mailchi.mp/softwaremill/scala-times-issue-2607957</a><br><a href="https://manuel.bernhardt.io/2018/07/20/akka-anti-patterns-java-serialization/" target="_blank" rel="external">Akka anti-patterns: Java serialization</a><br><a href="https://mostafa-asg.github.io/post/practical-scala-cats-applicative-functor/" target="_blank" rel="external">Practical Cats: Functor and Applicative</a><br><a href="https://kubuszok.com/2018/implicits-type-classes-and-extension-methods-part-4/" target="_blank" rel="external">Implicits, type classes, and extension methods, part 4: understanding implicits</a><br><a href="http://lampwww.epfl.ch/~doeraene/thesis/" target="_blank" rel="external">Cross-Platform Language Design</a><br>2.<br>Be Nice And Write Stable Code<br><a href="http://technosophos.com/2018/07/04/be-nice-and-write-stable-code.html" target="_blank" rel="external">http://technosophos.com/2018/07/04/be-nice-and-write-stable-code.html</a><br><a id="more"></a><br><blockquote><p>Versions and SemVer<br>In software, we use version numbers to signal that something has changed. Version numbering schemes go from dead simple (integers that increment with every release, or date stamps) to surprisingly complex (1.0~pre3+dfsg-0.1+b2, 2.1.1+git20160721~8efc468-2, and 1.2.0+LibO5.2.7-1+deb9u4 are a few versions spotted in the wild).</p>
+<p>But when it comes to software version numbers, the current leader in version numbering schemes is SemVer (or Semantic Versioning). Don’t be fooled, though! Many people claim to know how SemVer works, but have never read the specification. Since this is a critical piece of what we are about to talk about, here is a summary of the spec:</p>
+<p>Version numbers take the form X.Y.Z, sometimes augmented with additional pre-release and build information: X.Y.Z-AAA#BBB. And each of those fields means something well defined and specific.</p>
+<p>X is the major number. Changes in this indicate breaking changes to the API (and/or behavior).<br>Y is the minor number. Changes to this number indicate that new features were added, but that no APIs are broken as a result.<br>Z is the patch version. Changes to this indicate that internal changes were made, but that no changes (even compatible changes) were made to the API.<br>These three are the important ones for us. Again, I suggest taking 15 minutes to read the entire spec.</p>
+<p>Countless projects use a format that looks like SemVer, but many of them ignore the semantics behind the version number. Often, it seems that version numbers are incremented by “gut feel” instead of any consistent semantic: “This feels like a minor version update.”</p>
+</blockquote><br>3.<br>lucene中的PackedInts源码解读-1<br><a href="http://suichangkele.iteye.com/blog/2427364" target="_blank" rel="external">http://suichangkele.iteye.com/blog/2427364</a><br>4.<br>【译】 追踪同步分片副本<br><a href="https://www.easyice.cn/archives/243" target="_blank" rel="external">https://www.easyice.cn/archives/243</a><br><a href="https://www.easyice.cn/archives/283" target="_blank" rel="external">https://www.easyice.cn/archives/283</a><br>5.<br>Lucene 基础理论<br><a href="http://www.blogjava.net/hoojo/archive/2012/09/06/387140.html" target="_blank" rel="external">http://www.blogjava.net/hoojo/archive/2012/09/06/387140.html</a><br><a href="https://github.com/kakawait/cas-security-spring-boot-starter" target="_blank" rel="external">https://github.com/kakawait/cas-security-spring-boot-starter</a><br>6.<br>几个名词解释：<br><a href="https://en.wikipedia.org/wiki/High-availability_cluster" target="_blank" rel="external">https://en.wikipedia.org/wiki/High-availability_cluster</a><br><blockquote><p>Node configurations<br>Active/active — Traffic intended for the failed node is either passed onto an existing node or load balanced across the remaining nodes. This is usually only possible when the nodes use a homogeneous software configuration.<br>Active/passive — Provides a fully redundant instance of each node, which is only brought online when its associated primary node fails.[2] This configuration typically requires the most extra hardware.<br>N+1 — Provides a single extra node that is brought online to take over the role of the node that has failed. In the case of heterogeneous software configuration on each primary node, the extra node must be universally capable of assuming any of the roles of the primary nodes it is responsible for. This normally refers to clusters that have multiple services running simultaneously; in the single service case, this degenerates to active/passive.<br>N+M — In cases where a single cluster is managing many services, having only one dedicated failover node might not offer sufficient redundancy. In such cases, more than one (M) standby servers are included and available. The number of standby servers is a tradeoff between cost and reliability requirements.<br>N-to-1 — Allows the failover standby node to become the active one temporarily, until the original node can be restored or brought back online, at which point the services or instances must be failed-back to it in order to restore high availability.<br>N-to-N — A combination of active/active and N+M clusters, N to N clusters redistribute the services, instances or connections from the failed node among the remaining active nodes, thus eliminating (as with active/active) the need for a ‘standby’ node, but introducing a need for extra capacity on all active nodes.</p>
+</blockquote><br>双机热备特指基于高可用系统中的两台服务器的热备（或高可用），因两机高可用在国内使用较多，故得名双机热备，双机高可用按工作中的切换方式分为：主-备方式（Active-Standby方式）和双主机方式（Active-Active方式）<br><i>active-active</i><br>很好理解, 用两个完全一样的server, 然后用一个load balancer进行请求的调度.<br><i>active-passive</i><br>active-passive也是两个服务器节点, 但是绝大多数时间是active的那个(或者说primary)进行服务, 当primary服务器出问题, 就使用另一个passive服务器作为备用.<br>7.<br>Why I don’t use JSON ASTs<br><a href="https://www.reddit.com/r/scala/comments/933s2s/why_i_dont_use_json_asts/" target="_blank" rel="external">https://www.reddit.com/r/scala/comments/933s2s/why_i_dont_use_json_asts/</a><br>lihaoyi给出的答案，可参考<br><blockquote><p>If you use uJson, you don’t need to choose:<br>1.Just need case classes? Read/write directly to case classes<br>2.Need an AST? Read/write directly to the AST<br>3.Specifically want some other AST that’s not the uJson AST? You can read/write directly to the circe/play-json/etc. ASTs too<br>4.Don’t need case classes or an AST, and just want to pretty-print JSON? Read/write directly String -&gt; String<br>5.Don’t need any output at all, and just want to parse+validate your JSON? You can do that too.</p>
+<p>ASTs are a thing you sometimes want, but they don’t need to be in the critical path if you want some other thing. If you want one, great, if you want something else, a visitor-based library like uJson can give you that something else directly and without fuss.</p>
+</blockquote><br>8.<br><a href="https://www.wired.co.uk/article/human-faeces-poo-as-fertiliser" target="_blank" rel="external">https://www.wired.co.uk/article/human-faeces-poo-as-fertiliser</a><br>9.<br>ActivityPub<br><a href="https://activitypub.rocks/" target="_blank" rel="external">https://activitypub.rocks/</a><br>ActivityPub is a decentralized social networking protocol based on the ActivityStreams 2.0 data format. ActivityPub is an official W3C recommended standard published by the W3C Social Web Working Group. It provides a client to server API for creating, updating and deleting content, as well as a federated server to server API for delivering notifications and subscribing to content.<br>附：ActivityPub could be the future<br>10.<br><a href="https://mp.weixin.qq.com/s?__biz=MzAwODY4OTk2Mg==&amp;mid=2652046740&amp;;idx=1&amp;sn=2b01ecd64c516d59f38253f723bcebda" target="_blank" rel="external">https://mp.weixin.qq.com/s?__biz=MzAwODY4OTk2Mg==&amp;mid=2652046740&amp;;idx=1&amp;sn=2b01ecd64c516d59f38253f723bcebda</a><br>PageSpeed Insights (PSI) 是 Google 在全球范围内应用最广的开发者工具之一。PSI 2.0 版本在2018年1月9日发布并且取得了巨大的成功。为了更好地帮助中国地区的开发者并构建一个良好的网页生态环境，今天，我们很高兴地宣布 PSI 在developers.google.cn/speed/pagespeed/insights/ 上线啦！<br>11.<br>传闻阉割版Google要归来了<br>首个独家<br><a href="https://theintercept.com/2018/08/01/google-china-search-engine-censorship/" target="_blank" rel="external">https://theintercept.com/2018/08/01/google-china-search-engine-censorship/</a><br><a href="https://www.theguardian.com/world/2018/aug/02/google-working-on-censored-search-engine-for-china" target="_blank" rel="external">https://www.theguardian.com/world/2018/aug/02/google-working-on-censored-search-engine-for-china</a><br>oschina的大约译文<br><a href="https://www.oschina.net/news/98571/google-china-search-engine-censored-report" target="_blank" rel="external">https://www.oschina.net/news/98571/google-china-search-engine-censored-report</a><br>毫无意外的，相信google会在这位任期内归来，比我预估还是快了点<br>虽然国外面临同行/国会质疑，但是，还是觉得Pichai的回复感人：<br>12.<br>Kafka 2.0重磅发布，新特性独家解读<br><a href="http://www.infoq.com/cn/news/2018/08/kafka2.0-new-features" target="_blank" rel="external">http://www.infoq.com/cn/news/2018/08/kafka2.0-new-features</a><br><blockquote><p>增强在线可进化性<br>因此我们从很早以前开始注意保证在线升级的方便性，在这一次的 2.0.0 版本中，更多相关的属性被加了进来，比如 KIP-268、KIP-279、KIP-283 等等。<br>KIP-268：简化 Kafka Streams 升级过程<br>Kafka Streams 利用 Consumer Rebalance 协议里面的元数据字符串编码诸如任务分配、全局查询、版本升级相关的信息。然而，当编码版本本身改变的时候，就需要进行离线升级。比如之前从 0.10.0 版本向更高级的版本升级的时候，用户就需要将所有的 Streams 程序下线，换上新的 Kafka 版本号，然后在全部重启。<br>KIP-268 利用 version prob 可以使得旧版本的任务分配者告知其他高版本的成员暂时使用旧版本的 Rebalance 元数据编码，这样就可以让用户依然能够通过 rolling bounce 在线升级 Kafka Streams 的版本。而当所有参与的成员全部升级完毕之后，最后一次 rebalance 会自动切换回新版本的元数据编码。<br>KIP-279：修补多次 Kafka 分区主本迁移时的日志分歧问题<br>在升级 Kafka 版本或者做定期系统维护的时候，用户往往需要进行连续的多次 Kafka 分区迁移。在这次发布中我们修补了一个在此过程中可能会出现的一个会导致日志分歧发生的边缘情况。具体方案就是将此前版本中已经加入的主本 epoch 信息扩散到 OffsetForLeaderEpochResponse。如此所有主副本就可以清晰知道自己到底处于当前分区备份的哪一个阶段，从而杜绝因为消息不对等而可能导致的日志分歧。<br>KIP-283：降低信息格式向下转换时的内存消耗<br>在一个多客户端组群的环境下，客户端与服务器端的版本不匹配是常见现象。早在 0.10.0 版本中，Kafka 已经加入了允许不同版本客户端与服务器交互的功能，即高版本的 Kafka 客户端依然可以与低版本的服务器进行数据传导，反之亦然。然而当低版本的消费者客户端和高版本的服务器进行交互时，服务器有时需要将数据向下转换（format down-conversion）成为低版本客户端可以认知的格式后才能发回给消费者。向下转换有两个缺点：<br>丢失了 Kafka 数据零拷贝（zero-copy）的性能优势；<br>向下转换需要额外的大量内存，在极端情况下甚至会导致内存溢出。<br>前者无法避免，但是后者依然可以改进：在即将发布的 2.0 版本中，我们使用了一种新的基于分块（chunking）的向下转换算法，使得需要同时占据的内存需求大幅缩减。这使得高低版本的客户端与服务器之间的交互变得更加有效。<br>在 2.0.0 版本中，我们进一步加强了 Kafka 的可监控性，包括添加了很多系统静态属性以及动态健康指标，比如 KIP-223、KIP-237、KIP-272 等等。<br>KIP-223：加入消费者客户端的领先指标<br>KIP-237：加入更多 Kafka 控制器的健康指标<br>更全面的数据安全支持<br>在 2.0.0 版本里面，我们对此提供了一系列的改进，比如更细粒度的更细粒度的前缀通配符访问控制（KIP-290、KIP-227），支持 SASL/OAUTHBEARER（KIP-255），将委托令牌扩展到管理客户端（KIP-249），等等。<br>KIP-290、KIP-227：细粒度前缀通配符访问控制<br>更多见： <a href="https://www.apache.org/dist/kafka/2.0.0/RELEASE_NOTES.html" target="_blank" rel="external">https://www.apache.org/dist/kafka/2.0.0/RELEASE_NOTES.html</a></p>
+</blockquote><br>13.<br>Service Mesh是什么？至今到位的总结<br><a href="http://blog.brucefeng.info/post/what-is-service-mesh" target="_blank" rel="external">http://blog.brucefeng.info/post/what-is-service-mesh</a><br><blockquote><p>Service Mesh能做什么<br>服务发现<br>动态路由<br>负载均衡<br>请求熔断<br>安全通讯<br>多语言支持<br>多协议支持<br>Metric和链路追踪<br>重试<br>2 为什么有微服务了还要Service Mesh<br>但微服务存在以下问题：<br>多语言支持<br>微服务在开始之初就承诺了一个重要的特性，就是不同的微服务可以采用不同的变成语言实现，服务与服务之间通过协议通信。<br>但要实现多语言支持面临很多困难，所以现在大部分公司都是通过统一编程语言来实现。即使部分实现了多语言的微服务，需要美中语言都实现相同的功能服务框架，导致微服务SDK很重，需要实现服务注册发现，服务路由、负载均衡、服务鉴权、服务降级、服务限流等，成本极高。<br>对业务代码侵入<br>业务项目实现微服务需要引入微服务SDK，并进行少量的开发，这些开发是和业务项目耦合的。<br>这种侵入，导致微服务SDK在升级过程中极其痛苦，甚至为因为SDK而导致线上事故，由此带来的升级维护成本较大<br>在我所在的公司，每次进行SDK升级时，都需要公司强制执行，升级过程中又会牵涉到与其他开源组件不兼容的情况，上线后也需要花时间灰度观察。整个公司这样做，其成本可想而知。<br>学习成本高<br>服务注册发现，服务路由、负载均衡、服务鉴权、服务降级、服务限流 这些功能几乎都可以独立成一个项目，实际上很多开源项目也是这样做的。每个组件的学习及熟悉成本都会很大，而业务开发首要面对的问题是业务支持，而不是花较大的精力在基础组件的学习使用上。</p>
+</blockquote><br>14.<br><a href="https://www.theatlantic.com/science/archive/2018/08/nasa-culture-optimism-james-webb/566558/?utm_source=feed" target="_blank" rel="external">https://www.theatlantic.com/science/archive/2018/08/nasa-culture-optimism-james-webb/566558/?utm_source=feed</a><br>近年似乎遭受了不少的质疑，作者从NASA最近推迟了自己的一项计划探讨NASA正在经历的一种过于乐观的文化氛围。<br>以下搜狗翻译：<br><blockquote><p>然而，将美国人送上月球的乐观心态并没有改变。2012年的报告称:“当被问及定义‘项目成功’时，我们采访的几乎所有项目经理都回答说，如果一个项目达到了技术性能目标，它就是成功的。”。“没有一个经理提到控制成本和进度增长是衡量成功的重要标准。此外，所有人都说他们的项目是成功的，尽管许多人经历了不利的成本和进度结果。”<br>马丁说NASA的员工称这种认知失调为“哈勃心理学”。“哈勃太空望远镜在1990年到达太空时并没有立即获得成功。这台望远镜研制的时间比承诺的要长得多，超出了预算，发射时主镜出现了一个缺陷，需要多次维修和保养。但是今天，哈勃被认为是国家财富，它混乱的开端已经被人们遗忘。<br>马丁说:“只要你带回——就哈勃望远镜而言——漂亮的照片，你所有的成本超支和日程延误都会被原谅。”。“因为重要的是科学到底是什么，而不是你是如何到达那里的，你是多么的混乱、预算过多还是日程安排过度。这可能有点夸张，但这是一种心态:如果你带回漂亮的照片，所有的罪过都会被原谅。”<br>这是韦伯团队似乎寄希望于的结果。项目官员一遍又一遍地说，韦伯值得等待，因为成本已经上升，终点线已经越来越远。他们希望这种回报会掩盖这个过程的痛苦。<br>研究表明，大多数人都是乐观主义者。在工作环境中，乐观可能是一种激励力量。《消极思维的积极力量》一书的作者、韦尔斯利学院心理学教授朱莉·诺尔姆说:“人们喜欢乐观而不是悲观。”该书认为，对一些人来说，乐观是一种无效的策略。“他们很有信心认为一切都会成功，因此这可以激发他们的积极性。这可能会导致人们尝试一些他们可能不会尝试的东西，因为他们非常积极，肯定会成功。”<br>在团体中，特别是那些致力于共同目标的团体中，乐观的思维可能具有传染性。伦敦大学学院研究人脑乐观倾向的神经科学家塔利·沙洛特说:“如果你让一群人参与一个项目，每个人都有一点偏见——人们的偏见相当温和，只是高估了积极的一点，低估了消极的一点——你把他们放在一起，偏见就会变得更大。”。</p>
+</blockquote><br>15.<br><a href="http://www.sciencemag.org/news/2018/07/beyond-silicon-15-billion-us-program-aims-spur-new-types-computer-chips" target="_blank" rel="external">http://www.sciencemag.org/news/2018/07/beyond-silicon-15-billion-us-program-aims-spur-new-types-computer-chips</a><br><blockquote><p>Silicon computer chips have been on a roll for half a century, getting ever more powerful. But the pace of innovation is slowing. Today the U.S. military’s Defense Advanced Research Projects Agency (DARPA) announced dozens of new grants totaling $75 million in a program that aims to reinvigorate the chip industry with basic research into new designs and materials, such as carbon nanotubes. Over the next few years, the DARPA program, which supports both academic and industry scientists, will grow to $300 million per year up to a total of $1.5 billion over 5 years.</p>
+</blockquote><br>16.<br><a href="http://www.discoverdev.io/archive/2018-08-01.html" target="_blank" rel="external">http://www.discoverdev.io/archive/2018-08-01.html</a><br><a href="http://www.discoverdev.io/archive/2018-08-02.html" target="_blank" rel="external">http://www.discoverdev.io/archive/2018-08-02.html</a><br><a href="http://www.discoverdev.io/archive/2018-08-03.html" target="_blank" rel="external">http://www.discoverdev.io/archive/2018-08-03.html</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/weeklyreading/" rel="tag"># weeklyreading</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/" rel="next" title="Spring + Hikari的一个SQLFeatureNotSupportedException问题">
+                <i class="fa fa-chevron-left"></i> Spring + Hikari的一个SQLFeatureNotSupportedException问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">34</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
