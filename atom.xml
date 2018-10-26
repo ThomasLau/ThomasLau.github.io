@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2018-08-02T17:30:06.087Z</updated>
+  <updated>2018-10-26T01:05:27.911Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,54 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Many Links 1025</title>
+    <link href="http://thomaslau.github.io/2018/10/25/2018-10-25-many_links_1025/"/>
+    <id>http://thomaslau.github.io/2018/10/25/2018-10-25-many_links_1025/</id>
+    <published>2018-10-24T17:09:07.000Z</published>
+    <updated>2018-10-26T01:05:27.911Z</updated>
+    
+    <content type="html"><![CDATA[<p>1.<br>stop using infinite scroll<br><a href="https://logrocket.com/blog/infinite-scroll/" target="_blank" rel="external">https://logrocket.com/blog/infinite-scroll/</a><br>对无限滚动屏的吐槽，说起来可多了。</p>
+<p>2.<br>微软加入开放创新网络，旨在保护Linux和开源<br><a href="http://www.infoq.com/cn/news/2018/10/microsoft-oin" target="_blank" rel="external">http://www.infoq.com/cn/news/2018/10/microsoft-oin</a><br>微软是专利大企业，曾经用专利起诉著名企业，这次“拥抱Linux”，甚至打出了恶心的“ heart Linux”标语，至于未来如何，拭目以待。</p>
+<p>3.<br>An HTTP proxy for Elasticsearch, Solr (etc.) to prevent a 100% full disk situation.<br><a href="https://github.com/flaxsearch/harahachibu" target="_blank" rel="external">https://github.com/flaxsearch/harahachibu</a><br><a id="more"></a><br>4.<br>网易乐得技术团队：Redis配置模板及持久化解决方案 –<br><a href="http://tech.lede.com/2017/11/14/rd/server/redistemplate/" target="_blank" rel="external">http://tech.lede.com/2017/11/14/rd/server/redistemplate/</a></p>
+<p>5.<br>Writing system software: code comments.<br><a href="http://antirez.com/news/124" target="_blank" rel="external">http://antirez.com/news/124</a><br><blockquote><p>During my research I identified nine types of comments:</p>
+<ul>
+<li>Function comments</li>
+<li>Design comments</li>
+<li>Why comments</li>
+<li>Teacher comments</li>
+<li>Checklist comments</li>
+<li>Guide comments</li>
+<li>Trivial comments</li>
+<li>Debt comments</li>
+<li>Backup comments</li>
+</ul>
+<h1 id="Comments-as-an-analysis-tool"><a href="#Comments-as-an-analysis-tool" class="headerlink" title="Comments as an analysis tool."></a>Comments as an analysis tool.</h1><p>Comments are rubber duck debugging on steroids, except you are not talking with a rubber duck, but with the future reader of the code, which is more intimidating than a rubber duck, and can use Twitter. So in the process you really try to understand if what you are stating <em>is acceptable</em>, honorable, good enough. And if it is not, you make your homework, and come up with something more decent.</p>
+<p>It is the same process that happens while writing documentation: the writer attempts to provide the gist of what a given piece of code does, what are the guarantees, the side effects. This is often a bug hunting opportunity. It is very easy while describing something to find that it has holes… You can’t really describe it all because you are not sure about a given behavior: such behavior is just emerging from complexity, at random. You really don’t want that, so you go back and fix it all. I find this a splendid reason to write comments.</p>
+<h1 id="Writing-good-comments-is-harder-than-writing-good-code"><a href="#Writing-good-comments-is-harder-than-writing-good-code" class="headerlink" title="Writing good comments is harder than writing good code"></a>Writing good comments is harder than writing good code</h1><p>You may think that writing comments is a lesser noble form of work. After all you <em>can code</em>! However consider this: code is a set of statement and function calls, or whatever your programming paradigm is. Sometimes such statements do not make much sense, honestly, if the code is not good. Comments require always to have some design process ongoing, and to understand the code you are writing in a deeper sense. On top of that, in order to write good comments, you have to develop your writing skills. The same writing skills will assist you writing emails, documentation, design documents, blog posts, and commit messages.</p>
+<p>I write code because I have an urgent sense to share and communicate more than anything else. Comments coadiuvate the code, assist it, describe our efforts, and after all I love writing them as much as I love writing code itself.</p>
+</blockquote></p>
+<p>5.<br>盖茨和朋友眼里的 Paul Allen<br>What I loved about Paul Allen<br><a href="https://www.gatesnotes.com/About-Bill-Gates/Remembering-Paul-Allen" target="_blank" rel="external">https://www.gatesnotes.com/About-Bill-Gates/Remembering-Paul-Allen</a><br>Remembering my friend and first business partner.<br><a href="https://www.cringely.com/2018/10/16/remembering-paul-allen/" target="_blank" rel="external">https://www.cringely.com/2018/10/16/remembering-paul-allen/</a></p>
+<p>6.<br>班克斯的碎纸机本应该毁掉整幅《气球女孩》<br><a href="https://techcrunch.cn/2018/10/19/banksys-rigged-art-frame-was-supposed-to-shred-the-whole-thing/" target="_blank" rel="external">https://techcrunch.cn/2018/10/19/banksys-rigged-art-frame-was-supposed-to-shred-the-whole-thing/</a><br>文中的油管链接也是很有趣的，揭示碎纸机的制作，之前实验是成功的<br><blockquote><p>在万物互联的未来，我们还能够去真正“拥有”什么东西吗？班克斯（Banksy）在 本月早些时候 的行为艺术给出的回答是不能，当时他的一件作品在伦敦苏富比拍卖行进行拍卖。<br>…<br>视频的末尾展示了整幅画作被切碎的镜头，之后打出字幕：“在彩排中，每次都能成功……”。</p>
+</blockquote><br>赞赏这种反艺术的行为，看看最近 AI制作的一幅画佳士得拍卖出300万价格</p>
+<p>7.<br>知乎redis实践<br><a href="https://zhuanlan.zhihu.com/p/44441938" target="_blank" rel="external">https://zhuanlan.zhihu.com/p/44441938</a><br>想不到在用的是 redis + tweamproxy</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;1.&lt;br&gt;stop using infinite scroll&lt;br&gt;&lt;a href=&quot;https://logrocket.com/blog/infinite-scroll/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://logrocket.com/blog/infinite-scroll/&lt;/a&gt;&lt;br&gt;对无限滚动屏的吐槽，说起来可多了。&lt;/p&gt;
+&lt;p&gt;2.&lt;br&gt;微软加入开放创新网络，旨在保护Linux和开源&lt;br&gt;&lt;a href=&quot;http://www.infoq.com/cn/news/2018/10/microsoft-oin&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.infoq.com/cn/news/2018/10/microsoft-oin&lt;/a&gt;&lt;br&gt;微软是专利大企业，曾经用专利起诉著名企业，这次“拥抱Linux”，甚至打出了恶心的“ heart Linux”标语，至于未来如何，拭目以待。&lt;/p&gt;
+&lt;p&gt;3.&lt;br&gt;An HTTP proxy for Elasticsearch, Solr (etc.) to prevent a 100% full disk situation.&lt;br&gt;&lt;a href=&quot;https://github.com/flaxsearch/harahachibu&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/flaxsearch/harahachibu&lt;/a&gt;&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="weeklyreading" scheme="http://thomaslau.github.io/tags/weeklyreading/"/>
+    
+  </entry>
   
   <entry>
     <title>Many Links 0803</title>
@@ -1052,53 +1100,6 @@ name to avoid confusion with {@link sun.misc.Unsafe}.)
       <category term="JAVA Flame Graph" scheme="http://thomaslau.github.io/tags/JAVA-Flame-Graph/"/>
     
       <category term="JMH" scheme="http://thomaslau.github.io/tags/JMH/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>从Monte Carlo谈pySpark的fork引发的Bug</title>
-    <link href="http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/"/>
-    <id>http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/</id>
-    <published>2017-06-19T03:01:07.000Z</published>
-    <updated>2017-07-28T03:17:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<p>这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下：</p>
-<p>截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题：</p>
-<p>刚学Spark，故先看一段Monte Carlo method 求Pi的代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> random <span class="keyword">import</span> random</div><div class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">funcx</span><span class="params">(x)</span>:</span></div><div class="line">  <span class="comment"># print x[0],x[1]</span></div><div class="line">  <span class="keyword">return</span> <span class="number">1</span> <span class="keyword">if</span> x[<span class="number">0</span>]**<span class="number">2</span> + x[<span class="number">1</span>]**<span class="number">2</span> &lt; <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">genRnd</span><span class="params">(ind)</span>:</span></div><div class="line">  x=random() * <span class="number">2</span> - <span class="number">1</span></div><div class="line">  y=random() * <span class="number">2</span> - <span class="number">1</span></div><div class="line">  <span class="keyword">return</span> (x,y)</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">runsp</span><span class="params">(total)</span>:</span></div><div class="line">  ret=sc.parallelize(xrange(total),<span class="number">1</span>).map(genRnd).map(funcx).reduce(<span class="keyword">lambda</span> x, y: x + y)/float(total) * <span class="number">4</span></div><div class="line">  <span class="keyword">print</span> ret</div><div class="line"></div><div class="line">runsp(<span class="number">3</span>)</div></pre></td></tr></table></figure>
-<p>spark-shell方式运行上述代码，多次运行runsp(n), 会发现几点有趣现象：</p>
-<p>1, 按理说, n越大，虽不是越能逼近pi，但是逼近pi的概率应该是越大的。然而发现似乎并不如此，起初以为是python生成伪随机算法导致，还好通过下面一个现象发现问题。但是伪随机算法在多大程度上干扰了Monte Carlo求值？这个后面会写一篇从数学上分析下。<br><a id="more"></a><br>2, 多次运行runsp(n)，就会发现输出值是不变的而不是随机的，-_-# 事实上，放开上述 print注释，就会发现下面输出：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; total=3</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; sc.parallelize(xrange(total),1).map(genRnd).map(funcx).reduce(add)/<span class="built_in">float</span>(total) * 4</div><div class="line">0.896083541418 -0.635625854075</div><div class="line">-0.0423532645466 -0.526910255885</div><div class="line">0.498518696049 -0.872983895832</div><div class="line">1.3333333333333333</div><div class="line">&gt;&gt;&gt; <span class="built_in">exit</span>()</div></pre></td></tr></table></figure>
-<hr>
-<p>不废话了，这应该是pyspark的一个bug，而且对于使用 python random.random()的生成随机科学计算来说更严重。</p>
-<p>主要是因为，当用xrange时候，new worker的，如下pyspark的 daemon.py里面代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> listen_sock <span class="keyword">in</span> ready_fds:</div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        sock, _ = listen_sock.accept()</div><div class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">if</span> e.errno == EINTR:</div><div class="line">            <span class="keyword">continue</span></div><div class="line">        <span class="keyword">raise</span></div><div class="line">    <span class="comment"># Launch a worker process</span></div><div class="line">    <span class="keyword">try</span>:</div><div class="line">        pid = os.fork()</div><div class="line">    <span class="keyword">except</span> OSError <span class="keyword">as</span> e:</div><div class="line">        <span class="keyword">if</span> e.errno <span class="keyword">in</span> (EAGAIN, EINTR):</div><div class="line">            time.sleep(<span class="number">1</span>)</div><div class="line">            pid = os.fork()  <span class="comment"># error here will shutdown daemon</span></div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            outfile = sock.makefile(mode=<span class="string">'wb'</span>)</div><div class="line">            write_int(e.errno, outfile)  <span class="comment"># Signal that the fork failed</span></div><div class="line">            outfile.flush()</div><div class="line">            outfile.close()</div><div class="line">            sock.close()</div><div class="line">            <span class="keyword">continue</span></div><div class="line">    <span class="keyword">if</span> pid == <span class="number">0</span>:</div><div class="line">        <span class="comment"># in child process</span></div><div class="line">        listen_sock.close()</div><div class="line">        <span class="keyword">try</span>:</div><div class="line">            <span class="comment"># Acknowledge that the fork was successful</span></div><div class="line">            outfile = sock.makefile(mode=<span class="string">"wb"</span>)</div><div class="line">            write_int(os.getpid(), outfile)</div><div class="line">            outfile.flush()</div><div class="line">            outfile.close()</div><div class="line">            <span class="keyword">while</span> <span class="keyword">True</span>:</div><div class="line">                code = worker(sock)</div><div class="line">                <span class="keyword">if</span> <span class="keyword">not</span> reuse <span class="keyword">or</span> code:</div><div class="line">                    <span class="comment"># wait for closing</span></div><div class="line">                    <span class="keyword">try</span>:</div><div class="line">                        <span class="keyword">while</span> sock.recv(<span class="number">1024</span>):</div><div class="line">                            <span class="keyword">pass</span></div><div class="line">                    <span class="keyword">except</span> Exception:</div><div class="line">                        <span class="keyword">pass</span></div><div class="line">                    <span class="keyword">break</span></div><div class="line">                gc.collect()</div><div class="line">        <span class="keyword">except</span>:</div><div class="line">            traceback.print_exc()</div><div class="line">            os._exit(<span class="number">1</span>)</div><div class="line">        <span class="keyword">else</span>:</div><div class="line">            os._exit(<span class="number">0</span>)</div><div class="line">    <span class="keyword">else</span>:</div><div class="line">        sock.close()</div></pre></td></tr></table></figure>
-<p>当生成RDD，map之后，reduce，就会进入上述代码，注意其中一句 </p>
-<pre><code>pid = os.fork()
-</code></pre><p>这句，会fork一个子进程，fork子进程会复制父进程空间，damon.py通过import pyspark.worker 间接import了shuffle.py的 import random，也就是说，每次fork的时候，复制了父的random，python的random是伪随机的，也就是说，子进程的random的下一个状态是确定的，所以会出现上述每次运行得到的随机序列一样的情况。</p>
-<p><strong>fix</strong></p>
-<p>最简单的fix办法，想必也会想到，就是在fork之后，worker代理调用random之前，进行random.seed(),<br>这确实是一种方法了，比如在上述代码 code = worker(sock)之前加一句random.seed()</p>
-<p><strong>引用</strong><br>Linux系统调用 fork：<br><a href="http://man7.org/linux/man-pages/man2/fork.2.html" target="_blank" rel="external">Fork - Linux Programmer’s Manual</a></p>
-<p><a href="https://www.ibm.com/developerworks/cn/linux/kernel/syscall/part2/index.html" target="_blank" rel="external">系统调用跟我学(2)</a><br>最初印象深的fork主题文章是来源于developerworks中国上的一篇文章，可惜太久了找不到，快速阅读可以看下面几篇<br><a href="http://dev.dafan.info/detail/221129?p=" target="_blank" rel="external">Linux进程-基础</a>，<a href="http://www.bijishequ.com/detail/20115?p=" target="_blank" rel="external">Linux进程-fork</a><br>下面结合源码解析了fork的调用原理<br><a href="http://blog.tonychow.me/blog/2013/06/27/linuxzhong-forkxi-tong-diao-yong-fen-xi/" target="_blank" rel="external">Linux中fork系统调用分析</a><br><a href="http://notes.maxwi.com/2016/08/17/linux-fork/" target="_blank" rel="external">Linux下fork函数及pthread函数的总结</a><br><a href="http://www.cnblogs.com/mickole/p/3186441.html" target="_blank" rel="external">linux系统编程之进程<em>3</em>进程复制fork，孤儿进程，僵尸进程</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这是一篇老文章，记录了发现PySpark一个bug的过程，现重新整理下：&lt;/p&gt;
-&lt;p&gt;截止2016-05-19已发布最新Spark版本，如果你在使用pySpark，并且也用 import random的方式生成随机数,就可能会遇到下面的问题：&lt;/p&gt;
-&lt;p&gt;刚学Spark，故先看一段Monte Carlo method 求Pi的代码&lt;/p&gt;
-&lt;figure class=&quot;highlight python&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;16&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; random &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; random&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; operator &lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; add&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;funcx&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(x)&lt;/span&gt;:&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;comment&quot;&gt;# print x[0],x[1]&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; x[&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;]**&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; + x[&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;]**&lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; &amp;lt; &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;genRnd&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(ind)&lt;/span&gt;:&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  x=random() * &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; - &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  y=random() * &lt;span class=&quot;number&quot;&gt;2&lt;/span&gt; - &lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; (x,y)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;runsp&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(total)&lt;/span&gt;:&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  ret=sc.parallelize(xrange(total),&lt;span class=&quot;number&quot;&gt;1&lt;/span&gt;).map(genRnd).map(funcx).reduce(&lt;span class=&quot;keyword&quot;&gt;lambda&lt;/span&gt; x, y: x + y)/float(total) * &lt;span class=&quot;number&quot;&gt;4&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;print&lt;/span&gt; ret&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;runsp(&lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;)&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;spark-shell方式运行上述代码，多次运行runsp(n), 会发现几点有趣现象：&lt;/p&gt;
-&lt;p&gt;1, 按理说, n越大，虽不是越能逼近pi，但是逼近pi的概率应该是越大的。然而发现似乎并不如此，起初以为是python生成伪随机算法导致，还好通过下面一个现象发现问题。但是伪随机算法在多大程度上干扰了Monte Carlo求值？这个后面会写一篇从数学上分析下。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="Spark" scheme="http://thomaslau.github.io/tags/Spark/"/>
-    
-      <category term="Monte Carlo" scheme="http://thomaslau.github.io/tags/Monte-Carlo/"/>
     
   </entry>
   
