@@ -264,6 +264,122 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/05/09/2018-05-09-many_links/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/09/2018-05-09-many_links/" itemprop="url">Many Links 0509</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-09T01:09:07+08:00">
+                2018-05-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>积攒许久链接，于是该用短文方式。改名 many links仿O’Reilly的Four Short Links.<br>1.<br><a href="https://github.com/zz85/kafka-streams-viz" target="_blank" rel="external">Kafka Streams Topology Visualizer</a><br>正如其自述“A tool helps visualizing stream topologies by generating nice looking diagrams from a kafka stream topology descriptions.”<br>如果你苦于向他人解释采用的kafka stream 数据处理逻辑，可以考虑该连接生成可视化图片展示，适合作为架构设计插图。<br>2.<br><a href="https://www.oreilly.com/ideas/the-world-beyond-batch-streaming-101" target="_blank" rel="external">The world beyond batch: Streaming 101</a><br>老文章，流式数据处理101，正如文述“A high-level tour of modern data-processing concepts.”值得一看<br>不过文章显然着重是对几个“时间”的理解以及流的粒度探讨：<br>Event time vs. processing time<br>Data processing patterns<br>Bounded data/Unbounded data — batch<br>Fixed windows/Time-agnostic<br>Filtering/Inner-joins/Windowing<br>3.<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">使用火焰图展示结果</div><div class="line">1、Flame Graph项目位于GitHub上：https://github.com/brendangregg/FlameGraph</div><div class="line">2、可以用git将其<span class="built_in">clone</span>下来：git <span class="built_in">clone</span> https://github.com/brendangregg/FlameGraph.git</div><div class="line"></div><div class="line">我们以perf为例，看一下flamegraph的使用方法：</div><div class="line">1、第一步</div><div class="line"><span class="variable">$sudo</span> perf record -e cpu-clock -g -p 28591</div><div class="line">Ctrl+c结束执行后，在当前目录下会生成采样数据perf.data.</div><div class="line">2、第二步</div><div class="line">用perf script工具对perf.data进行解析</div><div class="line">perf script -i perf.data &amp;&gt; perf.unfold</div><div class="line">3、第三步</div><div class="line">将perf.unfold中的符号进行折叠：</div><div class="line"><span class="comment">#./stackcollapse-perf.pl perf.unfold &amp;&gt; perf.folded</span></div><div class="line">4、最后生成svg图：</div><div class="line">./flamegraph.pl perf.folded &gt; perf.svg</div></pre></td></tr></table></figure></p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/09/2018-05-09-many_links/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/05/03/2018-05-03-one_year_summarize/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1336,126 +1452,6 @@ for Margaret&apos;s programming that overrode the glitch and ultimately made
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/" itemprop="url">从noInflation看Java Method.invoke</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T21:01:07+08:00">
-                2017-07-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>旧文，现重新整理下：</p>
-<h1 id="1-缘起"><a href="#1-缘起" class="headerlink" title="1. 缘起"></a>1. 缘起</h1><p>最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl</div><div class="line">    at sun.misc.Unsafe.defineClass(Native Method)</div><div class="line">    at sun.reflect.ClassDefiner.defineClass(ClassDefiner.java:63)</div><div class="line">    at sun.reflect.MethodAccessorGenerator<span class="variable">$1</span>.run(MethodAccessorGenerator.java:399)</div><div class="line">    at sun.reflect.MethodAccessorGenerator<span class="variable">$1</span>.run(MethodAccessorGenerator.java:394)</div><div class="line">    at java.security.AccessController.doPrivileged(Native Method)</div><div class="line">    at sun.reflect.MethodAccessorGenerator.generate(MethodAccessorGenerator.java:393)</div><div class="line">    at sun.reflect.MethodAccessorGenerator.generateConstructor(MethodAccessorGenerator.java:92)</div><div class="line">    at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:55)</div><div class="line">    at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)</div><div class="line">    at java.lang.reflect.Constructor.newInstance(Constructor.java:423)</div><div class="line">    at java.lang.Class.newInstance(Class.java:442)</div><div class="line">    at com.thomas.classloader.unload.MonitorHotSwap.main(MonitorHotSwap.java:34)</div><div class="line">Caused by: java.lang.ClassNotFoundException: sun.reflect.ConstructorAccessorImpl</div><div class="line">    at java.net.URLClassLoader.findClass(URLClassLoader.java:381)</div><div class="line">    ...</div></pre></td></tr></table></figure></p>
-<p>我把他的代码稍作简化，主要部分是类似下面的逻辑，功能是程序监控某几个文件的变动，发现符合条件就会编译并会重新加载class，<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HotSwapURLClassLoader</span> <span class="keyword">extends</span> <span class="title">URLClassLoader</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException &#123;</div><div class="line">        Class&lt;?&gt; clazz = <span class="keyword">null</span>;</div><div class="line">        clazz = findLoadedClass(name);</div><div class="line">        <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="comment">//...一段热替换逻辑</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (name.startsWith(<span class="string">"java."</span>)) &#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                ClassLoader system = ClassLoader.getSystemClassLoader();</div><div class="line">                clazz = system.loadClass(name);</div><div class="line">                <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</div><div class="line">                    <span class="keyword">if</span> (resolve)</div><div class="line">                        resolveClass(clazz);</div><div class="line">                    <span class="keyword">return</span> (clazz);</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</div><div class="line">                <span class="comment">// Ignore</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> customLoad(name, <span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hot</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        <span class="comment">//System.out.println(String.format("ver:%s, classLoader: %s.", ver, this.getClass().getClassLoader()));</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>上面的异常，不同于常遇到的异常，我们根据异常栈逆推可能不会很容易的定位到root cause。所以我在hot方法加了一条日志信息，即注释打开，运行多次，发现每次都是<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ver:15, classLoader: com.thomas.unload.HotSwapURLClassLoader@4e25154f.</div><div class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl</div></pre></td></tr></table></figure></p>
-<p>这让我想起了JVM参数有inflationThreshold=15<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1505,7 +1501,7 @@ for Margaret&apos;s programming that overrode the glitch and ultimately made
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-count">36</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
