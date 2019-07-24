@@ -1,0 +1,734 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,weeklyreading," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="1.Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solutionhttps://www.infoq.com/news/2018/12/envoycon-ebay-edgeeBay的Envoy实践。 2.Spring源码探究：容器https://www.jiansh">
+<meta name="keywords" content="Tech,weeklyreading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Many Links 0130">
+<meta property="og:url" content="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="1.Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solutionhttps://www.infoq.com/news/2018/12/envoycon-ebay-edgeeBay的Envoy实践。 2.Spring源码探究：容器https://www.jiansh">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-07-24T15:59:11.841Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Many Links 0130">
+<meta name="twitter:description" content="1.Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solutionhttps://www.infoq.com/news/2018/12/envoycon-ebay-edgeeBay的Envoy实践。 2.Spring源码探究：容器https://www.jiansh">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/"/>
+
+
+
+
+
+  <title>Many Links 0130 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Many Links 0130</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-30T01:09:07+08:00">
+                2019-01-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>1.<br>Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solution<br><a href="https://www.infoq.com/news/2018/12/envoycon-ebay-edge" target="_blank" rel="external">https://www.infoq.com/news/2018/12/envoycon-ebay-edge</a><br>eBay的Envoy实践。</p>
+<p>2.<br>Spring源码探究：容器<br><a href="https://www.jianshu.com/p/4a82770fd188" target="_blank" rel="external">https://www.jianshu.com/p/4a82770fd188</a><br>你遇到过定义了一个拦截器/bean，在controller层的代码生效，而service层没生效？<br>这篇文章做了解读。虽然问题是适合Spring初学者，但是作者解释的还是清晰的，而且不过分深入，适合初步了解Spring。<br><a id="more"></a><br><blockquote><p>当上门这句话放在springmvc.xml中时，名为”printTimeProcessor”的bean会存在于Springmvc容器，那么Spring容器是无法获取它的。而Service层恰巧是存在于Spring容器中，所以”printTimeProcessor”切面对Service层不起作用。而Controller层本身存在于Springmvc容器，所以Controller层可以正常工作。而当它放在spring.xml中时，”printTimeProcessor”是存在于Spring容器中，Springmvc容器是Spring容器的子容器，子容器可以获取到父容器的bean，所以Controller层与Service层都能获取到该bean，所有都能正常使用它</p>
+</blockquote><br>这里可能有点混乱，把“Springmvc容器”当作Web容器(WebApplicationContext),“Spring容器”当作App容器(ApplicationContext)。<br>作者的源码可能和文中有些出入，但是其中原理探索是值得一看的。</p>
+<p>3.<br>MIT Tech Review JANUARY/FEBRUARY 2019  The China issue<br>其他几篇需要订阅阅读<br><a href="https://www.technologyreview.com/magazine/2019/01/" target="_blank" rel="external">https://www.technologyreview.com/magazine/2019/01/</a><br>数字统计不知真假，看起来是个强国啊，这几年的的科技发展迅猛<br><blockquote><p>China’s tech giants want to go global. Just one thing might stand in their way.<br>China’s losing its taste for nuclear power. That’s bad news.<br>The man turning China into a quantum superpower<br>China has never had a real chip industry. Making AI chips could change that.<br>Aboard the giant sand-sucking ships that China uses to reshape the world<br>China’s losing its taste for nuclear power. That’s bad<br>China’s giant transmission grid could be the key to cutting climate emissions<br>The man turning China into a quantum superpower<br>Years before CRISPR babies, this man was the first to edit human embryos<br>Science vs. the state: a family saga at the Caltech of China<br>How Google took on China—and lost<br>The Reunion: a new science-fiction story about surveillance in China<br>The US and China aren’t in a “cold war,” so stop calling it that<br>How China got a head start in fintech, and why the West won’t catch up</p>
+</blockquote></p>
+<p>4.<br>《从0开始学架构》–笔记<br><a href="https://coderbee.net/index.php/framework/20180918/1655" target="_blank" rel="external">https://coderbee.net/index.php/framework/20180918/1655</a></p>
+<p>5.<br>微服务消息传递协议简介<br><a href="http://mushiming.top/mushblog/archives/890" target="_blank" rel="external">http://mushiming.top/mushblog/archives/890</a><br><blockquote><p>那么，微服务架构如何处理分布式独立进程中的通信？一些交叉的方式：<br>同步协议<br>异步协议<br>单接收器<br>多个接收器<br>如何避免同步依赖？<br>复制和传播将有助于回避同步性问题。通过复制，您可以将数据存储在多个站点（如服务器）中。这极大地提高了数据的可用性并减少了不一致性。通过传播，您可以将数据从服务器推送到客户端，这对于本地访问方案非常有用。</p>
+<p>如果复制和传播不是当前路由，您还可以跨微服务复制数据。这与每个微服务的域模型边界密切配合。在处理域模型边界时，您需要关注业务功能的范围，并在服务之间创建可理解且有意义的分离。如果实现有意义的分离，这也将有助于提高数据和迭代的可伸缩性和域驱动选择。</p>
+</blockquote></p>
+<p>6.<br>How Much of the Internet Is Fake? Turns Out, a Lot of It, Actually.<br><a href="http://nymag.com/intelligencer/2018/12/how-much-of-the-internet-is-fake.html" target="_blank" rel="external">http://nymag.com/intelligencer/2018/12/how-much-of-the-internet-is-fake.html</a><br>长文，作者论述了现实中存在的 Fake，听起来一种Fake致死的感觉，在这个当今离开手机离开互联网寸步难行的时代。<br>但作者是在耸人听闻吗：<br><blockquote><p>Where does that leave us? I’m not sure the solution is to seek out some pre-Inversion authenticity — to red-pill ourselves back to “reality.” What’s gone from the internet, after all, isn’t “truth,” but trust: the sense that the people and things we encounter are what they represent themselves to be. Years of metrics-driven growth, lucrative manipulative systems, and unregulated platform marketplaces, have created an environment where it makes more sense to be fake online — to be disingenuous and cynical, to lie and cheat, to misrepresent and distort — than it does to be real. Fixing that would require cultural and political reform in Silicon Valley and around the world, but it’s our only choice. Otherwise we’ll all end up on the bot internet of fake people, fake clicks, fake sites, and fake computers, where the only real thing is the ads.</p>
+</blockquote></p>
+<p>7.<br>中美贸易摩擦加关税商品<br><a href="http://blog.fens.me/china-trade-merchandise/" target="_blank" rel="external">http://blog.fens.me/china-trade-merchandise/</a></p>
+<p>8.<br>2018年JAVA回顾<br>JVM Calendar: Java in 2018<br><a href="https://dzone.com/articles/java-advent-java-in-2018" target="_blank" rel="external">https://dzone.com/articles/java-advent-java-in-2018</a></p>
+<p>9.<br>下面的主要来自ruanyf本期(和其它)的分享,偷个懒，直接引用部分，有兴趣请移步原文：<br><a href="http://www.ruanyifeng.com/blog/2018/12/weekly-issue-37.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2018/12/weekly-issue-37.html</a></p>
+<p><a href="https://github.com/sdmg15/Best-websites-a-programmer-should-visit" target="_blank" rel="external">https://github.com/sdmg15/Best-websites-a-programmer-should-visit</a><br>该仓库收集对程序员有用的网址，包含问题查找、技术新闻、技术博客、开源社区、英文提升、新奇的玩意儿、视频教程、在线工具等数十个方向的内容。（@qiurenbo 投稿）</p>
+<p><a href="https://tus.io/" target="_blank" rel="external">https://tus.io/</a><br>文件上传到一半突然断了，往往只能重新上传。tus 是一个允许断点上传的轻量级协议，可以从中断的地方继续上传。官方提供开源的客户端和服务端实现。</p>
+<p><a href="https://github.com/jabcode/jabcode" target="_blank" rel="external">https://github.com/jabcode/jabcode</a><br>JAB 码是彩色二维码方案，可以比黑白二维码写入多得多的信息。</p>
+<p>Linux 内核揭密（中文）<br><a href="https://xinqiu.gitbooks.io/linux-insides-cn/content/index.html" target="_blank" rel="external">https://xinqiu.gitbooks.io/linux-insides-cn/content/index.html</a><br>本书是《Linux inside》一书的中译，介绍 Linux 内核知识，从计算机通电讲起，需要 C 语言和汇编语言的知识。（@imilano 投稿）<br><a href="https://github.com/0xAX/linux-insides" target="_blank" rel="external">https://github.com/0xAX/linux-insides</a></p>
+<p><a href="http://incompleteideas.net/book/the-book.html" target="_blank" rel="external">http://incompleteideas.net/book/the-book.html</a><br>《Reinforcement Learning: An Introduction》，2018年出版的新书，作者开源了。</p>
+<p><a href="https://swtch.com/~rsc/regexp/regexp4.html" target="_blank" rel="external">https://swtch.com/~rsc/regexp/regexp4.html</a><br>谷歌代码搜索的作者，介绍搜索的算法原理。</p>
+<p><a href="https://www.vulture.com/2018/10/the-making-of-rockstar-games-red-dead-redemption-2.html" target="_blank" rel="external">https://www.vulture.com/2018/10/the-making-of-rockstar-games-red-dead-redemption-2.html</a><br>这篇长篇报道介绍 RockStar 游戏公司和它开发的游戏《Red Dead Redemption 2》。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/weeklyreading/" rel="tag"># weeklyreading</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/19/2018-11-19-many_links_1119 copy/" rel="next" title="Many Links 1119">
+                <i class="fa fa-chevron-left"></i> Many Links 1119
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">37</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
