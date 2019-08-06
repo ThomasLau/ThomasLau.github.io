@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2019-07-24T15:59:11.841Z</updated>
+  <updated>2019-08-06T00:56:01.616Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,49 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>python 2.6.6 SimpleHTTPServer耗时的bug</title>
+    <link href="http://thomaslau.github.io/2019/05/30/2019-05-30-python%202.6.6%20SimpleHTTPServer%E8%80%97%E6%97%B6%E7%9A%84bug/"/>
+    <id>http://thomaslau.github.io/2019/05/30/2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug/</id>
+    <published>2019-05-29T17:09:07.000Z</published>
+    <updated>2019-08-06T00:56:01.616Z</updated>
+    
+    <content type="html"><![CDATA[<p>之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。</p>
+<p>服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。</p>
+<p>偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python2.6.6的问题。<br><a id="more"></a><br>简单起见，我用下面重现一下： 10.135.20.45上开了一个进程</p>
+<p>   python -m SimpleHTTPServer 12888</p>
+<p>在另外一台机器上</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[java@10-135-20-62 ~]$ cat curl-format.txt</div><div class="line">time_namelookup: %&#123;time_namelookup&#125;\n</div><div class="line">time_connect: %&#123;time_connect&#125;\n</div><div class="line">time_appconnect: %&#123;time_appconnect&#125;\n</div><div class="line">time_redirect: %&#123;time_redirect&#125;\n</div><div class="line">time_pretransfer: %&#123;time_pretransfer&#125;\n</div><div class="line">time_starttransfer: %&#123;time_starttransfer&#125;\n</div><div class="line">----------time_total: %&#123;time_total&#125;\n</div><div class="line">[java@10-135-20-62 ~]$ curl -w <span class="string">"@curl-format.txt"</span> -o /dev/null -s -L <span class="string">"10.135.20.45:12888"</span></div><div class="line">time_namelookup: 0.000</div><div class="line">time_connect: 0.000</div><div class="line">time_appconnect: 0.000</div><div class="line">time_redirect: 0.000</div><div class="line">time_pretransfer: 0.000</div><div class="line">time_starttransfer: 10.013</div><div class="line">----------time_total: 10.013</div></pre></td></tr></table></figure>
+<p>这里两个问题：<br>1）一个简单的GET请求耗时10秒，10秒看起来像是服务器设置的超时时间。<br>2）而且10秒都花费在 starttransfer</p>
+<p>如何定位问题？显然逐步打点耗时是可以的，但是如果用搜索引擎更快，我在python社区上找到一个提问，作者遇到同样现象，但是pytohn2.7以后就没有问题。</p>
+<p>有个回答说是 pytohn解析header时候\r\n的问题，也有说是socket未close问题，我看了下代码，不像。</p>
+<p>不过这个提问给了我思路，于是我比较了python 2.6/2.7各自的SimpleHTTPServer.py文件。<br>考虑到linux版本众多且你可能也记不住，友情提示一个定位该文件的方法：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[java@10-135-20-62 ~]$ python --version</div><div class="line">Python 2.6.6</div><div class="line">[java@10-135-20-62 ~]$ python -c <span class="string">'import sys; print sys.path'</span></div><div class="line">[<span class="string">''</span>, <span class="string">'/usr/lib64/python26.zip'</span>, <span class="string">'/usr/lib64/python2.6'</span>, <span class="string">'/usr/lib64/python2.6/plat-linux2'</span>, <span class="string">'/usr/lib64/python2.6/lib-tk'</span>, <span class="string">'/usr/lib64/python2.6/lib-old'</span>, <span class="string">'/usr/lib64/python2.6/lib-dynload'</span>, <span class="string">'/usr/lib64/python2.6/site-packages'</span>, <span class="string">'/usr/lib64/python2.6/site-packages/gtk-2.0'</span>, <span class="string">'/usr/lib/python2.6/site-packages'</span>, <span class="string">'/usr/lib/python2.6/site-packages/setuptools-0.6c11-py2.6.egg-info'</span>]</div></pre></td></tr></table></figure>
+<p>一般就在 /usr/lib64/python2.6/ 下面了。<br>不过2.6/2.7的SimpleHTTPServer.py没有明显差异，继续再比对他们的父类：BaseHTTPServer.py<br>下图简单列下不同点。</p>
+<p><img src="/images/python2.6_1.png" width="100%"><br><img src="/images/python2.6_2.png" width="100%"><br><img src="/images/python2.6_3.png" width="100%"></p>
+<p>时间问题，直接上答案，问题就出在log_message里，python原意只是记录response的相关结果，但没想到会成为耗时的元凶：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">def address_string(self):</div><div class="line">    &quot;&quot;&quot;Return the client address formatted for logging.</div><div class="line">    This version looks up the full hostname using gethostbyaddr(),</div><div class="line">    and tries to find a name that contains at least one dot.</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    host, port = self.client_address[:2]</div><div class="line">    return socket.getfqdn(host)</div></pre></td></tr></table></figure></p>
+<p>我在该机器上跑一下，发现却是是耗费10秒</p>
+<pre><code>time python -c &apos;import socket; print socket.getfqdn()&apos;
+</code></pre><p>python 2.7 之后就改过来了，不再适用 address_string，所以在现代服务器上不会出现上述问题。</p>
+<p>getfqdn为什么会耗时呢？这和pyhon hostname 解析实现相关，后续可分享一下。</p>
+<p>以上简单记录遇到的问题，读者可留意。解决方法其实可以替换python的BaseHTTPServer.py，也可以自己拷贝出来一份修改，但说到底不如正规的方案去实现。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。&lt;/p&gt;
+&lt;p&gt;服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。&lt;/p&gt;
+&lt;p&gt;偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python2.6.6的问题。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="Python" scheme="http://thomaslau.github.io/tags/Python/"/>
+    
+  </entry>
   
   <entry>
     <title>Many Links 0130</title>
@@ -1014,45 +1057,6 @@ S=k*lnΩ
 &lt;pre&gt;&lt;code&gt;在信息论中，熵是接收的每条消息中包含的信息的平均量，又被称为信息熵、信源熵、平均自信息量。
 这里，“消息”代表来自分布或数据流中的事件、样本或特征。
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;这即是熵的定义了，这里隐含的想法是，比较不可能发生的事情，当它发生了，意味着更多的信息。&lt;br&gt;所以熵也可理解为不确定性的量度[Measure of Uncertainty]，即越随机的信源的熵越大。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="ML" scheme="http://thomaslau.github.io/tags/ML/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>为什么 LR 模型要使用 sigmoid 函数</title>
-    <link href="http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/"/>
-    <id>http://thomaslau.github.io/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/</id>
-    <published>2017-08-04T13:59:07.000Z</published>
-    <updated>2017-08-18T08:31:20.000Z</updated>
-    
-    <content type="html"><![CDATA[<pre><code>分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。
-</code></pre><p>在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，<a href="https://www.zhihu.com/question/35322351" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a> 里获赞最高的答案。<br><strong>但正如马化腾先生说的，这么说，也对也不对。</strong><br>看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？<br>换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。<br><a id="more"></a></p>
-<h3 id="那么让我们将问题拆开来看："><a href="#那么让我们将问题拆开来看：" class="headerlink" title="那么让我们将问题拆开来看："></a>那么让我们将问题拆开来看：</h3><p><strong>1, 逻辑回归为什么要使用sigmoid函数.</strong><br><strong>2, LR模型的意义，即为什么有了线性回归(linear regression)还需要逻辑回归(logistic regression)</strong></p>
-<h3 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h3><p>很好解释：其实没有什么原因。<br>看上面高赞答案解释一堆，或者下面解释sigmoid函数好用，好求导。其实都不是原因。<br>因为逻辑回归对应Logit Function，即逻辑回归就是sigmoid函数的应用,<br>一个对象的两个描述而已，像原文这么问就像是在问为什么抛物线方程要使用 y= a*x^2+bx+c表示一样。<br>逻辑回归，不过是结果sigmoid函数化的线性回归而已。<br>但，为什么要有这个定义？为什么要将线性回归的值sigmoid化？这就是下面要说的。</p>
-<h3 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h3><p>上面解释了为什么LR对应sigmoid函数，但可能会继续好奇为什么有<a href="https://www.quora.com/What-is-logistic-regression" target="_blank" rel="external">Logistic Regression</a>？常规的linear regression不满足吗？这是一个数学问题, 在许多现代跟统计／概率学相关学术问题里被广泛使用，其实回归分析很多方法，比如linear／logistic／Polynomial等，分别适用于不同模型。<br>我们先看线性回归:</p>
-<p>$$Y = X\beta + \epsilon $$</p>
-<p>$$J(\theta) = \sum_{i=1}^m (h\theta(x^{(i)})-y^{(i)})^2$$</p>
-<p>Linear Regreesion的损失函数就是常见的均值方差也就是平方损失函数，最优求解即是使用高斯的最小二乘法，高中数学都会讲到，这里不详述。<br>那么，线性回归有什么问题嘛？线性回归适用于因变量（随自变量而变）是连续的模型，即特征和结果满足线性，但是实际有的因变量是离散型机率分布。如抛硬币，结果是正面或反面的二项分布问题。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">1. 伯努利分布</div><div class="line">伯努利分布(Bernoulli distribution)又名两点分布或0-1分布。伯努利试验是只有两种可能结果的单次随机试验，</div><div class="line">即对于一个随机变量X而言：伯努利试验都可以表达为“是或否”的问题。</div><div class="line">例如，抛一次硬币是正面向上吗？刚出生的小孩是个女孩吗？等等。</div><div class="line">如果试验E是一个伯努利试验，将E独立重复地进行n次，则称这一串重复的独立试验为n重伯努利试验。</div><div class="line">2. 二项分布</div><div class="line">二项分布(Binomial distribution)是n重伯努利试验成功次数的离散概率分布。</div></pre></td></tr></table></figure></p>
-<p>LR用来处理预测结果为0-1的二值分类问题（二态问题其实是一个普遍存在自然界的问题）。这里假设了二值满足了伯努利分布。<br><strong>Logistic Distribution</strong><br>随机变量X服从逻辑斯蒂分布，即X的累积分布函数为上文提到过的logistic function。对分布函数求导得到了概率密度函数。公式如下：<br>$$F(x) = P(X \leqslant x) = \frac{1}{1+e^{-(x-\mu)/\gamma}}$$<br>$$f(x) = F’(x) = \frac{e^{-(x-\mu)/\gamma}} { \gamma (1+e^{-(x-\mu)/\gamma})^2 }$$</p>
-<p><img alt="Standard logistic PDF" src="//upload.wikimedia.org/wikipedia/commons/thumb/6/66/Logisticpdfunction.svg/320px-Logisticpdfunction.svg.png" width="320" height="273" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/6/66/Logisticpdfunction.svg/480px-Logisticpdfunction.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/6/66/Logisticpdfunction.svg/640px-Logisticpdfunction.svg.png 2x" data-file-width="480" data-file-height="409"><br>Logistic分布的密度函数<br><img alt="Standard logistic CDF" src="//upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Logistic_cdf.svg/320px-Logistic_cdf.svg.png" width="320" height="273" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Logistic_cdf.svg/480px-Logistic_cdf.svg.png 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Logistic_cdf.svg/640px-Logistic_cdf.svg.png 2x" data-file-width="480" data-file-height="409"><br>Logistic分布的分布函数<br>进一步<br>$$P(Y=1|x)=\frac{e^{w\cdot x+b}}{1+e^{w\cdot x+b}} \:\:\:\:\:\:\:\:\:(1)$$<br>$$P(Y=0|x)=\frac{1}{1+e^{w\cdot x+b}} \:\:\:\:\:\:\:\:\:(2)$$<br>又对一个二分类事件发生的几率odds的对数有<br>$$logit(P(Y=1|x)) = log\frac {P(Y=1|x)}{1-P(Y=1|x)} = w\cdot x$$<br>这里我们可以定义LR模型：输出Y=1的对数几率是由输入x的线性函数表示的模型。</p>
-<p>线性回归是连续型模型，用于分类的问题时受噪声影响比较大，logistic回归是非线性模型（上文），本质上是线性回归模型，但logistic回归巧妙之处在于其将结果值经一层函数映射在0-1上，即在特征到结果的映射中加入了一层函数映射（对数损失函数），也就是本文的sigmoid function。<br>在《统计学习方法》第六章里已经在做推导。引入最大似然的概念，那么二项式对应的最大熵的解等价于二项式指数形式的最大似然解，为我们前面提到的二项式分布到的熵分布最大，这就必然会引入二项式指数形式的最大似然解，也就是这里采用logit函数原因，也就是本文试图解释的要用sigmoid的原因。<br>具体推导，在《统计学习方法》P80-P88，<a href="/images/LR1.jpeg">或点击,下标1-7</a>。<br>也可以参考: <strong><a href="http://www.dongzhuoyao.com/logistic-regression-and-max-entropymodel/" target="_blank" rel="external">逻辑回归和最大熵模型
-</a></strong>，<strong><a href="http://www.win-vector.com/dfiles/LogisticRegressionMaxEnt.pdf" target="_blank" rel="external">The equivalence of logistic regression and maximum entropy models</a></strong></p>
-<p>参考：</p>
-<ol>
-<li>wikipedia:<br><a href="https://en.wikipedia.org/wiki/Logistic_function" target="_blank" rel="external">Logistic_function</a>,<br><a href="https://en.wikipedia.org/wiki/Logistic_distribution" target="_blank" rel="external">Logistic_distribution</a>,<br><a href="https://en.wikipedia.org/wiki/Logistic_regression" target="_blank" rel="external">Logistic_regression</a></li>
-<li>知乎<a href="https://www.quora.com/What-is-logistic-regression" target="_blank" rel="external">为什么 LR 模型要使用 sigmoid 函数</a></li>
-<li>《统计学习方法》.李航著</li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;pre&gt;&lt;code&gt;分享一下在学习逻辑回归时候的困惑，以便需要者节约时间。
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;在看西瓜书的逻辑回归这一章时，对作者引入了sigmoid函数觉得突兀，于是搜索到了知乎上的提问，&lt;a href=&quot;https://www.zhihu.com/question/35322351&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;为什么 LR 模型要使用 sigmoid 函数&lt;/a&gt; 里获赞最高的答案。&lt;br&gt;&lt;strong&gt;但正如马化腾先生说的，这么说，也对也不对。&lt;/strong&gt;&lt;br&gt;看完后，上面其他回答各种理由，而匿名回答是最大熵的，并不是原因，甚至，这可以认为是一个推论或公理。试想再问为什么要熵最大化？&lt;br&gt;换言之，一个分析问题是从前一步的因，一个分析问题是从最初的因。这对数学专业可能会直接跳过这么问。&lt;br&gt;
     
     </summary>
     

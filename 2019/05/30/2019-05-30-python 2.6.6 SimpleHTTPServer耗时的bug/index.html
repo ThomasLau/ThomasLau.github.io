@@ -1,0 +1,736 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,Python," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。 服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。 偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python">
+<meta name="keywords" content="Tech,Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 2.6.6 SimpleHTTPServer耗时的bug">
+<meta property="og:url" content="http://thomaslau.github.io/2019/05/30/2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。 服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。 偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://thomaslau.github.io/images/python2.6_1.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/python2.6_2.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/python2.6_3.png">
+<meta property="og:updated_time" content="2019-08-06T00:56:01.616Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="python 2.6.6 SimpleHTTPServer耗时的bug">
+<meta name="twitter:description" content="之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。 服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。 偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/python2.6_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/05/30/2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug/"/>
+
+
+
+
+
+  <title>python 2.6.6 SimpleHTTPServer耗时的bug | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/05/30/2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">python 2.6.6 SimpleHTTPServer耗时的bug</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-05-30T01:09:07+08:00">
+                2019-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。</p>
+<p>服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。</p>
+<p>偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python2.6.6的问题。<br><a id="more"></a><br>简单起见，我用下面重现一下： 10.135.20.45上开了一个进程</p>
+<p>   python -m SimpleHTTPServer 12888</p>
+<p>在另外一台机器上</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">[java@10-135-20-62 ~]$ cat curl-format.txt</div><div class="line">time_namelookup: %&#123;time_namelookup&#125;\n</div><div class="line">time_connect: %&#123;time_connect&#125;\n</div><div class="line">time_appconnect: %&#123;time_appconnect&#125;\n</div><div class="line">time_redirect: %&#123;time_redirect&#125;\n</div><div class="line">time_pretransfer: %&#123;time_pretransfer&#125;\n</div><div class="line">time_starttransfer: %&#123;time_starttransfer&#125;\n</div><div class="line">----------time_total: %&#123;time_total&#125;\n</div><div class="line">[java@10-135-20-62 ~]$ curl -w <span class="string">"@curl-format.txt"</span> -o /dev/null -s -L <span class="string">"10.135.20.45:12888"</span></div><div class="line">time_namelookup: 0.000</div><div class="line">time_connect: 0.000</div><div class="line">time_appconnect: 0.000</div><div class="line">time_redirect: 0.000</div><div class="line">time_pretransfer: 0.000</div><div class="line">time_starttransfer: 10.013</div><div class="line">----------time_total: 10.013</div></pre></td></tr></table></figure>
+<p>这里两个问题：<br>1）一个简单的GET请求耗时10秒，10秒看起来像是服务器设置的超时时间。<br>2）而且10秒都花费在 starttransfer</p>
+<p>如何定位问题？显然逐步打点耗时是可以的，但是如果用搜索引擎更快，我在python社区上找到一个提问，作者遇到同样现象，但是pytohn2.7以后就没有问题。</p>
+<p>有个回答说是 pytohn解析header时候\r\n的问题，也有说是socket未close问题，我看了下代码，不像。</p>
+<p>不过这个提问给了我思路，于是我比较了python 2.6/2.7各自的SimpleHTTPServer.py文件。<br>考虑到linux版本众多且你可能也记不住，友情提示一个定位该文件的方法：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[java@10-135-20-62 ~]$ python --version</div><div class="line">Python 2.6.6</div><div class="line">[java@10-135-20-62 ~]$ python -c <span class="string">'import sys; print sys.path'</span></div><div class="line">[<span class="string">''</span>, <span class="string">'/usr/lib64/python26.zip'</span>, <span class="string">'/usr/lib64/python2.6'</span>, <span class="string">'/usr/lib64/python2.6/plat-linux2'</span>, <span class="string">'/usr/lib64/python2.6/lib-tk'</span>, <span class="string">'/usr/lib64/python2.6/lib-old'</span>, <span class="string">'/usr/lib64/python2.6/lib-dynload'</span>, <span class="string">'/usr/lib64/python2.6/site-packages'</span>, <span class="string">'/usr/lib64/python2.6/site-packages/gtk-2.0'</span>, <span class="string">'/usr/lib/python2.6/site-packages'</span>, <span class="string">'/usr/lib/python2.6/site-packages/setuptools-0.6c11-py2.6.egg-info'</span>]</div></pre></td></tr></table></figure>
+<p>一般就在 /usr/lib64/python2.6/ 下面了。<br>不过2.6/2.7的SimpleHTTPServer.py没有明显差异，继续再比对他们的父类：BaseHTTPServer.py<br>下图简单列下不同点。</p>
+<p><img src="/images/python2.6_1.png" width="100%"><br><img src="/images/python2.6_2.png" width="100%"><br><img src="/images/python2.6_3.png" width="100%"></p>
+<p>时间问题，直接上答案，问题就出在log_message里，python原意只是记录response的相关结果，但没想到会成为耗时的元凶：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">def address_string(self):</div><div class="line">    &quot;&quot;&quot;Return the client address formatted for logging.</div><div class="line">    This version looks up the full hostname using gethostbyaddr(),</div><div class="line">    and tries to find a name that contains at least one dot.</div><div class="line">    &quot;&quot;&quot;</div><div class="line">    host, port = self.client_address[:2]</div><div class="line">    return socket.getfqdn(host)</div></pre></td></tr></table></figure></p>
+<p>我在该机器上跑一下，发现却是是耗费10秒</p>
+<pre><code>time python -c &apos;import socket; print socket.getfqdn()&apos;
+</code></pre><p>python 2.7 之后就改过来了，不再适用 address_string，所以在现代服务器上不会出现上述问题。</p>
+<p>getfqdn为什么会耗时呢？这和pyhon hostname 解析实现相关，后续可分享一下。</p>
+<p>以上简单记录遇到的问题，读者可留意。解决方法其实可以替换python的BaseHTTPServer.py，也可以自己拷贝出来一份修改，但说到底不如正规的方案去实现。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/30/2019-01-30-many_links_0130/" rel="next" title="Many Links 0130">
+                <i class="fa fa-chevron-left"></i> Many Links 0130
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">38</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
