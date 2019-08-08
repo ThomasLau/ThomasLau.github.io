@@ -104,7 +104,7 @@
 <meta property="og:image" content="http://thomaslau.github.io/images/python2.6_1.png">
 <meta property="og:image" content="http://thomaslau.github.io/images/python2.6_2.png">
 <meta property="og:image" content="http://thomaslau.github.io/images/python2.6_3.png">
-<meta property="og:updated_time" content="2019-08-06T00:56:01.616Z">
+<meta property="og:updated_time" content="2019-08-08T16:58:03.156Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python 2.6.6 SimpleHTTPServer耗时的bug">
 <meta name="twitter:description" content="之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。 服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。 偶然一次看日志发现本来应该在三分钟内完成的一个同步/上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python">
@@ -354,6 +354,9 @@
 </code></pre><p>python 2.7 之后就改过来了，不再适用 address_string，所以在现代服务器上不会出现上述问题。</p>
 <p>getfqdn为什么会耗时呢？这和pyhon hostname 解析实现相关，后续可分享一下。</p>
 <p>以上简单记录遇到的问题，读者可留意。解决方法其实可以替换python的BaseHTTPServer.py，也可以自己拷贝出来一份修改，但说到底不如正规的方案去实现。</p>
+<p>后记：</p>
+<p>getfqdn 底层调用的就是 socket.gethostbyaddr() – map an IP number or hostname to DNS info<br>(生产环境配置 域名/反向域名解析服务)<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">[java@10-135-20-62 ~]$ time python -c <span class="string">'import socket; print socket.gethostbyaddr("10.135.20.62")'</span></div><div class="line">(<span class="string">'localhost'</span>, [<span class="string">'localhost.localdomain'</span>, <span class="string">'localhost4'</span>, <span class="string">'localhost4.localdomain4'</span>], [<span class="string">'10.135.20.62'</span>])</div><div class="line"></div><div class="line">real    0m0.019s</div><div class="line">user    0m0.014s</div><div class="line">sys 0m0.004s</div><div class="line">[java@10-135-20-62 ~]$ time python -c <span class="string">'import socket; print socket.gethostbyaddr("10.135.20.39")'</span></div><div class="line">Traceback (most recent call last):</div><div class="line">  File <span class="string">"&lt;string&gt;"</span>, line 1, <span class="keyword">in</span> &lt;module&gt;</div><div class="line">socket.herror: [Errno 2] Host name lookup failure</div><div class="line"></div><div class="line">real    0m10.033s</div><div class="line">user    0m0.018s</div><div class="line">sys 0m0.004s</div></pre></td></tr></table></figure></p>
+<p>另 <a href="/images/socket.py">socket.py</a><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[java@10-135-20-62 ~]$ python -c <span class="string">'import _socket;print(_socket.__file__)'</span></div><div class="line">/usr/lib64/python2.6/lib-dynload/_socketmodule.so</div><div class="line">[java@10-135-20-62 ~]$ nm -D /usr/lib64/python2.6/lib-dynload/_socketmodule.so</div><div class="line">[java@10-135-20-62 ~]$ objdump -tT /usr/lib64/python2.6/lib-dynload/_socketmodule.so</div><div class="line">...</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -407,6 +410,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/" rel="prev" title="Elasticsearch删除特殊字符索引">
+                Elasticsearch删除特殊字符索引 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -469,7 +476,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">38</span>
+                <span class="site-state-item-count">39</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -482,7 +489,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-count">28</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

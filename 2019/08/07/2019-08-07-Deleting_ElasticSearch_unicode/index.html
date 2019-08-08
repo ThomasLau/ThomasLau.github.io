@@ -75,7 +75,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Tech,weeklyreading," />
+  <meta name="keywords" content="Tech,Tools," />
 
 
 
@@ -93,18 +93,18 @@
 
 
 
-<meta name="description" content="1.Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solutionhttps://www.infoq.com/news/2018/12/envoycon-ebay-edgeeBay的Envoy实践。 2.Spring源码探究：容器https://www.jiansh">
-<meta name="keywords" content="Tech,weeklyreading">
+<meta name="description" content="长话短说，查看生产环境Elasticsearch (5.6版本) 时，发现一些如下有着非ascii码的索引 123456red zhangxin-xxx-༠༠༣༡.༠༣.༢༢red zhangxin-xxx-༠༠༣༡.༠༣.༢༣red zhangxin-xxx-༠༠༣༡.༠༣.༢༤red zhangxin-xxx-༠༠༣༡.༠༤.༡༢red zhangxin-xxx-༠༠༣༡.༠༤.༡༧red z">
+<meta name="keywords" content="Tech,Tools">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Many Links 0130">
-<meta property="og:url" content="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/index.html">
+<meta property="og:title" content="Elasticsearch删除特殊字符索引">
+<meta property="og:url" content="http://thomaslau.github.io/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/index.html">
 <meta property="og:site_name" content="e+Thomas">
-<meta property="og:description" content="1.Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solutionhttps://www.infoq.com/news/2018/12/envoycon-ebay-edgeeBay的Envoy实践。 2.Spring源码探究：容器https://www.jiansh">
+<meta property="og:description" content="长话短说，查看生产环境Elasticsearch (5.6版本) 时，发现一些如下有着非ascii码的索引 123456red zhangxin-xxx-༠༠༣༡.༠༣.༢༢red zhangxin-xxx-༠༠༣༡.༠༣.༢༣red zhangxin-xxx-༠༠༣༡.༠༣.༢༤red zhangxin-xxx-༠༠༣༡.༠༤.༡༢red zhangxin-xxx-༠༠༣༡.༠༤.༡༧red z">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-24T15:59:11.841Z">
+<meta property="og:updated_time" content="2019-08-08T17:15:08.972Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Many Links 0130">
-<meta name="twitter:description" content="1.Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solutionhttps://www.infoq.com/news/2018/12/envoycon-ebay-edgeeBay的Envoy实践。 2.Spring源码探究：容器https://www.jiansh">
+<meta name="twitter:title" content="Elasticsearch删除特殊字符索引">
+<meta name="twitter:description" content="长话短说，查看生产环境Elasticsearch (5.6版本) 时，发现一些如下有着非ascii码的索引 123456red zhangxin-xxx-༠༠༣༡.༠༣.༢༢red zhangxin-xxx-༠༠༣༡.༠༣.༢༣red zhangxin-xxx-༠༠༣༡.༠༣.༢༤red zhangxin-xxx-༠༠༣༡.༠༤.༡༢red zhangxin-xxx-༠༠༣༡.༠༤.༡༧red z">
 
 
 
@@ -132,13 +132,13 @@
 
 
 
-  <link rel="canonical" href="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/"/>
+  <link rel="canonical" href="http://thomaslau.github.io/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/"/>
 
 
 
 
 
-  <title>Many Links 0130 | e+Thomas</title>
+  <title>Elasticsearch删除特殊字符索引 | e+Thomas</title>
   
 
 
@@ -267,7 +267,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Thomas Lau">
@@ -284,7 +284,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Many Links 0130</h1>
+          <h1 class="post-title" itemprop="name headline">Elasticsearch删除特殊字符索引</h1>
         
 
         <div class="post-meta">
@@ -296,8 +296,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-30T01:09:07+08:00">
-                2019-01-30
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-07T01:09:07+08:00">
+                2019-08-07
               </time>
             
 
@@ -331,27 +331,27 @@
       
 
       
-        <p>1.<br>Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solution<br><a href="https://www.infoq.com/news/2018/12/envoycon-ebay-edge" target="_blank" rel="external">https://www.infoq.com/news/2018/12/envoycon-ebay-edge</a><br>eBay的Envoy实践。</p>
-<p>2.<br>Spring源码探究：容器<br><a href="https://www.jianshu.com/p/4a82770fd188" target="_blank" rel="external">https://www.jianshu.com/p/4a82770fd188</a><br>你遇到过定义了一个拦截器/bean，在controller层的代码生效，而service层没生效？<br>这篇文章做了解读。虽然问题是适合Spring初学者，但是作者解释的还是清晰的，而且不过分深入，适合初步了解Spring。<br><a id="more"></a><br><blockquote><p>当上门这句话放在springmvc.xml中时，名为”printTimeProcessor”的bean会存在于Springmvc容器，那么Spring容器是无法获取它的。而Service层恰巧是存在于Spring容器中，所以”printTimeProcessor”切面对Service层不起作用。而Controller层本身存在于Springmvc容器，所以Controller层可以正常工作。而当它放在spring.xml中时，”printTimeProcessor”是存在于Spring容器中，Springmvc容器是Spring容器的子容器，子容器可以获取到父容器的bean，所以Controller层与Service层都能获取到该bean，所有都能正常使用它</p>
-</blockquote><br>这里可能有点混乱，把“Springmvc容器”当作Web容器(WebApplicationContext),“Spring容器”当作App容器(ApplicationContext)。<br>作者的源码可能和文中有些出入，但是其中原理探索是值得一看的。</p>
-<p>3.<br>MIT Tech Review JANUARY/FEBRUARY 2019  The China issue<br>其他几篇需要订阅阅读<br><a href="https://www.technologyreview.com/magazine/2019/01/" target="_blank" rel="external">https://www.technologyreview.com/magazine/2019/01/</a><br>数字统计不知真假，看起来是个强国啊，这几年的的科技发展迅猛<br><blockquote><p>China’s tech giants want to go global. Just one thing might stand in their way.<br>China’s losing its taste for nuclear power. That’s bad news.<br>The man turning China into a quantum superpower<br>China has never had a real chip industry. Making AI chips could change that.<br>Aboard the giant sand-sucking ships that China uses to reshape the world<br>China’s losing its taste for nuclear power. That’s bad<br>China’s giant transmission grid could be the key to cutting climate emissions<br>The man turning China into a quantum superpower<br>Years before CRISPR babies, this man was the first to edit human embryos<br>Science vs. the state: a family saga at the Caltech of China<br>How Google took on China—and lost<br>The Reunion: a new science-fiction story about surveillance in China<br>The US and China aren’t in a “cold war,” so stop calling it that<br>How China got a head start in fintech, and why the West won’t catch up</p>
-</blockquote></p>
-<p>4.<br>《从0开始学架构》–笔记<br><a href="https://coderbee.net/index.php/framework/20180918/1655" target="_blank" rel="external">https://coderbee.net/index.php/framework/20180918/1655</a></p>
-<p>5.<br>微服务消息传递协议简介<br><a href="http://mushiming.top/mushblog/archives/890" target="_blank" rel="external">http://mushiming.top/mushblog/archives/890</a><br><blockquote><p>那么，微服务架构如何处理分布式独立进程中的通信？一些交叉的方式：<br>同步协议<br>异步协议<br>单接收器<br>多个接收器<br>如何避免同步依赖？<br>复制和传播将有助于回避同步性问题。通过复制，您可以将数据存储在多个站点（如服务器）中。这极大地提高了数据的可用性并减少了不一致性。通过传播，您可以将数据从服务器推送到客户端，这对于本地访问方案非常有用。</p>
-<p>如果复制和传播不是当前路由，您还可以跨微服务复制数据。这与每个微服务的域模型边界密切配合。在处理域模型边界时，您需要关注业务功能的范围，并在服务之间创建可理解且有意义的分离。如果实现有意义的分离，这也将有助于提高数据和迭代的可伸缩性和域驱动选择。</p>
-</blockquote></p>
-<p>6.<br>How Much of the Internet Is Fake? Turns Out, a Lot of It, Actually.<br><a href="http://nymag.com/intelligencer/2018/12/how-much-of-the-internet-is-fake.html" target="_blank" rel="external">http://nymag.com/intelligencer/2018/12/how-much-of-the-internet-is-fake.html</a><br>长文，作者论述了现实中存在的 Fake，听起来一种Fake致死的感觉，在这个当今离开手机离开互联网寸步难行的时代。<br>但作者是在耸人听闻吗：<br><blockquote><p>Where does that leave us? I’m not sure the solution is to seek out some pre-Inversion authenticity — to red-pill ourselves back to “reality.” What’s gone from the internet, after all, isn’t “truth,” but trust: the sense that the people and things we encounter are what they represent themselves to be. Years of metrics-driven growth, lucrative manipulative systems, and unregulated platform marketplaces, have created an environment where it makes more sense to be fake online — to be disingenuous and cynical, to lie and cheat, to misrepresent and distort — than it does to be real. Fixing that would require cultural and political reform in Silicon Valley and around the world, but it’s our only choice. Otherwise we’ll all end up on the bot internet of fake people, fake clicks, fake sites, and fake computers, where the only real thing is the ads.</p>
-</blockquote></p>
-<p>7.<br>中美贸易摩擦加关税商品<br><a href="http://blog.fens.me/china-trade-merchandise/" target="_blank" rel="external">http://blog.fens.me/china-trade-merchandise/</a></p>
-<p>8.<br>2018年JAVA回顾<br>JVM Calendar: Java in 2018<br><a href="https://dzone.com/articles/java-advent-java-in-2018" target="_blank" rel="external">https://dzone.com/articles/java-advent-java-in-2018</a></p>
-<p>9.<br>下面的主要来自ruanyf本期(和其它)的分享,偷个懒，直接引用部分，有兴趣请移步原文：<br><a href="http://www.ruanyifeng.com/blog/2018/12/weekly-issue-37.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2018/12/weekly-issue-37.html</a></p>
-<p><a href="https://github.com/sdmg15/Best-websites-a-programmer-should-visit" target="_blank" rel="external">https://github.com/sdmg15/Best-websites-a-programmer-should-visit</a><br>该仓库收集对程序员有用的网址，包含问题查找、技术新闻、技术博客、开源社区、英文提升、新奇的玩意儿、视频教程、在线工具等数十个方向的内容。（@qiurenbo 投稿）</p>
-<p><a href="https://tus.io/" target="_blank" rel="external">https://tus.io/</a><br>文件上传到一半突然断了，往往只能重新上传。tus 是一个允许断点上传的轻量级协议，可以从中断的地方继续上传。官方提供开源的客户端和服务端实现。</p>
-<p><a href="https://github.com/jabcode/jabcode" target="_blank" rel="external">https://github.com/jabcode/jabcode</a><br>JAB 码是彩色二维码方案，可以比黑白二维码写入多得多的信息。</p>
-<p>Linux 内核揭密（中文）<br><a href="https://xinqiu.gitbooks.io/linux-insides-cn/content/index.html" target="_blank" rel="external">https://xinqiu.gitbooks.io/linux-insides-cn/content/index.html</a><br>本书是《Linux inside》一书的中译，介绍 Linux 内核知识，从计算机通电讲起，需要 C 语言和汇编语言的知识。（@imilano 投稿）<br><a href="https://github.com/0xAX/linux-insides" target="_blank" rel="external">https://github.com/0xAX/linux-insides</a></p>
-<p><a href="http://incompleteideas.net/book/the-book.html" target="_blank" rel="external">http://incompleteideas.net/book/the-book.html</a><br>《Reinforcement Learning: An Introduction》，2018年出版的新书，作者开源了。</p>
-<p><a href="https://swtch.com/~rsc/regexp/regexp4.html" target="_blank" rel="external">https://swtch.com/~rsc/regexp/regexp4.html</a><br>谷歌代码搜索的作者，介绍搜索的算法原理。</p>
-<p><a href="https://www.vulture.com/2018/10/the-making-of-rockstar-games-red-dead-redemption-2.html" target="_blank" rel="external">https://www.vulture.com/2018/10/the-making-of-rockstar-games-red-dead-redemption-2.html</a><br>这篇长篇报道介绍 RockStar 游戏公司和它开发的游戏《Red Dead Redemption 2》。</p>
+        <p>长话短说，查看生产环境Elasticsearch (5.6版本) 时，发现一些如下有着非ascii码的索引</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">red zhangxin-xxx-༠༠༣༡.༠༣.༢༢</div><div class="line">red zhangxin-xxx-༠༠༣༡.༠༣.༢༣</div><div class="line">red zhangxin-xxx-༠༠༣༡.༠༣.༢༤</div><div class="line">red zhangxin-xxx-༠༠༣༡.༠༤.༡༢</div><div class="line">red zhangxin-xxx-༠༠༣༡.༠༤.༡༧</div><div class="line">red zh날炷gxꆀ鍀ᒶ⒐ጆ䬯ꀳ20₨炠.021</div></pre></td></tr></table></figure>
+<p>上面是某系统因为历史缘故，使用用户的数据创建索引了，因暂时无法推动其做修改，于是需要考虑用脚本定时删除。<br><a id="more"></a><br>如果你对过程不感兴趣，可以考虑跳到 总结2 直接看方法。<br><i>题外话：上述看起来是藏文，用了bing/sogou翻译，识别为北欧语言(为：我的天呐)，看起来不一样而且不像，不过用google翻译像日期格式(为:0031.03.22)倒是接近。</i>i&gt;</p>
+<p>不过，如果直接用 curl -XDELETE ‘10.135.20.38:9200/zhangxin-xxx-༠༠༣༡.༠༣.༢༢’ 会提示索引不存在，因为需要转义。<br>而且，ES也不存在POST方式删除索引的方法，索引需要修改为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">curl -XDELETE 10.135.20.38:9200/zhangxin-xxx-%e0%bc%a0%e0%bc%a0%e0%bc%a3%e0%bc%a1.%e0%bc%a0%e0%bc%a3.%e0%bc%a2%e0%bc%a2</div><div class="line">curl -XDELETE 10.135.20.38:9200/zhangxin-xxx-%e0%bc%a0%e0%bc%a0%e0%bc%a3%e0%bc%a1.%e0%bc%a0%e0%bc%a3.%e0%bc%a2%e0%bc%a3</div><div class="line">curl -XDELETE 10.135.20.38:9200/zhangxin-xxx-%e0%bc%a0%e0%bc%a0%e0%bc%a3%e0%bc%a1.%e0%bc%a0%e0%bc%a3.%e0%bc%a2%e0%bc%a4</div><div class="line">curl -XDELETE 10.135.20.38:9200/zhangxin-xxx-%e0%bc%a0%e0%bc%a0%e0%bc%a3%e0%bc%a1.%e0%bc%a0%e0%bc%a4.%e0%bc%a1%e0%bc%a2</div><div class="line">curl -XDELETE 10.135.20.38:9200/zhangxin-xxx-%e0%bc%a0%e0%bc%a0%e0%bc%a3%e0%bc%a1.%e0%bc%a0%e0%bc%a4.%e0%bc%a1%e0%bc%a7</div><div class="line">curl -XDELETE 10.135.20.38:9200/zhangxin-xxx-%e0%bc%a0%e0%bc%a0%e0%bc%a3%e0%bc%a1.%e0%bc%a0%e0%bc%a4.%e0%bc%a1%e0%bc%a8</div><div class="line">curl -XDELETE <span class="string">'10.135.20.38:9200/zh%EB%82%A0%E7%82%B7gx%EA%86%80%00%E9%8D%80%E1%92%B6%E2%92%90%E1%8C%86%01%00%E4%AC%AF%EA%80%B3%32%30%E2%82%A8%E7%82%A0%2E%30%1A%00%32%31'</span></div></pre></td></tr></table></figure>
+<p>方式删除，这里索引可以使用逗号分隔拼凑起来，不过为了脚本方便就一行一条了。</p>
+<p>那么怎么去定位这些非正常字符的索引呢？</p>
+<pre><code>curl -s 10.135.20.38:9200/_cat/indices?v|grep -P &apos;[\xB0\xA1-\xF7\xFE]+&apos;
+</code></pre><p>上面索引就是用该行grep出来，不过按上述删完后，发现‘zh날炷gxꆀ鍀ᒶ⒐ጆ䬯ꀳ20₨炠.021’ 这个索引还在。</p>
+<p>这让我有点不知所措，直到我把grep出来的结果保存，并用16进制模式查看时，才发现，原来是自己手动从服务器拷贝该索引时把部分不可string化的字符拷贝丢了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">curl -s 10.135.20.38:9200/_cat/indices?v|grep -P &apos;[\xB0\xA1-\xF7\xFE]+&apos;</div><div class="line">green  open   zh날炷gxꆀ鍀ᒶ⒐ጆ䬯ꀳ20₨炠.021          tfpRU2KeRCG6yBWhYq5J2w   5   1          1            0      9.2kb          4.6kb</div><div class="line"></div><div class="line"># 将上述结果打开vi十六进制模式，部分如下</div><div class="line">                                            7a68  green  open   zh</div><div class="line">0000010: eb82 a0e7 82b7 6778 ea86 8000 e98d 80e1  ......gx........</div><div class="line">0000020: 92b6 e292 90e1 8c86 0100 e4ac afea 80b3  ................</div><div class="line">0000030: 3230 e282 a8e7 82a0 2e30 1a00 3231       20.......0..21</div></pre></td></tr></table></figure></p>
+<p>可以看到通过字符串拷贝时丢失，还是老老实实写脚本实现删除吧。</p>
+<p>总结1</p>
+<p>如下是完整实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"># 首先是之前通过curl命令进行 urlencode 编码的函数</div><div class="line">function urlencode() &#123;</div><div class="line">    local data</div><div class="line">    if [[ $# != 1 ]]; then</div><div class="line">        echo &quot;Usage: $0 str&quot;</div><div class="line">        return 1</div><div class="line">    fi</div><div class="line">    data=&quot;$(curl -s -o /dev/null -w %&#123;url_effective&#125; --get --data-urlencode &quot;$1&quot; &quot;&quot;)&quot;</div><div class="line">    # if [[ $? == 0 ]]; then</div><div class="line">    echo &quot;$&#123;data##/?&#125;&quot;</div><div class="line">    # fi</div><div class="line">    return 0</div><div class="line">&#125;</div><div class="line">function callDel()&#123;</div><div class="line">    indx=$(urlencode $1)</div><div class="line">    curl -s -XDELETE 10.135.20.38:9200/$indx</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其次合起来完整的脚本就是<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">curl -s 10.135.20.38:9200/_cat/indices?v|grep -P <span class="string">'[\xB0\xA1-\xF7\xFE]+'</span>| \ </div><div class="line">    awk <span class="string">'&#123;print $3&#125;'</span>|xargs -I@ -P4 bash -c <span class="string">"<span class="variable">$(declare -f urlencode; declare -f callDel)</span> ; callDel @ ; echo @ "</span></div></pre></td></tr></table></figure></p>
+<p><i>题外话：起先怀疑这个urlencode有误，后来使用 python -c “import urllib;print urllib.quote(raw_input())” &lt;&lt;&lt; “zhangxin-xxx-༢༥༦༢.༠༤.༠༡” 也是如此。</i></p>
+<p>总结2</p>
+<p>上述方法可以完美运行，但是觉得有点麻烦，实现的不是非常的 Elasticsearch。</p>
+<p>无意翻看了下 Elasticsearch 的索引匹配支持，显然索引匹配是不支持正则表达式的，但是支持通配符，include，excluse，具体代码可以看 Elasticsearch 的 IndexNameExpressionResolver 实现，在innerResolve 会判断是否支持。有个exclude模式是支持的。<br>即，也可以用这种方式去删除：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">curl -XDELETE <span class="string">'10.135.20.38:9200/zhangxin-xxx-*,-zhangxin-xxx-2019.07.*'</span></div></pre></td></tr></table></figure></p>
+<p>这句就表示删除 zhangxin-xxx- 除 zhangxin-xxx-2019.07- 开头的索引。</p>
+<p>不过这个方案不如上面的通用，但是非常简单且清晰易懂。</p>
 
       
     </div>
@@ -383,7 +383,7 @@
           
             <a href="/tags/Tech/" rel="tag"># Tech</a>
           
-            <a href="/tags/weeklyreading/" rel="tag"># weeklyreading</a>
+            <a href="/tags/Tools/" rel="tag"># Tools</a>
           
         </div>
       
@@ -396,8 +396,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/11/19/2018-11-19-many_links_1119 copy/" rel="next" title="Many Links 1119">
-                <i class="fa fa-chevron-left"></i> Many Links 1119
+              <a href="/2019/05/30/2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug/" rel="next" title="python 2.6.6 SimpleHTTPServer耗时的bug">
+                <i class="fa fa-chevron-left"></i> python 2.6.6 SimpleHTTPServer耗时的bug
               </a>
             
           </div>
@@ -405,10 +405,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/05/30/2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug/" rel="prev" title="python 2.6.6 SimpleHTTPServer耗时的bug">
-                python 2.6.6 SimpleHTTPServer耗时的bug <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
