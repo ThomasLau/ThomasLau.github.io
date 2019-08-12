@@ -1,0 +1,781 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,Tools," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="intro1: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？intro2: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。intro3: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和">
+<meta name="keywords" content="Tech,Tools">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac电脑效能神器 Hammerspoon 入门和几个改善">
+<meta property="og:url" content="http://thomaslau.github.io/2019/08/11/2019-08-11-on_hammerspoon/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？intro2: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。intro3: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://thomaslau.github.io/images/hammerspoon1.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/hammerspoon2.png">
+<meta property="og:updated_time" content="2019-08-12T17:12:06.864Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mac电脑效能神器 Hammerspoon 入门和几个改善">
+<meta name="twitter:description" content="intro1: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？intro2: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。intro3: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/hammerspoon1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/08/11/2019-08-11-on_hammerspoon/"/>
+
+
+
+
+
+  <title>Mac电脑效能神器 Hammerspoon 入门和几个改善 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/08/11/2019-08-11-on_hammerspoon/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Mac电脑效能神器 Hammerspoon 入门和几个改善</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-11T01:09:07+08:00">
+                2019-08-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i><strong>intro1</strong>: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？</i><br><i><strong>intro2</strong>: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。</i><br><i><strong>intro3</strong>: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和介绍</i></p>
+</blockquote>
+<h2 id="Hammerspoon"><a href="#Hammerspoon" class="headerlink" title="Hammerspoon"></a>Hammerspoon</h2><p>最近升级了Mac系统，发现之前的hammerspoon有个脚本耗电偏高，该脚本就是实现打开 Terminal/iTerm2(命令行)/Spotlight等可以将输入法自动切换到拼音输入法，打开Chrome/Firefox等可以自动切换中文输入法。<br><a id="more"></a><br><blockquote><p>如果你还不了解Hammerspoon是什么，可以参考下面几个链接：</p>
+<ol>
+<li><a href="https://sspai.com/post/53992" target="_blank" rel="external">免费又强大的 macOS 自动化工具，Hammerspoon 可以让你少买很多 App</a></li>
+<li><a href="https://www.v2ex.com/amp/t/553241" target="_blank" rel="external">推荐一个 MacOS 上用了就无法自拔的神器Hammerspoon</a></li>
+<li><a href="https://juejin.im/entry/59737e16f265da6c317de185" target="_blank" rel="external">打造 macOS 的生产力环境 - Hammerspoon</a></li>
+</ol>
+</blockquote><br>最开始是在某论坛看到的一段脚本实现输入法自动切换，大概功能就是绑定 Alt+Tab快捷键，切换时就切换了输入法，很早期了。最近刚好想到 Hammerspoon 除了事件机制，窗口焦点事件，于是想想是否有这类机制的实现。</p>
+<p>于是我尝试用 “Hammerspoon + 窗口事件” 搜索了一番，找到了几篇文章。实际上不看文章，只是看代码的话也并不难，就在 Hammerspoon.app的Contents/Resources/extensions/hs/window目录下，可以看到下图：<br><img src="/images/hammerspoon1.png" width="100%"></p>
+<p>在这里，订阅 <strong>hs.window.filter.windowCreated</strong>，<strong>hs.window.filter.windowFocused</strong> 事件一般可以满足上述输入法自动切换的需求了。</p>
+<p>但是应该怎样把上述联系起来，编码实现功能？我并不算是个深入了解 Hammerspoon 的用户，所以首先求助其文档，幸亏他的文档写的好又详细，<a href="http://www.hammerspoon.org/docs/hs.window.filter.html" target="_blank" rel="external">在这里hs.window.filter</a></p>
+<p>上面帮助文档罗列描述很清楚，如果留意上面提到的 hs/window/filter.lua 的代码，我们还可以发现这段注释：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--- A *default windowfilter* (not to be confused with the default filter *within* a windowfilter) is provided as convenience;</span></div><div class="line"><span class="comment">--- it excludes some known apps and windows that are transient in nature, therefore unlikely to be "interesting" for e.g. window management.</span></div><div class="line"><span class="comment">--- `hs.window.filter.new()` (with no arguments) returns a copy of the default windowfilter that you can further tailor to your needs - see `hs.window.filter.default` and `hs.window.filter.new()` for more information.</span></div><div class="line"></div><div class="line"><span class="comment">---</span></div><div class="line"><span class="comment">--- -- set the exact scope of what you're interested in - see hs.window.filter:setAppFilter()</span></div><div class="line"><span class="comment">--- wf_terminal = wf.new&#123;'Terminal','iTerm2'&#125; -- all visible terminal windows</span></div><div class="line"><span class="comment">--- wf_timewaster = wf.new(false):setAppFilter('Safari',&#123;allowTitles='reddit'&#125;) -- any Safari windows with "reddit" anywhere in the title</span></div><div class="line"><span class="comment">--- wf_leftscreen = wf.new&#123;override=&#123;visible=true,fullscreen=false,allowScreens='-1,0',currentSpace=true&#125;&#125;</span></div><div class="line"><span class="comment">--- -- all visible and non-fullscreen windows that are on the screen to the left of the primary screen in the current Space</span></div><div class="line"><span class="comment">--- wf_editors_righthalf = wf.new&#123;'TextEdit','Sublime Text','BBEdit'&#125;:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0/1,1')</span></div><div class="line"><span class="comment">--- -- text editor windows that are on the right half of the primary screen</span></div><div class="line"><span class="comment">--- wf_bigwindows = wf.new(function(w)return w:frame().area&gt;3000000 end) -- only very large windows</span></div><div class="line"><span class="comment">--- wf_notif = wf.new&#123;['Notification Center']=&#123;allowRoles='AXNotificationCenterAlert'&#125;&#125; -- notification center alerts</span></div><div class="line"><span class="comment">---</span></div><div class="line"><span class="comment">--- -- subscribe to events</span></div><div class="line"><span class="comment">--- wf_terminal:subscribe(wf.windowFocused,some_fn) -- run a function whenever a terminal window is focused</span></div><div class="line"><span class="comment">--- wf_timewaster:subscribe(wf.hasWindow,startAnnoyingMe):subscribe(wf.hasNoWindows,stopAnnoyingMe) -- fight procrastination :)</span></div><div class="line"><span class="comment">---</span></div></pre></td></tr></table></figure>
+<p>这个注释是不是非常地清晰，看完后代码就出来了呢？<br><i><strong>是的！</strong></i><br>下面就是一个完整可运行的代码，直接拷贝到自己的 ~/.hammerspoon/init.lua  – Finally那段注释上面就可以运行了。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">-----------------------mine start-----------------------------</span></div><div class="line"><span class="comment">-- ADD by Thomas</span></div><div class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">Chinese</span><span class="params">()</span></span></div><div class="line">  hs.console.printStyledtext(<span class="string">"chinese"</span>)</div><div class="line">  hs.keycodes.currentSourceID(<span class="string">"com.apple.inputmethod.SCIM.ITABC"</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">English</span><span class="params">()</span></span></div><div class="line">  hs.console.printStyledtext(hs.keycodes.currentSourceID())</div><div class="line">  hs.keycodes.currentSourceID(<span class="string">"com.apple.keylayout.ABC"</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">hs.console.printStyledtext(<span class="string">"inputM:"</span> + hs.keycodes.currentSourceID())</div><div class="line"></div><div class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">set_app_input_method</span><span class="params">(app_name, set_input_method_function, event)</span></span></div><div class="line">  event = event <span class="keyword">or</span> hs.window.filter.windowFocused</div><div class="line">  hs.window.filter.new(app_name)</div><div class="line">    :subscribe(event, <span class="function"><span class="keyword">function</span><span class="params">()</span></span> set_input_method_function() <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">set_app_input_method(<span class="string">'Hammerspoon'</span>, English, hs.window.filter.windowCreated)</div><div class="line">set_app_input_method(<span class="string">'Spotlight'</span>, English, hs.window.filter.windowCreated)</div><div class="line"><span class="comment">-- set_app_input_method('Emacs', English)</span></div><div class="line">set_app_input_method(<span class="string">'Slack'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'Terminal'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'iTerm2'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'Google Chrome'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'WeChat'</span>, Chinese)</div><div class="line"><span class="comment">-----------------------mine end-----------------------------</span></div></pre></td></tr></table></figure>
+<p>其中：</p>
+<ol>
+<li>“com.apple.inputmethod.SCIM.ITABC”/“com.apple.keylayout.ABC”就是我的电脑上在用的中英文输入法，<br>如果你不知道自己使用的输入法的名称可以切换对应输入法，打开 Hammerspoon 控制台，点击 Hammerspoon的 reload config，就会在Hammerspoon 控制台看到inputM 一段，就是你的输入法，替换上面对应名字即可。</li>
+<li>如果有自己的应用需要，可以追加 set_app_input_method。</li>
+</ol>
+<h2 id="Bing-必应桌面的改进"><a href="#Bing-必应桌面的改进" class="headerlink" title="Bing 必应桌面的改进"></a>Bing 必应桌面的改进</h2><p>使用 awesome-hammerspoon.git 下的Bing脚本，可以自动更新自己的桌面壁纸和必应官方同步，但是我发现有几个问题：<br>1）不支持多桌面。现在大多数工作环境都是两个或多个显示器，使用该脚本，发现只有一个桌面壁纸更新了。<br>原因在于 hammerspoon 默认更新的是mainScreen，它还有一个primaryScreen甚至allScreens区别，所以这里需要改一下。<br>2）下载的壁纸没有保存下来<br>3）桌面壁纸在大陆其实用的是 bing 国内版搜索的壁纸，想使用更适合做背景的国外版壁纸该怎么办？<br>只需要在请求链接的时候加一个 ENSEARCH=BENVER=1 的cookie就可以了。</p>
+<p>上面问题的解决方法：<br>修改.hammerspoon/Spoons/BingDaily.spoon/init.lua文件，将下面代码中 +开头的代码行替换-开头的源代码行即可：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">-        <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/.Trash/"</span> .. hs.http.urlParts(obj.full_url).lastPathComponent</div><div class="line">-        hs.screen.mainScreen():desktopImageURL(<span class="string">"file://"</span> .. localpath)</div><div class="line">+        <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/Public/bing/"</span> .. hs.http.urlParts(obj.full_url).queryItems[<span class="number">1</span>].id</div><div class="line">+        hs.console.printStyledtext(<span class="string">"desktopIMG:"</span> .. localpath)</div><div class="line">+        hs.screen.primaryScreen():desktopImageURL(<span class="string">"file://"</span> .. localpath)</div><div class="line">+        <span class="keyword">local</span> scs=hs.screen.allScreens()</div><div class="line">+        <span class="keyword">local</span> count = <span class="number">0</span></div><div class="line">+        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">pairs</span>(scs) <span class="keyword">do</span> count = count + <span class="number">1</span> <span class="keyword">end</span></div><div class="line">+        hs.console.printStyledtext(<span class="string">"table.size: "</span> .. count)</div><div class="line">+        <span class="keyword">for</span> i=<span class="number">1</span>,#scs <span class="keyword">do</span> scs[i]:desktopImageURL(<span class="string">"file://"</span> .. localpath) <span class="keyword">end</span></div><div class="line"></div><div class="line"></div><div class="line">-    <span class="keyword">local</span> user_agent_str = <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/603.2.4 (KHTML, like Gecko) Version/10.1.1 Safari/603.2.4"</span></div><div class="line">+    <span class="keyword">local</span> user_agent_str = <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"</span></div><div class="line">-    hs.http.asyncGet(json_req_url, &#123;[<span class="string">"User-Agent"</span>]=user_agent_str&#125;, <span class="function"><span class="keyword">function</span><span class="params">(stat,body,header)</span></span></div><div class="line">+    hs.http.asyncGet(json_req_url, &#123;[<span class="string">"User-Agent"</span>]=user_agent_str,[<span class="string">"cookie"</span>]=<span class="string">"ENSEARCH=BENVER=1"</span>&#125;, <span class="function"><span class="keyword">function</span><span class="params">(stat,body,header)</span></span></div><div class="line"></div><div class="line">-                    <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/.Trash/"</span> .. hs.http.urlParts(obj.full_url).lastPathComponent</div><div class="line">+                    <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/Public/bing/"</span> .. hs.http.urlParts(obj.full_url).queryItems[<span class="number">1</span>].id</div></pre></td></tr></table></figure>
+<h2 id="其他："><a href="#其他：" class="headerlink" title="其他："></a>其他：</h2><p>在.hammerspoon/Spoons 文件夹下修改canlendar/aclokck的分布位置/大小/用色都较简单直白，就不列代码了。</p>
+<p>最后，主要是对 Hammerspoon 扩展支持的功能还没深入了解过，希望有时间可以再做点开发，根据个人使用来看可添加的效率脚本太多了.</p>
+<h2 id="How"><a href="#How" class="headerlink" title="How"></a>How</h2><p>上面链接可见 Hammerspoon 是什么以及怎么用，可以重复下，非常简单：</p>
+<p>1) 到官网下载并安装 <a href="https://github.com/Hammerspoon/hammerspoon/releases/latest" target="_blank" rel="external">Hammerspoon</a><br>2）最好给 Hammerspoon 授权，点击 “Enable Accessbility”<br><img src="/images/hammerspoon2.png" width="80%"><br>3）如果你是开发者，可以运行：</p>
+<pre><code>git clone https://github.com/ashfinal/awesome-hammerspoon.git   .hammerspoon
+</code></pre><p>否则可直接下载 并保存到你的home文件夹下 的 .hammerspoon目录。</p>
+<p>实际上述2步完成就是可用了，但只提供基本功能，如有需求可以自己写脚本了。不过感谢强大的开源文化，许多网友就开源了许多自己写的脚本，一开始可以用 3 步里的脚本合集，应该是早且权威的。</p>
+<h2 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h2><ol>
+<li><a href="https://www.v2ex.com/amp/t/553241" target="_blank" rel="external">推荐一个 MacOS 上用了就无法自拔的神器Hammerspoon</a></li>
+<li><a href="https://sspai.com/post/53992" target="_blank" rel="external">免费又强大的 macOS 自动化工具，Hammerspoon 可以让你少买很多 App</a></li>
+<li><a href="https://yiming.dev/blog/2017/08/09/use-hammerspoon-to-auto-switch-input-methods/" target="_blank" rel="external">Use Hammerspoon to auto switch input methods
+</a></li>
+<li><a href="https://juejin.im/entry/59737e16f265da6c317de185" target="_blank" rel="external">打造 macOS 的生产力环境 - Hammerspoon</a></li>
+<li><a href="http://www.hammerspoon.org/docs/hs.window.filter.html" target="_blank" rel="external">docs » hs.window.filter</a></li>
+<li><a href="https://emacs-china.org/t/topic/6348/20" target="_blank" rel="external">Emacs China </a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/Tools/" rel="tag"># Tools</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/" rel="next" title="Elasticsearch删除特殊字符索引">
+                <i class="fa fa-chevron-left"></i> Elasticsearch删除特殊字符索引
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hammerspoon"><span class="nav-number">1.</span> <span class="nav-text">Hammerspoon</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bing-必应桌面的改进"><span class="nav-number">2.</span> <span class="nav-text">Bing 必应桌面的改进</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他："><span class="nav-number">3.</span> <span class="nav-text">其他：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#How"><span class="nav-number">4.</span> <span class="nav-text">How</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考："><span class="nav-number">5.</span> <span class="nav-text">参考：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

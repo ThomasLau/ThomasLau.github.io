@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2019-08-08T17:15:08.972Z</updated>
+  <updated>2019-08-12T17:12:06.864Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,70 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Mac电脑效能神器 Hammerspoon 入门和几个改善</title>
+    <link href="http://thomaslau.github.io/2019/08/11/2019-08-11-on_hammerspoon/"/>
+    <id>http://thomaslau.github.io/2019/08/11/2019-08-11-on_hammerspoon/</id>
+    <published>2019-08-10T17:09:07.000Z</published>
+    <updated>2019-08-12T17:12:06.864Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p><i><strong>intro1</strong>: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？</i><br><i><strong>intro2</strong>: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。</i><br><i><strong>intro3</strong>: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和介绍</i></p>
+</blockquote>
+<h2 id="Hammerspoon"><a href="#Hammerspoon" class="headerlink" title="Hammerspoon"></a>Hammerspoon</h2><p>最近升级了Mac系统，发现之前的hammerspoon有个脚本耗电偏高，该脚本就是实现打开 Terminal/iTerm2(命令行)/Spotlight等可以将输入法自动切换到拼音输入法，打开Chrome/Firefox等可以自动切换中文输入法。<br><a id="more"></a><br><blockquote><p>如果你还不了解Hammerspoon是什么，可以参考下面几个链接：</p>
+<ol>
+<li><a href="https://sspai.com/post/53992" target="_blank" rel="external">免费又强大的 macOS 自动化工具，Hammerspoon 可以让你少买很多 App</a></li>
+<li><a href="https://www.v2ex.com/amp/t/553241" target="_blank" rel="external">推荐一个 MacOS 上用了就无法自拔的神器Hammerspoon</a></li>
+<li><a href="https://juejin.im/entry/59737e16f265da6c317de185" target="_blank" rel="external">打造 macOS 的生产力环境 - Hammerspoon</a></li>
+</ol>
+</blockquote><br>最开始是在某论坛看到的一段脚本实现输入法自动切换，大概功能就是绑定 Alt+Tab快捷键，切换时就切换了输入法，很早期了。最近刚好想到 Hammerspoon 除了事件机制，窗口焦点事件，于是想想是否有这类机制的实现。</p>
+<p>于是我尝试用 “Hammerspoon + 窗口事件” 搜索了一番，找到了几篇文章。实际上不看文章，只是看代码的话也并不难，就在 Hammerspoon.app的Contents/Resources/extensions/hs/window目录下，可以看到下图：<br><img src="/images/hammerspoon1.png" width="100%"></p>
+<p>在这里，订阅 <strong>hs.window.filter.windowCreated</strong>，<strong>hs.window.filter.windowFocused</strong> 事件一般可以满足上述输入法自动切换的需求了。</p>
+<p>但是应该怎样把上述联系起来，编码实现功能？我并不算是个深入了解 Hammerspoon 的用户，所以首先求助其文档，幸亏他的文档写的好又详细，<a href="http://www.hammerspoon.org/docs/hs.window.filter.html" target="_blank" rel="external">在这里hs.window.filter</a></p>
+<p>上面帮助文档罗列描述很清楚，如果留意上面提到的 hs/window/filter.lua 的代码，我们还可以发现这段注释：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">--- A *default windowfilter* (not to be confused with the default filter *within* a windowfilter) is provided as convenience;</span></div><div class="line"><span class="comment">--- it excludes some known apps and windows that are transient in nature, therefore unlikely to be "interesting" for e.g. window management.</span></div><div class="line"><span class="comment">--- `hs.window.filter.new()` (with no arguments) returns a copy of the default windowfilter that you can further tailor to your needs - see `hs.window.filter.default` and `hs.window.filter.new()` for more information.</span></div><div class="line"></div><div class="line"><span class="comment">---</span></div><div class="line"><span class="comment">--- -- set the exact scope of what you're interested in - see hs.window.filter:setAppFilter()</span></div><div class="line"><span class="comment">--- wf_terminal = wf.new&#123;'Terminal','iTerm2'&#125; -- all visible terminal windows</span></div><div class="line"><span class="comment">--- wf_timewaster = wf.new(false):setAppFilter('Safari',&#123;allowTitles='reddit'&#125;) -- any Safari windows with "reddit" anywhere in the title</span></div><div class="line"><span class="comment">--- wf_leftscreen = wf.new&#123;override=&#123;visible=true,fullscreen=false,allowScreens='-1,0',currentSpace=true&#125;&#125;</span></div><div class="line"><span class="comment">--- -- all visible and non-fullscreen windows that are on the screen to the left of the primary screen in the current Space</span></div><div class="line"><span class="comment">--- wf_editors_righthalf = wf.new&#123;'TextEdit','Sublime Text','BBEdit'&#125;:setRegions(hs.screen.primaryScreen():fromUnitRect'0.5,0/1,1')</span></div><div class="line"><span class="comment">--- -- text editor windows that are on the right half of the primary screen</span></div><div class="line"><span class="comment">--- wf_bigwindows = wf.new(function(w)return w:frame().area&gt;3000000 end) -- only very large windows</span></div><div class="line"><span class="comment">--- wf_notif = wf.new&#123;['Notification Center']=&#123;allowRoles='AXNotificationCenterAlert'&#125;&#125; -- notification center alerts</span></div><div class="line"><span class="comment">---</span></div><div class="line"><span class="comment">--- -- subscribe to events</span></div><div class="line"><span class="comment">--- wf_terminal:subscribe(wf.windowFocused,some_fn) -- run a function whenever a terminal window is focused</span></div><div class="line"><span class="comment">--- wf_timewaster:subscribe(wf.hasWindow,startAnnoyingMe):subscribe(wf.hasNoWindows,stopAnnoyingMe) -- fight procrastination :)</span></div><div class="line"><span class="comment">---</span></div></pre></td></tr></table></figure>
+<p>这个注释是不是非常地清晰，看完后代码就出来了呢？<br><i><strong>是的！</strong></i><br>下面就是一个完整可运行的代码，直接拷贝到自己的 ~/.hammerspoon/init.lua  – Finally那段注释上面就可以运行了。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">-----------------------mine start-----------------------------</span></div><div class="line"><span class="comment">-- ADD by Thomas</span></div><div class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">Chinese</span><span class="params">()</span></span></div><div class="line">  hs.console.printStyledtext(<span class="string">"chinese"</span>)</div><div class="line">  hs.keycodes.currentSourceID(<span class="string">"com.apple.inputmethod.SCIM.ITABC"</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">English</span><span class="params">()</span></span></div><div class="line">  hs.console.printStyledtext(hs.keycodes.currentSourceID())</div><div class="line">  hs.keycodes.currentSourceID(<span class="string">"com.apple.keylayout.ABC"</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">hs.console.printStyledtext(<span class="string">"inputM:"</span> + hs.keycodes.currentSourceID())</div><div class="line"></div><div class="line"><span class="keyword">local</span> <span class="function"><span class="keyword">function</span> <span class="title">set_app_input_method</span><span class="params">(app_name, set_input_method_function, event)</span></span></div><div class="line">  event = event <span class="keyword">or</span> hs.window.filter.windowFocused</div><div class="line">  hs.window.filter.new(app_name)</div><div class="line">    :subscribe(event, <span class="function"><span class="keyword">function</span><span class="params">()</span></span> set_input_method_function() <span class="keyword">end</span>)</div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">set_app_input_method(<span class="string">'Hammerspoon'</span>, English, hs.window.filter.windowCreated)</div><div class="line">set_app_input_method(<span class="string">'Spotlight'</span>, English, hs.window.filter.windowCreated)</div><div class="line"><span class="comment">-- set_app_input_method('Emacs', English)</span></div><div class="line">set_app_input_method(<span class="string">'Slack'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'Terminal'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'iTerm2'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'Google Chrome'</span>, English)</div><div class="line">set_app_input_method(<span class="string">'WeChat'</span>, Chinese)</div><div class="line"><span class="comment">-----------------------mine end-----------------------------</span></div></pre></td></tr></table></figure>
+<p>其中：</p>
+<ol>
+<li>“com.apple.inputmethod.SCIM.ITABC”/“com.apple.keylayout.ABC”就是我的电脑上在用的中英文输入法，<br>如果你不知道自己使用的输入法的名称可以切换对应输入法，打开 Hammerspoon 控制台，点击 Hammerspoon的 reload config，就会在Hammerspoon 控制台看到inputM 一段，就是你的输入法，替换上面对应名字即可。</li>
+<li>如果有自己的应用需要，可以追加 set_app_input_method。</li>
+</ol>
+<h2 id="Bing-必应桌面的改进"><a href="#Bing-必应桌面的改进" class="headerlink" title="Bing 必应桌面的改进"></a>Bing 必应桌面的改进</h2><p>使用 awesome-hammerspoon.git 下的Bing脚本，可以自动更新自己的桌面壁纸和必应官方同步，但是我发现有几个问题：<br>1）不支持多桌面。现在大多数工作环境都是两个或多个显示器，使用该脚本，发现只有一个桌面壁纸更新了。<br>原因在于 hammerspoon 默认更新的是mainScreen，它还有一个primaryScreen甚至allScreens区别，所以这里需要改一下。<br>2）下载的壁纸没有保存下来<br>3）桌面壁纸在大陆其实用的是 bing 国内版搜索的壁纸，想使用更适合做背景的国外版壁纸该怎么办？<br>只需要在请求链接的时候加一个 ENSEARCH=BENVER=1 的cookie就可以了。</p>
+<p>上面问题的解决方法：<br>修改.hammerspoon/Spoons/BingDaily.spoon/init.lua文件，将下面代码中 +开头的代码行替换-开头的源代码行即可：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">-        <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/.Trash/"</span> .. hs.http.urlParts(obj.full_url).lastPathComponent</div><div class="line">-        hs.screen.mainScreen():desktopImageURL(<span class="string">"file://"</span> .. localpath)</div><div class="line">+        <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/Public/bing/"</span> .. hs.http.urlParts(obj.full_url).queryItems[<span class="number">1</span>].id</div><div class="line">+        hs.console.printStyledtext(<span class="string">"desktopIMG:"</span> .. localpath)</div><div class="line">+        hs.screen.primaryScreen():desktopImageURL(<span class="string">"file://"</span> .. localpath)</div><div class="line">+        <span class="keyword">local</span> scs=hs.screen.allScreens()</div><div class="line">+        <span class="keyword">local</span> count = <span class="number">0</span></div><div class="line">+        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">pairs</span>(scs) <span class="keyword">do</span> count = count + <span class="number">1</span> <span class="keyword">end</span></div><div class="line">+        hs.console.printStyledtext(<span class="string">"table.size: "</span> .. count)</div><div class="line">+        <span class="keyword">for</span> i=<span class="number">1</span>,#scs <span class="keyword">do</span> scs[i]:desktopImageURL(<span class="string">"file://"</span> .. localpath) <span class="keyword">end</span></div><div class="line"></div><div class="line"></div><div class="line">-    <span class="keyword">local</span> user_agent_str = <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/603.2.4 (KHTML, like Gecko) Version/10.1.1 Safari/603.2.4"</span></div><div class="line">+    <span class="keyword">local</span> user_agent_str = <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"</span></div><div class="line">-    hs.http.asyncGet(json_req_url, &#123;[<span class="string">"User-Agent"</span>]=user_agent_str&#125;, <span class="function"><span class="keyword">function</span><span class="params">(stat,body,header)</span></span></div><div class="line">+    hs.http.asyncGet(json_req_url, &#123;[<span class="string">"User-Agent"</span>]=user_agent_str,[<span class="string">"cookie"</span>]=<span class="string">"ENSEARCH=BENVER=1"</span>&#125;, <span class="function"><span class="keyword">function</span><span class="params">(stat,body,header)</span></span></div><div class="line"></div><div class="line">-                    <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/.Trash/"</span> .. hs.http.urlParts(obj.full_url).lastPathComponent</div><div class="line">+                    <span class="keyword">local</span> localpath = <span class="built_in">os</span>.<span class="built_in">getenv</span>(<span class="string">"HOME"</span>) .. <span class="string">"/Public/bing/"</span> .. hs.http.urlParts(obj.full_url).queryItems[<span class="number">1</span>].id</div></pre></td></tr></table></figure>
+<h2 id="其他："><a href="#其他：" class="headerlink" title="其他："></a>其他：</h2><p>在.hammerspoon/Spoons 文件夹下修改canlendar/aclokck的分布位置/大小/用色都较简单直白，就不列代码了。</p>
+<p>最后，主要是对 Hammerspoon 扩展支持的功能还没深入了解过，希望有时间可以再做点开发，根据个人使用来看可添加的效率脚本太多了.</p>
+<h2 id="How"><a href="#How" class="headerlink" title="How"></a>How</h2><p>上面链接可见 Hammerspoon 是什么以及怎么用，可以重复下，非常简单：</p>
+<p>1) 到官网下载并安装 <a href="https://github.com/Hammerspoon/hammerspoon/releases/latest" target="_blank" rel="external">Hammerspoon</a><br>2）最好给 Hammerspoon 授权，点击 “Enable Accessbility”<br><img src="/images/hammerspoon2.png" width="80%"><br>3）如果你是开发者，可以运行：</p>
+<pre><code>git clone https://github.com/ashfinal/awesome-hammerspoon.git   .hammerspoon
+</code></pre><p>否则可直接下载 并保存到你的home文件夹下 的 .hammerspoon目录。</p>
+<p>实际上述2步完成就是可用了，但只提供基本功能，如有需求可以自己写脚本了。不过感谢强大的开源文化，许多网友就开源了许多自己写的脚本，一开始可以用 3 步里的脚本合集，应该是早且权威的。</p>
+<h2 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h2><ol>
+<li><a href="https://www.v2ex.com/amp/t/553241" target="_blank" rel="external">推荐一个 MacOS 上用了就无法自拔的神器Hammerspoon</a></li>
+<li><a href="https://sspai.com/post/53992" target="_blank" rel="external">免费又强大的 macOS 自动化工具，Hammerspoon 可以让你少买很多 App</a></li>
+<li><a href="https://yiming.dev/blog/2017/08/09/use-hammerspoon-to-auto-switch-input-methods/" target="_blank" rel="external">Use Hammerspoon to auto switch input methods
+</a></li>
+<li><a href="https://juejin.im/entry/59737e16f265da6c317de185" target="_blank" rel="external">打造 macOS 的生产力环境 - Hammerspoon</a></li>
+<li><a href="http://www.hammerspoon.org/docs/hs.window.filter.html" target="_blank" rel="external">docs » hs.window.filter</a></li>
+<li><a href="https://emacs-china.org/t/topic/6348/20" target="_blank" rel="external">Emacs China </a></li>
+</ol>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;&lt;p&gt;&lt;i&gt;&lt;strong&gt;intro1&lt;/strong&gt;: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？&lt;/i&gt;&lt;br&gt;&lt;i&gt;&lt;strong&gt;intro2&lt;/strong&gt;: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。&lt;/i&gt;&lt;br&gt;&lt;i&gt;&lt;strong&gt;intro3&lt;/strong&gt;: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和介绍&lt;/i&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;Hammerspoon&quot;&gt;&lt;a href=&quot;#Hammerspoon&quot; class=&quot;headerlink&quot; title=&quot;Hammerspoon&quot;&gt;&lt;/a&gt;Hammerspoon&lt;/h2&gt;&lt;p&gt;最近升级了Mac系统，发现之前的hammerspoon有个脚本耗电偏高，该脚本就是实现打开 Terminal/iTerm2(命令行)/Spotlight等可以将输入法自动切换到拼音输入法，打开Chrome/Firefox等可以自动切换中文输入法。&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="Tools" scheme="http://thomaslau.github.io/tags/Tools/"/>
+    
+  </entry>
   
   <entry>
     <title>Elasticsearch删除特殊字符索引</title>
@@ -866,113 +930,6 @@ pipreqs ./
     
       &lt;ol&gt;
 &lt;li&gt;&lt;a href=&quot;http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;优雅停机&lt;/a&gt;&lt;br&gt;dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：&lt;br&gt;服务提供方&lt;br&gt;· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。&lt;br&gt;· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。&lt;br&gt;服务消费方&lt;br&gt;· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。&lt;br&gt;· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。
-    
-    </summary>
-    
-    
-      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
-    
-      <category term="weeklyreading" scheme="http://thomaslau.github.io/tags/weeklyreading/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Weekly Reading 170820</title>
-    <link href="http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/"/>
-    <id>http://thomaslau.github.io/2017/08/20/2017-08-20-weekly_reading/</id>
-    <published>2017-08-20T13:59:07.000Z</published>
-    <updated>2017-08-30T00:58:20.000Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li>阿里周洋分享了<a href="http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|双11高可用架构演进之路</a>, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。<br>其实这是一系列，另外一篇<a href="http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io" target="_blank" rel="external">中间件技术峰会分享|阿里电商架构演变之路</a>，很简略的概括了阿里架构史，其实也是国内很多公司开发的架构史。里面将淘宝架构分为：<br><strong>淘宝从初创开始到今天，我们的技术架构总体上经历了四代：<br>第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。</strong><br>这里也可以看出，前三代，阿里跟随国外技术圈。本人工作过几家大公司其实也是该思路。</li>
-<li><p><a href="https://www.youtube.com/watch?v=OYpTn0nWKR4" target="_blank" rel="external">10,000 Java performance tips over 15 years - what did I learn</a><br>上面是油管链接，也可以去<a href="https://www.voxxed.com/2017/07/10000-java-performance-tips-15-years/" target="_blank" rel="external">voxxed 2017</a>, <a href="https://cfp.devoxx.co.uk/2017/talks/conf" target="_blank" rel="external">devoxx conf</a>上面一些基于JVM语言／优化等链接还是很值得看的。</p>
-<a id="more"></a>
-<p>作者简介: Jack Shirazi<br>Head of Engineering for Nexmo, the Vonage API, Java Champion since 2005,Founder of javaperformancetuning.com,Author of Java Performance Tuning (O’Reilly),JUG Leader.<br>视频和ppt很值得一看，列举了JAVA优化（主要基于JVM／OS等层面）常见的方法，虽然许多介绍属于蜻蜓点水式的，但作为日常JAVA性能优化参考指南的需求还是可以的。<a href="／images/Devoxx-UK-2017.pdf">这里</a>的链接，以便不好翻墙或查找困难。</p>
-</li>
-<li><p><a href="https://coderbee.net/index.php/db/20170818/1539" target="_blank" rel="external">MySQL 高性能的索引策略</a>，总结了MySQL高效索引创建约定，很全面了。许多开发，存储上来首选就是NoSQL等，我觉得MySQL依旧是高并发的首选，只要你对设计得当。<br>“在选择和编写利用索引的查询时，记住下面三个原则：<br>a)单行访问是很慢的。（特别是机械硬盘存储，SSD 的随机 I/O 快很多，不过这点仍然成立。）最好读取的块中包含尽可能多所需的行。使用索引可以创建位置引用以提升效率。<br>b)按顺序访问范围数据是很快的。原因：1，顺序 I/O 不需要多次磁盘寻道，所以比随机 I/O 快很多（特别是机械硬盘）；2，如果服务器能够按需要顺序读取数据，那么就不再需要额外的排序操作，并且 group by 查询也无须再做排序和将行按组进行聚合计算。<br>c)索引覆盖查询是很快的。存储引擎不需要回表查找行。”</p>
-</li>
-<li><p><a href="http://blog.csdn.net/defonds/article/details/76247842" target="_blank" rel="external">Linux 如何添加一个 Swap 文件 - Defonds 的专栏</a>, 有些情况下，一些开发人员会选择增加swap空间以提升Linux 服务器/桌面系统的性能。本文作者翻译nixCraft创始人Vivek Gite在不创建一个新的分区的前提下添加一个swap文件到Linux系统的文章。<br>虽然有人也强调过多的swap甚至swap有害，不过对个人桌面系统／非大型应用，本文值得一看。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># dd if=/dev/zero of=/swapfile1 bs=1024 count=524288</span></div><div class="line"><span class="comment"># chown root:root /swapfile1 //为交换文件设置合适的文件权限</span></div><div class="line"><span class="comment"># chmod 0600 /swapfile1  //为交换文件设置合适的文件权限</span></div><div class="line"><span class="comment"># mkswap /swapfile1   //设置一个 Linux 交换区域</span></div><div class="line"><span class="comment"># swapon /swapfile1   //启用交换文件</span></div><div class="line"><span class="comment"># vi /etc/fstab       //修改 /etc/fstab 文件</span></div><div class="line">追加一行：</div><div class="line">/swapfile1 none swap sw 0 0</div><div class="line">$ free -m</div><div class="line"><span class="comment"># swapon -s           //如何显示 Linux 上交换区的使用摘要</span></div><div class="line"><span class="comment"># --</span></div><div class="line"><span class="comment"># swapoff /swapfile1  //关闭 Linux 上用于 page 分页以及交换区域的设备和文件</span></div><div class="line"><span class="comment"># swapon -s</span></div></pre></td></tr></table></figure>
-</li>
-<li><p>发表在IBM dw上的文章 <a href="https://www.ibm.com/developerworks/cn/java/j-java8idioms6/index.html" target="_blank" rel="external">为什么完美的lambda表达式只有一行</a><br>作者列举了充满危险的长lambda表达式（该用拆分短小的）, 值得借鉴。<br>不过，如果跟着作者的思路／需求来看，作者说的却是是有道理的，但可惜的是如果我们跳出 lambda函数的范畴，就会发现，或者实践中会发现，其实这么做坏处更多，<a href="https://medium.com/@cindysridharan/small-functions-considered-harmful-91035d316c29" target="_blank" rel="external">这里有篇文章可以解释</a>, 挺欣赏后者对DRY原则和“GoF”的Design Pattern的“have largely gone unchallenged for decades now and direly require reconsideration, especially so since the programming landscape as well as paradigms have evolved vastly in the recent years”质疑态度，如果你真的阅读并写过代码的话，作者质疑了程序员还在奉为圣经的《clean code》，Martin Fowler的function length讨论。在实际开发中，flexibility to accommodate any changes以及可持续／可控的修改也很重要，所以，我认为关键是作出好的Abstraction，不仅仅是模型的抽象，还有架构／代码／变与不变的抽象，受编程书以及大公司教条的误导，有的开发过分关注 int xxx =100这样“写死了”的问题，其实比这更严重的是代码组织架构组织架构死了，才是更严重问题，毕竟前者就算hard code，可是代码改起来好改。所以关键是要做好“Abstraction”。</p>
-</li>
-<li><p>kafka-exactly-once引发的争吵。<br>一个老生常谈的问题，源于kafka官宣<a href="https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/" target="_blank" rel="external">Exactly-once Semantics are Possible: Here’s How Kafka Does it</a>kafka 0.11版本引入exactly once的实现“we have hit an exciting milestone the Kafka community has long been waiting for: we have  introduced exactly-once semantics in Apache Kafka in the 0.11 release ”, 可以说是企图对消息幂等思考的致以尾声，并实现:正好一次传递与事务性消息。<br>之后引发许多讨论<a href="https://www.reddit.com/r/programming/comments/6kh65f/exactlyonce_semantics_is_possible_heres_how/" target="_blank" rel="external">Reddit</a>/<a href="https://news.ycombinator.com/item?id=14670801" target="_blank" rel="external">HN</a>， 更多人质疑这是对 FLP理论或两个拜占庭将军的问题的违反，Kafka的co-creator Jay Kreps发文做了解释<a href="https://medium.com/@jaykreps/exactly-once-support-in-apache-kafka-55e1fdd0a35f" target="_blank" rel="external">exactly-once-support-in-apache-kafka</a>。<br>更多：<a href="https://softwaremill.com/what-kafka-exactly-once-really-means/" target="_blank" rel="external">what-kafka-exactly-once-really-means</a>,里面:</p>
-<pre><code>The features which make the above possible are:
-a)idempotent producers (introduced in 0.11)
-b)transactions across partitions (introduced in 0.11)
-c)Kafka-based offset storage (introduced in 0.8.1.1)
-Let’s see which of these features are useful at which stage of an exactly-once processing pipeline.
-</code></pre><p><a href="http://the-paper-trail.org/blog/exactly-not-atomic-broadcast-still-impossible-kafka/" target="_blank" rel="external">Exactly-once or not, atomic broadcast is still impossible in Kafka – or anywhere</a>, ZK的PMC Flavio Junqueira argued that <a href="https://fpj.me/2017/07/04/no-consensus-in-exactly-once/" target="_blank" rel="external">No consensus in exactly-once</a>.<br><a href="http://bravenewgeek.com/you-cannot-have-exactly-once-delivery-redux/" target="_blank" rel="external">You Cannot Have Exactly-Once Delivery Redux</a>里作者将该问题归结为“Exactly-once delivery” and “Exactly-once processing”. 文章虽简单，但是涉及许多分布式知识。</p>
-<pre><code>“Delivery” is a transport semantic. “Processing” is an application semantic.
-“Exactly-once delivery” is a poor term. The word “delivery” is overloaded. 
-Frankly, I think it’s a marketing word. The better term is “exactly-once processing.” 
-Some call the distinction pedantic, but I think it’s important and there is some nuance. 
-Kafka did not solve the Two Generals Problem. Exactly-once delivery, at the transport level, is impossible. 
-It doesn’t exist in any meaningful way and isn’t all that interesting to talk about. 
-“We have a word for infinite packet delay—outage,” as Jay puts it. That’s why TCP exists, 
-but TCP doesn’t care about your application semantics. 
-And in the end, that’s what’s interesting—application semantics. 
-My problem with “exactly-once delivery” is it assumes too much, 
-which causes a lot of folks to make bad assumptions. 
-“Delivery” is a transport semantic. “Processing” is an application semantic.
-...
-To achieve exactly-once processing semantics, 
-we must have a closed system with end-to-end support for modeling input, 
-output, and processor state as a single, atomic operation. 
-Kafka supports this by providing a new transaction API and idempotent producers. 
-...
-Exactly-once processing is an end-to-end guarantee and the application 
-has to be designed to not violate the property as well. If you are using the consumer API, 
-this means ensuring that you commit changes to your application state 
-concordant with your offsets as described here.
-</code></pre><p>最后，Jay Kreps写了第二篇文章作解释，<a href="https://medium.com/@jaykreps/exactly-once-one-more-time-901181d592f9" target="_blank" rel="external">exactly-once-one-more-time</a></p>
-<pre><code>We think the factoring of the problem into two pieces makes this far far easier:
-a)Processing using the streams api
-b)Connectors using the connect api
-This makes guarantees for processing quite transparent (you just set a config to enable it). 
-The only real restriction is that you must maintain state using the provided facilities.
-Connectors require more thought about the interaction between Kafka and the external system 
-but these can be made reusable. So if one person has implemented a Kafka=&gt;Mysql connector 
-and tested it everyone else can just use that.
-</code></pre><p>这里<a href="https://tech.meituan.com/distributed_queue_based_programming-optimization.html" target="_blank" rel="external">美团消息队列的扫盲贴</a>, 忘记了RocketMQ曾声称自己是exactly once还是消息顺序可保证了。</p>
-</li>
-<li>对上面补充，一篇很好的中文介绍 <a href="http://danielw.cn/FLP-proof" target="_blank" rel="external">FLP Impossibility的证明</a>，<a href="http://blog.csdn.net/chen77716/article/details/27963079" target="_blank" rel="external">FLP Impossibility</a>作为分布式重要定理<br>FLP 不可能原理：在网络可靠，存在节点失效（即便只有一个）的最小化异步模型系统中，不存在一个可以解决一致性问题的确定性算法。<br>不可能原理实际上告诉人们，不要浪费时间去为异步分布式系统设计在任意场景下都能实现共识的算法. 不过作为细化，CAP定理则相当于在实践中提供了一个几乎可以打破FLP问题的解决方案。</li>
-<li>the morning paper，为作者叹，能有这么多时间去读paper，关键是精力涉及面如此之广<br><a href="http://blog.acolyer.org/2017/08/08/a-general-purpose-counting-filter-making-every-bit-count" target="_blank" rel="external">A better, faster, smaller Approximate Membership Query data structure - time to retire your Bloom filters</a>, 我们知道，在Approximate Membership Query (AMQ) data structures的需求里，许多追求高性能的系统喜欢用Bloom Filter作为去重方法，但是作为m位BitSet这样简单数据结构，支持插入和查找两种操作， 这在在需要经常变动（增删）的数据集中，Bloom Filter性能不如其改进版Cuckoo Filter，这篇文章介绍了类似Cuckoo Filter的数据结构Counting Quotient Filter，不过原论文好像被删除了。</li>
-<li><a href="https://shipilev.net/jvm-anatomy-park/2-transparent-huge-pages/" target="_blank" rel="external">JVM Anatomy Park #2: Transparent Huge Pages
-</a> JVM Anatomy Park系列文章第二篇，实验了并讨论对于java应用：What are Large Pages? What are Transparent Huge Pages? How does it help me?!</li>
-<li><a href="http://blog.codinglabs.org/articles/algorithms-for-cardinality-estimation-part-iii.html" target="_blank" rel="external">对LogLog Counting的进一步理解</a>, 理解Hyperloglog Counting, Redis也引入非常节约资源的Hyperloglog，不过Hyperloglog只能Counting，实际还是鸡肋的。</li>
-<li><a href="http://ifeve.com/classloader%E8%A7%A3%E6%83%91/" target="_blank" rel="external">ifeve的ClassLoader解惑</a><br>介绍了java classloader一些问题，不过文中举例可惜没有提到著名的SlF4j面对的classloader问题。<br>另介绍了Tomcat的ClassLoader。<pre><code>总结下，默认情况下tomcat中commonloader,sharedloader,catalinaloader是同一个加载器，
-其类查找路径都是同一个地方。其实catalinaloader主要工作应该是加载tomcat本身启动所需要的类，
-而sharedloader是webappclassloader的父类，所以应该是加载一些所有webap共享的类，而commonlaoder作为
-sharedloader,catalinaloader的父类，自然设计目的是为了加载二者共享的类。所以如果能恰当的使用tomcat中设计的这种策略，
-修改catalina.properites中三种加载器类加载路径，就会真正达到这种设计效果
-</code></pre></li>
-<li><p>另一篇介绍SpringBoot Classloader的文章<a href="http://blog.csdn.net/hengyunabc/article/details/77413669" target="_blank" rel="external">深入Spring Boot：ClassLoader的继承关系和影响</a><br>总结spring boot里ClassLoader的继承关系<br>a)在IDE里main函数执行时，只有一个ClassLoader，也就是SystemClassLoader<br>b)在以fat jar运行时，有一个LaunchedURLClassLoader，它的parent是SystemClassLoader<br>LaunchedURLClassLoader的urls是fat jar里的BOOT-INF/classes和BOOT-INF/lib下的jar。<br>SystemClassLoader的urls是fat jar本身。<br>c)在解压目录运行时，和fatjar类似，不过url都是目录形式。目录形式会有更好的兼容性。<br>spring boot 1.3.<em> 和 1.4.</em> 版本的区别<br>在1.3.<em> 版本里应用的类和loader的类都是打包在一个fat jar里应用依赖的jar放在fat jar里的/lib下面。<br>1.4.</em> 版本后loader的类放在fat jar里应用的类打包放在fat jar的BOOT-INF/classes目录里<br>应用依赖的jar放在fat jar里的/lib下面。<br>带来的问题<br>a)demo.jar!/BOOT-INF/classes!/ 这样子url不工作<br>b)demo.jar!/META-INF/resources 下的资源问题<br>c)getResource(“”) 和 getResources(“”) 的返回值的问题<br>d)类似 classpath<em>:*</em>-service.xml 的通配问题</p>
-</li>
-<li><p>入门tf。<br><a href="http://www.pinchofintelligence.com/detecting-bats-recognising-sound-tensorflow/" target="_blank" rel="external">http://www.pinchofintelligence.com/detecting-bats-recognising-sound-tensorflow/</a><br><a href="https://medium.com/towards-data-science/how-to-build-a-dynamic-garden-using-machine-learning-d589468f7c04" target="_blank" rel="external">https://medium.com/towards-data-science/how-to-build-a-dynamic-garden-using-machine-learning-d589468f7c04</a><br><a href="https://medium.com/towards-data-science/number-plate-detection-with-supervisely-and-tensorflow-part-1-e84c74d4382c" target="_blank" rel="external">https://medium.com/towards-data-science/number-plate-detection-with-supervisely-and-tensorflow-part-1-e84c74d4382c</a></p>
-</li>
-<li>来自<a href="https://huoding.com/2017/08/13/628" target="_blank" rel="external">火丁笔记的SYN和RTO问题</a><br>RTO的最大值是 120 秒，最小值是 200 毫秒，在建立连接后，因为目前网络都很快，所以大部分连接的<br>RTO 都会接近 TCP_RTO_MIN，也就是 200ms，可以通过「ss -int」命令来确认</li>
-<li><a href="http://developer.lightbend.com/blog/2017-08-11-sbt-1-0-0/" target="_blank" rel="external">http://developer.lightbend.com/blog/2017-08-11-sbt-1-0-0/</a></li>
-<li><a href="https://pragmaticintegrator.wordpress.com/2017/08/13/small-hack-to-avoid-ssl-validation-in-spring-resttemplate/" target="_blank" rel="external">https://pragmaticintegrator.wordpress.com/2017/08/13/small-hack-to-avoid-ssl-validation-in-spring-resttemplate/</a></li>
-<li>该来的终究要来的。<a href="https://www.azul.com/jdk-9-pitfalls-for-the-unwary/" target="_blank" rel="external">JDK 9: Pitfalls For The Unwary</a>, infoq的一篇<a href="http://www.infoq.com/cn/presentations/introduction-of-java9-new-features-jigsaw" target="_blank" rel="external">Java 9 新特性介绍及 Jigsaw 一览</a></li>
-<li><a href="http://blog.jobbole.com/112170/" target="_blank" rel="external">cp 命令两个高效的用法</a><br>cp -r Misc /media/clh/4388-D5FE //更新你的文件夹<br>cp –force –backup=numbered test1.py test1.py //版本备份</li>
-<li>没想到啊，一致性还分这么多种类！<a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-apache-cassandra3x1/index.html?from=thomaslau.github.io" target="_blank" rel="external">casanddra 跟最终一致性</a><br>Cassandra 被称为”最终一致性”，有点误导人，Cassandra 一致性是可以调整的。<br>那么什么是一致性？现实世界是按照一致性的级别进行衡量的，最终一致性是几种一致性模型的一种：<br><strong>严格一致性（Strict Consistency）</strong>：所有的请求必须按照线性方式执行。读出的数据始终为最近写入的数据。<br>这种一致性只有全局时钟存在时才有可能，在分布式网络环境不可能实现；<br><strong>顺序一致性（Sequential Consistency）</strong>：所有使用者以同样的顺序看到对统一数据的操作，但是该顺序不一定是实时的；<br><strong>因果一致性（Causal Consistency）</strong>：只有存在因果关系的写操作才要求所有使用者以相同的次序看到，对于无因果关系的写入则并行进行，<br>无次序保证。因果一致性可以看作是对顺序一致性功能的一种优化，但是在实现时必须建立与维护因果依赖图，是相当困难的；<br><strong>管道一致性（PRAM/FIFO Consistency）</strong>：在因果一致性模型上的进一步弱化，要求由某一个使用者完成的写操作可以被其他所有的使用者按照顺序感知到，<br>而从不同使用者中来的写操作则无需保证顺序，就像一个一个的管道一样。相对来说比较容易实现；<br><strong>弱一致性（Weak Consistency）</strong>：只要求对共享数据结构的访问保证顺序一致性。对于同步变量的操作具有顺序一致性，<br>是全局可见的，且只有当没有写操作等待处理时才可进行，以保证对于临界区域的访问顺序进行。<br>在同步时点，所有使用者可以看到相同的数据；<br><strong>释放一致性（Release Consistency）</strong>：弱一致性无法区分使用者是要进入临界区还是要出临界区，释放一致性使用两个不同的操作语句进行了区分。<br>需要写入时使用者 acquire 该对象，写完后 release，acquire-release 之间形成了一个临界区，<br>提供释放一致性也就意味着当 release 操作发生后，所有使用者应该可以看到该操作；<br><strong>最终一致性（Eventual Consistency）</strong>：所有的复制都会在分布式系统内部传播数据，但是需要花点时间，最终所有节点的副本数据会实现一致。<br>当没有新更新的情况下，更新最终会通过网络传播到所有副本点，所有副本点最终会一致，也就是说，<br>使用者在最终某个时间点前的中间过程中无法保证看到的是新写入的数据。可以采用最终一致性模型有一个关键要求，<br>需要用户可以接受读出陈旧数据；<br><strong>Delta 一致性</strong>：系统会在 Delta 时间内达到一致。这段时间内会存在一个不一致的窗口，该窗口可能是因为日志迁移的过程导致的。<br><strong>最终一致性的几种具体实现</strong>：<br><strong>读不旧于写一致性（Read-your-writes consistency）</strong>：使用者读到的数据，总是不旧于自身上一个写入的数据。<br><strong>会话一致性（Session Consistency）</strong>：比读不旧于写一致性更弱化。使用者在一个会话中才保证读写一致性，启动新会话后则无需保证。<br><strong>单读一致性（Monotonic Read Consistency）</strong>：读到的数据总是不旧于上一次读到的数据。<br><strong>单写一致性（Monotonic Write Consistency）</strong>：写入的数据完成后才能开始下一次的写入。<br><strong>写不旧于读一致性（Writes-follow-reads Consistency）</strong>：写入的副本不旧于上一次读到的数据，即不会写入更旧的数据。<br>Cassandra 把一致性级别的决定权交到了客户端手中，这意味着客户决定每一次操作的一致性级别，即决定写入操作过程中集群内部必须有多少份副本完成才能响应读请求。如果客户设置的一致性级别的值小于设置的副本数量值，那么即便一些节点宕机，更新依然成功。</li>
-<li><a href="https://mp.weixin.qq.com/s/yVbZfE7oWGmnfmcFTeSV4w" target="_blank" rel="external">Elasticsearch前沿：ES 5.x改进详解与ES6展望</a></li>
-<li>一篇老文章<a href="http://www.infoq.com/cn/news/2017/04/2017-Serverless" target="_blank" rel="external">2017年会是Serverless爆发之年吗</a>,虽然已过0.75年，可见批评之声还是很多的。</li>
-<li><a href="http://fangjian0423.github.io/2017/05/16/springboot-condition-annotation/" target="_blank" rel="external">SpringBoot源码分析之条件注解的底层实现</a></li>
-<li><a href="http://hbasefly.com/2017/07/26/transactions-1/" target="_blank" rel="external">数据库事务系列－事务模型基础</a>, 好文，记忆不熟的可以常看，至少可以用来。</li>
-<li><a href="http://www.hascode.com/2017/08/parameterized-tests-with-junit-5/" target="_blank" rel="external">Using JUnit 5 Parameterized Tests</a>系列文章</li>
-<li><a href="http://www.cnblogs.com/yjmyzz/p/7390331.html" target="_blank" rel="external">@Transactional导致AbstractRoutingDataSource动态数据源无法切换的解决办法</a><br>在org.springframework.jdbc.datasource.DataSourceTransactionManager#doBegin 这个类的源代码中找到了答案<br>第7-16行，在开始一个事务前，如果当前上下文的连接对象为空，获取一个连接对象，然后保存起来，下次doBegin再调用时，就直接用这个连接了，根本不做任何切换(类似于缓存命中！）<br>这样就解释得通了： doSomeThing()方法被调用前，加了一段select方法，相当于已经切换到了slave从库，<br>然后再进入doBegin方法时，就直接拿这个从库的链接了，不再进行切换。<br>那为啥其它同样启用事务的方法，又能正常连到主库呢？同样的解释，因为这类方法前面，没有任何其它操作，<br>而xml中的动态数据源配置，默认连接的就是master主库，因此没有问题。</li>
-<li><a href="https://www.zhihu.com/question/63946700" target="_blank" rel="external">如何评价波恩大学 Norbert Blum 关于 P≠NP 的证明</a>，这个链接跟进Norbert Blum 关于 P≠NP 的证明。<br>虽然每隔一段时间都会有证明冒出，虽然基本上认为不相等才是正道，还是有人不死心企图证明之。吾等表示围观还是要围观的。</li>
-<li>最后，来一段中二的 <a href="https://thedailywtf.com/articles/ride-the-url-line" target="_blank" rel="external">Daily WTF 有趣的计算机幽默</a></li>
-</ol>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;阿里周洋分享了&lt;a href=&quot;http://jm.taobao.org/2017/08/08/080802/?from=thomaslau.gigthub.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;中间件技术峰会分享|双11高可用架构演进之路&lt;/a&gt;, 介绍了阿里第四代技术架构，将其分为了，容量规划、限流降级、依赖治理、开关预案、故障演练、流量调度。&lt;br&gt;其实这是一系列，另外一篇&lt;a href=&quot;http://jm.taobao.org/2017/08/09/20170809/?from=thomaslau.gigthub.io&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;中间件技术峰会分享|阿里电商架构演变之路&lt;/a&gt;，很简略的概括了阿里架构史，其实也是国内很多公司开发的架构史。里面将淘宝架构分为：&lt;br&gt;&lt;strong&gt;淘宝从初创开始到今天，我们的技术架构总体上经历了四代：&lt;br&gt;第一代是基于LAMP的一套结构。第二代是基于Java的应用架构。第三代是基于分布式体系，构建出一整套的分布式架构。第四代是基于IDC，不但应用能够分布，整数数据中心也能够分布。&lt;/strong&gt;&lt;br&gt;这里也可以看出，前三代，阿里跟随国外技术圈。本人工作过几家大公司其实也是该思路。&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&quot;https://www.youtube.com/watch?v=OYpTn0nWKR4&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;10,000 Java performance tips over 15 years - what did I learn&lt;/a&gt;&lt;br&gt;上面是油管链接，也可以去&lt;a href=&quot;https://www.voxxed.com/2017/07/10000-java-performance-tips-15-years/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;voxxed 2017&lt;/a&gt;, &lt;a href=&quot;https://cfp.devoxx.co.uk/2017/talks/conf&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;devoxx conf&lt;/a&gt;上面一些基于JVM语言／优化等链接还是很值得看的。&lt;/p&gt;
     
     </summary>
     
