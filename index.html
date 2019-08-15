@@ -333,8 +333,8 @@
         
           <blockquote><p><i><strong>intro</strong>：去年记录的logstash几个问题，因为涉及较多且杂乱，主题并不是那么清晰，今天整理时候发现写起来太长了，所以打算分成2-4篇文章，几个小块逐个讨论。</i></p>
 </blockquote>
-<p><strong>系统概况</strong>：<br>1）各服务产生事件(日志)另有一套Event机制支持，本文讨论的是如何跨数据中心(机房)传输日志以便数据分析。<br>2）普适性的，适合各语言的设计，故基于文件传输，即服务在本地产生滚动的日志，组件类似去 <strong>tail</strong> 文件的方式，将这些数据 <strong>即时</strong> 传输至另一个机房的Kafka。<br>3）logstash是5.6.4版本，kafka版本 0.10.0.1版本问题（再高版本的logstash 就不支持该版本的Kafka了）<br>4）logstash的input是滚动的日志文件，即tail_mode，output为kafka，无解析，插件开启了metric，queue 为 persistent，即文件模式，硬件为磁盘。<br>5）文件系统为ext4，系统inode是重用的。<br>6）本文贴出配置或数据已做脱敏处理，如有疑问请忽略。</p>
-<p><strong>本文先讨论遇到的两个问题</strong><br>1）即便是 kill -15， logstash重启后会丢失数据<br>2）性能问题，可能消息大小会有影响，但观察下来logstash上传速率基本是在 1.2万条/s了.</p>
+<p><strong>系统概况</strong>：<br>1）各服务产生事件(日志)另有一套Event机制支持，本文讨论的是如何跨数据中心(机房)传输。<br>2）普适性的，适合各语言实现的设计，故基于文件传输，即服务在本地产生滚动的日志，组件去 <strong>tail</strong> 文件的方式，将这些数据 <strong>即时</strong> 传输至另一个机房的Kafka。<br>3）logstash是5.6.4版本，kafka版本 0.10.0.1版本问题（再高版本的logstash 就不支持该版本的Kafka了）<br>4）logstash的input是滚动的日志文件，即tail_mode，output为kafka，无解析，插件开启了metric，queue 为 persistent，即文件模式，硬件为磁盘。<br>5）文件系统为ext4，系统inode是重用的。<br>6）本文贴出配置或数据已做脱敏处理，如有疑问请忽略。</p>
+<p><strong>本文先讨论遇到的两个问题</strong><br>1）即便是 kill -15， logstash重启后会丢失数据<br>2）性能问题，可能消息大小会有影响，但观察下来logstash上传速率上限在 1.2万条/秒.</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/14/2019-08-14-on_logstash_quiz1/#more" rel="contents">
