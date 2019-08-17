@@ -1,0 +1,760 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,Elasticsearch," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="intro: 对于布尔类型字段的处理，Elasticsearch 曾犯了一个错，直到数年后 发布6.0版本才修正过来，这个设计或多或少会遇到，只是没留意，但是查询的时候结果还是让人困惑的。  问题或现象前几天刚到公司，同事抛出一个问题，就是发现前一天某个搜索查询条件没有结果，但是第二天却出来结果，不过这个出来的结果是不对的，即搜索result=90时，出现了result=91的结果。于是给我发了链">
+<meta name="keywords" content="Tech,Elasticsearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch[曾]在布尔类型字段设计上犯的错">
+<meta property="og:url" content="http://thomaslau.github.io/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro: 对于布尔类型字段的处理，Elasticsearch 曾犯了一个错，直到数年后 发布6.0版本才修正过来，这个设计或多或少会遇到，只是没留意，但是查询的时候结果还是让人困惑的。  问题或现象前几天刚到公司，同事抛出一个问题，就是发现前一天某个搜索查询条件没有结果，但是第二天却出来结果，不过这个出来的结果是不对的，即搜索result=90时，出现了result=91的结果。于是给我发了链">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://thomaslau.github.io/images/elasticsearch_err.png">
+<meta property="og:updated_time" content="2019-08-17T17:17:38.362Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch[曾]在布尔类型字段设计上犯的错">
+<meta name="twitter:description" content="intro: 对于布尔类型字段的处理，Elasticsearch 曾犯了一个错，直到数年后 发布6.0版本才修正过来，这个设计或多或少会遇到，只是没留意，但是查询的时候结果还是让人困惑的。  问题或现象前几天刚到公司，同事抛出一个问题，就是发现前一天某个搜索查询条件没有结果，但是第二天却出来结果，不过这个出来的结果是不对的，即搜索result=90时，出现了result=91的结果。于是给我发了链">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/elasticsearch_err.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/"/>
+
+
+
+
+
+  <title>Elasticsearch[曾]在布尔类型字段设计上犯的错 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch[曾]在布尔类型字段设计上犯的错</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-17T13:29:10+08:00">
+                2019-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i><strong>intro</strong>: 对于布尔类型字段的处理，Elasticsearch 曾犯了一个错，直到数年后 发布6.0版本才修正过来，这个设计或多或少会遇到，只是没留意，但是查询的时候结果还是让人困惑的。</i></p>
+</blockquote>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>前几天刚到公司，同事抛出一个问题，就是发现前一天某个搜索查询条件没有结果，但是第二天却出来结果，不过这个出来的结果是不对的，即搜索result=90时，出现了result=91的结果。<br>于是给我发了链接，我点过去就是下图这样子：<br><a id="more"></a><br><img src="/images/elasticsearch_err.png" width="100%"><br>由于忙于其他问题，所以随口回复了让他使用 result.keyword=90 查询，显然满足条件了。不过一会儿对方又问了个问题“这个字段和其他有什么特殊吗，为什么就要用keyword”，我想了想，的确是个问题，这类索引没有使用特别的分词也没有用特制的打分策略，确实不应该匹配的。<br>但是为什么呢？</p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p>好在Elasticsearch(以下可能简称es)提供了一些辅查询相关的助接口，如分词有疑问可使用_analyze理解,打分有疑问可使用_explain, 应早在1.7版本前已经存在了，虽然es的版本有段时间跳跃。<br>当我们无法理解一个document为什么会被匹配时，就可以试试用explain查询那条记录，看看es为何会匹配，于是有下面结果(我简化了下查询)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div></pre></td><td class="code"><pre><div class="line">[java@xx~]$ curl -s <span class="string">'10.135.20.38:9200/aa-2019.08.14/result/AWyQ2s_MQk_27Wzfh6IY/_explain?pretty&amp;q=uid:4537633042845696%20%20AND%20result:90'</span></div><div class="line">&#123;</div><div class="line">  <span class="string">"_index"</span> : <span class="string">"aa-2019.08.14"</span>,</div><div class="line">  <span class="string">"_type"</span> : <span class="string">"result"</span>,</div><div class="line">  <span class="string">"_id"</span> : <span class="string">"AWyQ2s_MQk_27Wzfh6IY"</span>,</div><div class="line">  <span class="string">"matched"</span> : <span class="literal">true</span>,</div><div class="line">  <span class="string">"explanation"</span> : &#123;</div><div class="line">    <span class="string">"value"</span> : 1.0068661,</div><div class="line">    <span class="string">"description"</span> : <span class="string">"sum of:"</span>,</div><div class="line">    <span class="string">"details"</span> : [</div><div class="line">      &#123;</div><div class="line">        <span class="string">"value"</span> : 1.0068661,</div><div class="line">        <span class="string">"description"</span> : <span class="string">"sum of:"</span>,</div><div class="line">        <span class="string">"details"</span> : [</div><div class="line">          &#123;</div><div class="line">            <span class="string">"value"</span> : 1.0,</div><div class="line">            <span class="string">"description"</span> : <span class="string">"uid:[4537633042845696 TO 4537633042845696], product of:"</span>,</div><div class="line">            <span class="string">"details"</span> : [</div><div class="line">              &#123;</div><div class="line">                <span class="string">"value"</span> : 1.0,</div><div class="line">                <span class="string">"description"</span> : <span class="string">"boost"</span>,</div><div class="line">                <span class="string">"details"</span> : [ ]</div><div class="line">              &#125;,</div><div class="line">              &#123;</div><div class="line">                <span class="string">"value"</span> : 1.0,</div><div class="line">                <span class="string">"description"</span> : <span class="string">"queryNorm"</span>,</div><div class="line">                <span class="string">"details"</span> : [ ]</div><div class="line">              &#125;</div><div class="line">            ]</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="string">"value"</span> : 0.006866124,</div><div class="line">            <span class="string">"description"</span> : <span class="string">"weight(result:T in 59188) [PerFieldSimilarity], result of:"</span>,</div><div class="line">            <span class="string">"details"</span> : [</div><div class="line">              &#123;</div><div class="line">                <span class="string">"value"</span> : 0.006866124,</div><div class="line">                <span class="string">"description"</span> : <span class="string">"score(doc=59188,freq=1.0 = termFreq=1.0\n), product of:"</span>,</div><div class="line">                <span class="string">"details"</span> : [</div><div class="line">                  &#123;</div><div class="line">                    <span class="string">"value"</span> : 0.006866124,</div><div class="line">                    <span class="string">"description"</span> : <span class="string">"idf, computed as log(1 + (docCount - docFreq + 0.5) / (docFreq + 0.5)) from:"</span>,</div><div class="line">                    <span class="string">"details"</span> : [</div><div class="line">                      &#123;</div><div class="line">                        <span class="string">"value"</span> : 1.7270076E7,</div><div class="line">                        <span class="string">"description"</span> : <span class="string">"docFreq"</span>,</div><div class="line">                        <span class="string">"details"</span> : [ ]</div><div class="line">                      &#125;,</div><div class="line">                      &#123;</div><div class="line">                        <span class="string">"value"</span> : 1.738906E7,</div><div class="line">                        <span class="string">"description"</span> : <span class="string">"docCount"</span>,</div><div class="line">                        <span class="string">"details"</span> : [ ]</div><div class="line">                      &#125;</div><div class="line">                    ]</div><div class="line">                  &#125;,</div><div class="line">                  &#123;</div><div class="line">                    <span class="string">"value"</span> : 1.0,</div><div class="line">                    <span class="string">"description"</span> : <span class="string">"tfNorm, computed as (freq * (k1 + 1)) / (freq + k1) from:"</span>,</div><div class="line">                    <span class="string">"details"</span> : [</div><div class="line">                      &#123;</div><div class="line">                        <span class="string">"value"</span> : 1.0,</div><div class="line">                        <span class="string">"description"</span> : <span class="string">"termFreq=1.0"</span>,</div><div class="line">                        <span class="string">"details"</span> : [ ]</div><div class="line">                      &#125;,</div><div class="line">                      &#123;</div><div class="line">                        <span class="string">"value"</span> : 1.2,</div><div class="line">                        <span class="string">"description"</span> : <span class="string">"parameter k1"</span>,</div><div class="line">                        <span class="string">"details"</span> : [ ]</div><div class="line">                      &#125;,</div><div class="line">                      &#123;</div><div class="line">                        <span class="string">"value"</span> : 0.0,</div><div class="line">                        <span class="string">"description"</span> : <span class="string">"parameter b (norms omitted for field)"</span>,</div><div class="line">                        <span class="string">"details"</span> : [ ]</div><div class="line">                      &#125;</div><div class="line">                    ]</div><div class="line">                  &#125;</div><div class="line">                ]</div><div class="line">              &#125;</div><div class="line">            ]</div><div class="line">          &#125;</div><div class="line">        ]</div><div class="line">      &#125;,</div><div class="line">      &#123;</div><div class="line">        <span class="string">"value"</span> : 0.0,</div><div class="line">        <span class="string">"description"</span> : <span class="string">"match on required clause, product of:"</span>,</div><div class="line">        <span class="string">"details"</span> : [</div><div class="line">          &#123;</div><div class="line">            <span class="string">"value"</span> : 0.0,</div><div class="line">            <span class="string">"description"</span> : <span class="string">"# clause"</span>,</div><div class="line">            <span class="string">"details"</span> : [ ]</div><div class="line">          &#125;,</div><div class="line">          &#123;</div><div class="line">            <span class="string">"value"</span> : 1.0,</div><div class="line">            <span class="string">"description"</span> : <span class="string">"_type:result, product of:"</span>,</div><div class="line">            <span class="string">"details"</span> : [</div><div class="line">              &#123;</div><div class="line">                <span class="string">"value"</span> : 1.0,</div><div class="line">                <span class="string">"description"</span> : <span class="string">"boost"</span>,</div><div class="line">                <span class="string">"details"</span> : [ ]</div><div class="line">              &#125;,</div><div class="line">              &#123;</div><div class="line">                <span class="string">"value"</span> : 1.0,</div><div class="line">                <span class="string">"description"</span> : <span class="string">"queryNorm"</span>,</div><div class="line">                <span class="string">"details"</span> : [ ]</div><div class="line">              &#125;</div><div class="line">            ]</div><div class="line">          &#125;</div><div class="line">        ]</div><div class="line">      &#125;</div><div class="line">    ]</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们期待的得分是0，即应该有一条是不满足的条件，但上述结果返回的还是得分1.0068661，匹配了，explain接口值得后面再写文章讨论下，这里不展开，如果这里你看不出什么，可以试试下面。</p>
+<p>可以再查询下 昨日今日，即aa-2019.08.13/14的mapping配置，于是我得到了这样的结果<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># 2019.08.13</span></div><div class="line"><span class="string">"result"</span> : &#123;</div><div class="line">  <span class="string">"type"</span> : <span class="string">"boolean"</span></div><div class="line">&#125;,</div><div class="line"><span class="comment"># 2019.08.14</span></div><div class="line"><span class="string">"result"</span> : &#123;</div><div class="line">  <span class="string">"type"</span> : <span class="string">"text"</span>,</div><div class="line">  <span class="string">"fields"</span> : &#123;</div><div class="line">    <span class="string">"keyword"</span> : &#123;</div><div class="line">      <span class="string">"type"</span> : <span class="string">"keyword"</span>,</div><div class="line">      <span class="string">"ignore_above"</span> : 256</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;,</div></pre></td></tr></table></figure></p>
+<p>系统的索引是一天创建一个当天日期后缀的索引，没有特别对字段的mapping配置。<br>那么结论也就出来了，08.13那天的索引里，result类型是boolean，所以当查询条件 result为90或91的时候，他们都是都会被解析为true，也就是匹配索引里的boolean类型的字段的那条记录，所以搜索 result=90时，result=91也就出现在结果里了。</p>
+<h2 id="How"><a href="#How" class="headerlink" title="How"></a>How</h2><p>解决方法不难，有几种。<br>先看根原因，由于写es会根据字段 biz=A 聚合到同一索引下，多个服务又会共用 biz=A 的属性，并且由于他们可能使用了同名的字段 act，但是(act在各个服务里的)类型是不同的，比如上文result 有的是boolean，有的是String类型，所以每天凌晨第一条数据(先发出事件的服务)决定该字段在当天该索引的类型了。<br>所以，根本的办法是要求各应用规范统一。<br>但也可以在这里修改es不修改服务，统一设置该类索引的mapping，强制将该字段弱化为 string 类型，这样实现elasticsearch层面的统一。</p>
+<h2 id="More"><a href="#More" class="headerlink" title="More"></a>More</h2><p>我好奇的是，这是es的bug吗？<br>于是尝试下载最新版的Elasticsearch，发现该问题已经不存在的了<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">➜  elasticsearch-7.2.1 curl -XPOST -H<span class="string">"Content-Type:application/json"</span> <span class="string">'http://127.0.0.1:9200/people/doc/1'</span> -d<span class="string">'&#123;"name":"hello","man":false&#125;'</span></div><div class="line">&#123;<span class="string">"_index"</span>:<span class="string">"people"</span>,<span class="string">"_type"</span>:<span class="string">"doc"</span>,<span class="string">"_id"</span>:<span class="string">"1"</span>,<span class="string">"_version"</span>:1,<span class="string">"result"</span>:<span class="string">"created"</span>,<span class="string">"_shards"</span>:&#123;<span class="string">"total"</span>:2,<span class="string">"successful"</span>:1,<span class="string">"failed"</span>:0&#125;,<span class="string">"_seq_no"</span>:0,<span class="string">"_primary_term"</span>:1&#125;</div><div class="line">➜  elasticsearch-7.2.1 curl -XPOST -H<span class="string">"Content-Type:application/json"</span> <span class="string">'http://127.0.0.1:9200/people/doc/2'</span> -d<span class="string">'&#123;"name":"hello","man":93&#125;'</span>   </div><div class="line">&#123;<span class="string">"error"</span>:&#123;<span class="string">"root_cause"</span>:[&#123;<span class="string">"type"</span>:<span class="string">"mapper_parsing_exception"</span>,<span class="string">"reason"</span>:<span class="string">"failed to parse field [man] of type [boolean] in document with id '2'"</span>&#125;],<span class="string">"type"</span>:<span class="string">"mapper_parsing_exception"</span>,<span class="string">"reason"</span>:<span class="string">"failed to parse field [man] of type [boolean] in document with id '2'"</span>,<span class="string">"caused_by"</span>:&#123;<span class="string">"type"</span>:<span class="string">"json_parse_exception"</span>,<span class="string">"reason"</span>:<span class="string">"Current token (VALUE_NUMBER_INT) not of boolean type\n at [Source: org.elasticsearch.common.bytes.BytesReference<span class="variable">$MarkSupportingStreamInputWrapper</span>@4bc234e3; line: 1, column: 25]"</span>&#125;&#125;,<span class="string">"status"</span>:400&#125;</div></pre></td></tr></table></figure></p>
+<p>这里报了个json解析异常，这看起来有点有趣。<br>我们知道elasticsearch底层其实也用到Jackson的jsonparser去解析json类型内容的，于是我看了下7.2.1的Jackson-core这个jar包，确实升级了个版本。<br><strong>那么这个bug是谁解决的呢？是Elasticsearch团队解决的，还是他们不经意间升级Jackson组件解决的？</strong><br>后者有趣，是软件开发里的信任链问题了。<br>如果对Jackson了解的话，或许已经有答案了，不过我还是希望可以通过搜索到相关主题，更快速些。<br>遗憾的是通过elasticsearch/boolean/BooleanFieldMapper/number等关键字N种组合尝试都没有找到相关主题。</p>
+<p>于是我猜测了几个可能的改动文件，就先从 BooleanFieldMapper.java 开始，从github的历史版本里查找，至少二分法查找能找到在哪个版本里有git变更吧。(需要说明的是elasticsearch源码比较能折腾，7.0后代码组织结构大变更，从之前的core分到server目录，module变更等)。巧合的是打开6.0版本就发现BooleanFieldMapper.java的历史变更记录里有一个主题关于 <a href="https://github.com/elastic/elasticsearch/pull/22200" target="_blank" rel="external"> <strong>strict boolean</strong> </a>，点开发现和我的问题很相似。<br>看了下，虽然主题下帖子较多，但是互动人数不多，看评论似乎还未意识到这是个很明显的“看起来合理”的错误，而不是喜好问题。</p>
+<h2 id="More-1"><a href="#More-1" class="headerlink" title="More"></a>More</h2><p>该PR涉及几个改动，这里列下和本文问题最相关的改动点(以下讨论时基于<strong>JsonXContentParser</strong>)：<br>1）es的解析原理中，对于document的解析是在org.elasticsearch.index.mapper.DocumentParser里通过 parseObjectOrField 方法完成对各个字段的解析的(index/store是后续逻辑了，无关本文)。<br>2）parseObjectOrField将解析代理给 org.elasticsearch.index.mapper.FieldMapper, 由于我们已经知道该字段是boolean类型的，所以就是通过 BooleanFieldMapper 解析的，对应的入口就是在org.elasticsearch.index.mapper.BooleanFieldMapper.parseCreateField 方法内处理field的。<br>3）5.2.2和 7.2.1 在处理boolean类型field的区别就是下面代码所示：<br>Elasticsearch 5.2.2 的部分代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// boolean org.elasticsearch.common.xcontent.support.AbstractXContentParser.booleanValue() throws IOException</span></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">booleanValue</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    Token token = currentToken();</div><div class="line">    <span class="keyword">if</span> (token == Token.VALUE_NUMBER) &#123;</div><div class="line">        <span class="keyword">return</span> intValue() != <span class="number">0</span>;</div><div class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (token == Token.VALUE_STRING) &#123;</div><div class="line">        <span class="keyword">return</span> Booleans.parseBoolean(textCharacters(), textOffset(), textLength(), <span class="keyword">false</span> <span class="comment">/* irrelevant */</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> doBooleanValue();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//boolean org.elasticsearch.common.Booleans.parseBoolean(char[] text, int offset, int length, boolean defaultValue)</span></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Returns &lt;code&gt;false&lt;/code&gt; if text is in &lt;tt&gt;false&lt;/tt&gt;, &lt;tt&gt;0&lt;/tt&gt;, &lt;tt&gt;off&lt;/tt&gt;, &lt;tt&gt;no&lt;/tt&gt;; else, true</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">parseBoolean</span><span class="params">(<span class="keyword">char</span>[] text, <span class="keyword">int</span> offset, <span class="keyword">int</span> length, <span class="keyword">boolean</span> defaultValue)</span> </span>&#123;</div><div class="line">    <span class="comment">// <span class="doctag">TODO:</span> the leniency here is very dangerous: a simple typo will be misinterpreted and the user won't know.</span></div><div class="line">    <span class="comment">// We should remove it and cutover to https://github.com/rmuir/booleanparser</span></div><div class="line">    <span class="keyword">if</span> (text == <span class="keyword">null</span> || length == <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">return</span> defaultValue;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (length == <span class="number">1</span>) &#123;</div><div class="line">        <span class="keyword">return</span> text[offset] != <span class="string">'0'</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (length == <span class="number">2</span>) &#123;</div><div class="line">        <span class="keyword">return</span> !(text[offset] == <span class="string">'n'</span> &amp;&amp; text[offset + <span class="number">1</span>] == <span class="string">'o'</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (length == <span class="number">3</span>) &#123;</div><div class="line">        <span class="keyword">return</span> !(text[offset] == <span class="string">'o'</span> &amp;&amp; text[offset + <span class="number">1</span>] == <span class="string">'f'</span> &amp;&amp; text[offset + <span class="number">2</span>] == <span class="string">'f'</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (length == <span class="number">5</span>) &#123;</div><div class="line">        <span class="keyword">return</span> !(text[offset] == <span class="string">'f'</span> &amp;&amp; text[offset + <span class="number">1</span>] == <span class="string">'a'</span> &amp;&amp; text[offset + <span class="number">2</span>] == <span class="string">'l'</span> &amp;&amp; text[offset + <span class="number">3</span>] == <span class="string">'s'</span> &amp;&amp; text[offset + <span class="number">4</span>] == <span class="string">'e'</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Elasticsearch 7.2.1 的部分代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// boolean org.elasticsearch.common.xcontent.support.AbstractXContentParser.booleanValue() throws IOException</span></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">booleanValue</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    Token token = currentToken();</div><div class="line">    <span class="keyword">if</span> (token == Token.VALUE_STRING) &#123;</div><div class="line">        <span class="keyword">return</span> Booleans.parseBoolean(textCharacters(), textOffset(), textLength(), <span class="keyword">false</span> <span class="comment">/* irrelevant */</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> doBooleanValue();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//boolean org.elasticsearch.common.Booleans.parseBoolean(char[] text, int offset, int length, boolean defaultValue)</span></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Parses a char[] representation of a boolean value to &lt;code&gt;boolean&lt;/code&gt;.</div><div class="line"> *</div><div class="line"> * <span class="doctag">@return</span> &lt;code&gt;true&lt;/code&gt; iff the sequence of chars is "true", &lt;code&gt;false&lt;/code&gt; iff the sequence of chars is "false" or the</div><div class="line"> * provided default value iff either text is &lt;code&gt;null&lt;/code&gt; or length == 0.</div><div class="line"> * <span class="doctag">@throws</span> IllegalArgumentException if the string cannot be parsed to boolean.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">parseBoolean</span><span class="params">(<span class="keyword">char</span>[] text, <span class="keyword">int</span> offset, <span class="keyword">int</span> length, <span class="keyword">boolean</span> defaultValue)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (text == <span class="keyword">null</span> || length == <span class="number">0</span>) &#123;</div><div class="line">        <span class="keyword">return</span> defaultValue;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">return</span> parseBoolean(<span class="keyword">new</span> String(text, offset, length));</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">...</div><div class="line"><span class="comment">/**</span></div><div class="line"> * Parses a string representation of a boolean value to &lt;code&gt;boolean&lt;/code&gt;.</div><div class="line"> *</div><div class="line"> * <span class="doctag">@return</span> &lt;code&gt;true&lt;/code&gt; iff the provided value is "true". &lt;code&gt;false&lt;/code&gt; iff the provided value is "false".</div><div class="line"> * <span class="doctag">@throws</span> IllegalArgumentException if the string cannot be parsed to boolean.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">parseBoolean</span><span class="params">(String value)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (isFalse(value)) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (isTrue(value)) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Failed to parse value ["</span> + value + <span class="string">"] as only [true] or [false] are allowed."</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>区别在于 7.2.1中对boolean的解析去掉了 token == Token.VALUE_NUMBER 部分的逻辑(<strong>同时对0/1作为布尔类型也不再支持了</strong>)，而是先判断 VALUE_STRING 这种情况，通过 parseBoolean 处理， <strong>即仅支持“true/false/null”，其他任何都是报 IllegalArgumentException(包括不支持on/off/True/False/yes/no)</strong> ，此外的就交给 doBooleanValue 处理了，即通过Jackson的 JsonParser.getBooleanValue处理。这里其实只是对Jackson有些依赖的。</p>
+<pre><code>需要指出是对于True/False是另外一处代码，但最终和 JsonParser.getBooleanValue 类似。
+</code></pre><h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref:"></a>Ref:</h2><ol>
+<li><a href="https://github.com/elastic/elasticsearch/pull/22200" target="_blank" rel="external">Make boolean conversion strict #22200</a></li>
+<li><a href="https://github.com/elastic/elasticsearch/pull/22200/commits/b5d642bbadfee6d8a3f7219bf2fb0d20aa63f2fd" target="_blank" rel="external">Elasticsearch#22200/commits</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/14/2019-08-14-on_logstash_quiz1/" rel="next" title="日志传输工具Logstash使用中遇到的几个问题(1)">
+                <i class="fa fa-chevron-left"></i> 日志传输工具Logstash使用中遇到的几个问题(1)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题或现象"><span class="nav-number">1.</span> <span class="nav-text">问题或现象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么"><span class="nav-number">2.</span> <span class="nav-text">为什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#How"><span class="nav-number">3.</span> <span class="nav-text">How</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#More"><span class="nav-number">4.</span> <span class="nav-text">More</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#More-1"><span class="nav-number">5.</span> <span class="nav-text">More</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ref"><span class="nav-number">6.</span> <span class="nav-text">Ref:</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
