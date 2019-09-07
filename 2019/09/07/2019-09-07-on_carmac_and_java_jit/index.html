@@ -1,0 +1,798 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Tech,JIT," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="intro1：卡马克算法时最快的开根号方式吗？C/Java语言本身是怎么实现开根号的？intro2: java的内置sqrt和c的内置sqrt哪个更快？Java的编译/JIT优化和GCC的编译优化是否有不足之处？intro3: java的C2优化效果一定比C1效果好吗(对性能而言)？  问题或现象这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得">
+<meta name="keywords" content="Tech,JIT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="卡马克是最快的开根号方法吗">
+<meta property="og:url" content="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：卡马克算法时最快的开根号方式吗？C/Java语言本身是怎么实现开根号的？intro2: java的内置sqrt和c的内置sqrt哪个更快？Java的编译/JIT优化和GCC的编译优化是否有不足之处？intro3: java的C2优化效果一定比C1效果好吗(对性能而言)？  问题或现象这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-09-07T18:13:06.805Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="卡马克是最快的开根号方法吗">
+<meta name="twitter:description" content="intro1：卡马克算法时最快的开根号方式吗？C/Java语言本身是怎么实现开根号的？intro2: java的内置sqrt和c的内置sqrt哪个更快？Java的编译/JIT优化和GCC的编译优化是否有不足之处？intro3: java的C2优化效果一定比C1效果好吗(对性能而言)？  问题或现象这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/"/>
+
+
+
+
+
+  <title>卡马克是最快的开根号方法吗 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">卡马克是最快的开根号方法吗</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-07T21:00:10+08:00">
+                2019-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i><strong>intro1</strong>：卡马克算法时最快的开根号方式吗？C/Java语言本身是怎么实现开根号的？</i><br><i><strong>intro2</strong>: java的内置sqrt和c的内置sqrt哪个更快？Java的编译/JIT优化和GCC的编译优化是否有不足之处？</i><br><i><strong>intro3</strong>: java的C2优化效果一定比C1效果好吗(对性能而言)？</i></p>
+</blockquote>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得到x，再对x取整返回。<br>博文的解法是使用二分查找，Java代码实现，不过这里想对该题再讨论几点<br>1）二分查找也可以优化下，建立一个简单的范围表，再二分查找，某几个国产IP库查询也是该做法(因为比BTree省太多内存)。<br>2）其实还可以用 牛顿切线法 ，每个ACMer入门练手时都会碰到的算法。<br>3）因为本题目只是要求返回正整数，那么如果我在 牛顿切分法阈值判断的时候，再加一个条件，判断本轮的整数部分和上一轮的整数部分是否相等，会不会更快？<br>4）开根号怎能少了卡马克算法，要知道在关于开根号方法中祭出卡马克算法，也就基本意味着本次交谈该结束了，但是卡马克是最快的方法吗？<br><a id="more"></a><br>所以下文中我写了几行代码来简单验证下(C/Java版)</p>
+<h2 id="先了解下牛顿切分法是什么："><a href="#先了解下牛顿切分法是什么：" class="headerlink" title="先了解下牛顿切分法是什么："></a>先了解下牛顿切分法是什么：</h2><p>许多<a href="https://www.matongxue.com/madocs/205.html#/madoc" target="_blank" rel="external">网站链接</a>有介绍，这里简单描述下，<i>中学课本里的二次方程求根公式正式提出距今不过1000年多，高次方程求根公式知道高斯/阿贝尔/伽罗华才告一段落，在此之前物理学家们怎么做的呢？牛顿提出了牛顿迭代法，但这是在实/复数域上求解方程的近似根，思想就是通过直线逼近曲线(世纪更早的我国数学家刘徽也提出该思想并求出圆周率近似值)，只不过那时候没有系统的考虑连续和收敛的问题。</i><br><strong>牛顿切分转化为牛顿迭代就是比如对方程 f(n) =&gt; x(n+1)=F(x(n))转换，也就是从当前态计算出下一个状态，这是适合人们手工去计算的，更是非常适合计算机代码和执行。</strong><br>我们把上述 f(n) 用于开根号情况，也就是求方程 X^2-c=0 的解，借助于大学里的泰勒展开，我们可以得到：</p>
+<pre><code>X(n+1) = ( X(n) + C/X(n) )/2
+</code></pre><p>当X(n+1)与X(n) 差值足够小的时候，我们就认为 X(n+1) 接近于真实解了。<br>至于卡马克算法讨论需要更多篇幅，网上有更多介绍。简单来说是基于牛顿迭代使用一个“魔数”免于多次迭代近似对单精度数字求根。</p>
+<h2 id="下面代码是C实现。"><a href="#下面代码是C实现。" class="headerlink" title="下面代码是C实现。"></a>下面代码是C实现。</h2><p>其中：<br>1) sqrt_newton：牛顿迭代，sqrt_newton_int int比较的牛顿迭代，InvSqrt 卡马克算法开根号<br>2) 在main函数里，我使用简单的for循环来统计耗时，暂不考虑精度以及其他问题，且先相信只要循环次数大，耗时差距大，就可以得出足够可信的结论。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;math.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></div><div class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;</span></span></div><div class="line"></div><div class="line"><span class="keyword">double</span> FLT_MIN = <span class="number">1e-7</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">sqrt_newton</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>(x &lt;= <span class="number">0</span>)  <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    <span class="keyword">double</span> res, lastres;</div><div class="line">    res = x;    <span class="comment">//初始值，可以为任意非0的值</span></div><div class="line">    <span class="keyword">do</span>&#123;</div><div class="line">        lastres = res;</div><div class="line">        res = (res + x/res)/<span class="number">2</span>;</div><div class="line">    &#125;<span class="keyword">while</span>(<span class="built_in">fabs</span>(lastres-res) &gt; FLT_MIN);</div><div class="line">    <span class="keyword">return</span> res;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">double</span> <span class="title">sqrt_newton_int</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span>(x &lt;= <span class="number">0</span>)  <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    <span class="keyword">double</span> res, lastres;</div><div class="line">    res = x;</div><div class="line">    <span class="keyword">int</span> last = <span class="number">0</span>;</div><div class="line">    <span class="keyword">do</span>&#123;</div><div class="line">        lastres = res;</div><div class="line">        res = (res + x/res)/<span class="number">2</span>;</div><div class="line">        <span class="keyword">int</span> cur = (<span class="keyword">int</span>)res;</div><div class="line">        <span class="keyword">if</span> (last == cur)&#123;</div><div class="line">            <span class="keyword">return</span> res;</div><div class="line">        &#125;</div><div class="line">        last = cur;</div><div class="line">    &#125;<span class="keyword">while</span>(<span class="built_in">fabs</span>(lastres-res) &gt; FLT_MIN);</div><div class="line">    <span class="keyword">return</span> res;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">float</span> <span class="title">InvSqrt</span><span class="params">(<span class="keyword">float</span> x)</span></span>&#123;</div><div class="line">    <span class="keyword">float</span> xhalf = <span class="number">0.5f</span> * x;</div><div class="line">    <span class="keyword">int</span> i = *(<span class="keyword">int</span>*)&amp;x;</div><div class="line">    i = <span class="number">0x5f375a86</span> - (i&gt;&gt;<span class="number">1</span>);</div><div class="line">    x = *(<span class="keyword">float</span>*)&amp;i;</div><div class="line">    x = x*(<span class="number">1.5f</span>-xhalf*x*x);</div><div class="line">    x = x*(<span class="number">1.5f</span>-xhalf*x*x);</div><div class="line">    x = x*(<span class="number">1.5f</span>-xhalf*x*x);</div><div class="line">    <span class="keyword">return</span> <span class="number">1</span>/x;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</div><div class="line">    <span class="keyword">clock_t</span> begin, end;</div><div class="line">    <span class="keyword">int</span> num = atoi(argv[<span class="number">1</span>]);</div><div class="line">    <span class="keyword">double</span> res1=<span class="number">0</span>,res2=<span class="number">0</span>,res4=<span class="number">0</span>;</div><div class="line">    <span class="keyword">float</span> res3=<span class="number">0</span>;</div><div class="line">    <span class="keyword">int</span> i;</div><div class="line">    <span class="keyword">float</span> num_f;</div><div class="line">    <span class="keyword">int</span> loopcnts = <span class="number">1000000</span>;</div><div class="line">    <span class="keyword">if</span>(<span class="keyword">sizeof</span>(argv)&gt;<span class="number">2</span>)&#123;</div><div class="line">        loopcnts = atoi(argv[<span class="number">2</span>]);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    begin = clock();</div><div class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; loopcnts; i++)&#123;</div><div class="line">        res1+=sqrt_newton_int(num+i);</div><div class="line">        res2+=sqrt_newton(num+i);</div><div class="line">        res3+=InvSqrt(num+i);</div><div class="line">        res4+=<span class="built_in">sqrt</span>(num+i);</div><div class="line">    &#125;</div><div class="line">    end = clock();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"hot %f\t:%f,%f,%f,%f\n"</span>, (<span class="keyword">double</span>)(end-begin),res1,res2,res3,res4);</div><div class="line"></div><div class="line">    begin = clock();</div><div class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">        res1 = sqrt_newton(num);</div><div class="line">    end = clock();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">" newton_cos(%d) = %f, \t\tcost: %f\n"</span>, num, res1, (<span class="keyword">double</span>)(end-begin));</div><div class="line"> </div><div class="line">    begin = clock();</div><div class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">        res2 = sqrt_newton_int(num);</div><div class="line">    end = clock();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"newton_int(%d) = %f, \t\tcost: %f\n"</span>, num, res2, (<span class="keyword">double</span>)(end-begin));</div><div class="line"> </div><div class="line">    num_f=<span class="number">1.0f</span>*num;</div><div class="line">    begin = clock();</div><div class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">        res3 = InvSqrt(num_f);</div><div class="line">    end = clock();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">" InvSqrt(%d) = %f, \t\tcost: %f\n"</span>, num, res3, (<span class="keyword">double</span>)(end-begin));</div><div class="line"> </div><div class="line">    begin = clock();</div><div class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">        res4 = <span class="built_in">sqrt</span>(num);</div><div class="line">    end = clock();</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"sys sqrt(%d) = %f, \t\tcost: %f\n"</span>, num, res4, (<span class="keyword">double</span>)(end-begin));</div><div class="line">    <span class="comment">// printf("res:%f, %f, %f, %f", res1,res2,res3,res4);</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因int范围限制，故每轮采取循环1亿次，多运行几次，发现输出下面结果<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">➜  Test gcc quic_newton.c -o quic_newton     </div><div class="line">➜  Test ./quic_newton 2855 100000000   </div><div class="line">hot 40405059.000000 :666695110416.069336,666695110197.906128,274877906944.000000,666695110197.906128</div><div class="line"> newton_cos(2855) = 53.432200,    cost: 11803758.000000</div><div class="line">newton_int(2855) = 53.432201,     cost: 10048574.000000</div><div class="line"> InvSqrt(2855) = 53.432198,     cost: 967581.000000</div><div class="line">sys sqrt(2855) = 53.432200,     cost: 614861.000000</div><div class="line">➜  Test</div><div class="line">➜  Test gcc -O3  quic_newton.c -o quic_newton</div><div class="line">➜  Test ./quic_newton 2855 100000000         </div><div class="line">hot 14997438.000000 :666695110416.069336,666695110197.906128,274877906944.000000,666695110197.906128</div><div class="line"> newton_cos(2855) = 53.432200,    cost: 3292126.000000</div><div class="line">newton_int(2855) = 53.432201,     cost: 2845886.000000</div><div class="line"> InvSqrt(2855) = 53.432198,     cost: 1.000000</div><div class="line">sys sqrt(2855) = 53.432200,     cost: 0.000000</div><div class="line">...</div><div class="line">➜  Test gcc -O1  quic_newton.c -o quic_newton</div><div class="line">➜  Test ./quic_newton 2855 100000000         </div><div class="line">hot 19265085.000000 :666695110416.069336,666695110197.906128,274877906944.000000,666695110197.906128</div><div class="line"> newton_cos(2855) = 53.432200,    cost: 1.000000</div><div class="line">newton_int(2855) = 53.432201,     cost: 0.000000</div><div class="line"> InvSqrt(2855) = 53.432198,     cost: 0.000000</div><div class="line">sys sqrt(2855) = 53.432200,     cost: 0.000000</div><div class="line">➜  Test</div></pre></td></tr></table></figure></p>
+<p>1) 忽略上述InvSqrt float数值不正确的情况，这里是为了避免类型转换，减少对结果的影响。<br>2) 虽有for循环，以及类型/加操作，但如果测试下来耗时是一半，那有理由相信性能其实是大于一倍的。<br>3) 可发现第一次编译后，运行几次，那段卡马克效果都不如使用C系统库的sqrt函数，相差0.5倍左右，不过已经比牛顿迭代少一个数量级了。<br>4) 当开启 -O3 优化的时候，出现 耗时为1，这是GCC编译优化的缘故，也可看到优化后调用牛顿迭代耗时下降。<br>5) 但如果看 hot 的总耗时，还是可见-O3 效果优于 -O1 优化的。<br>6) 开启 -O1 优化时候，看到耗时都为1。 因为优化实际上相当只运行最后一次循环结果，这点看汇编代码可以看到。<strong>不过这里有个问题是 单是对于main函数而言，-O3优化效果反而不如 -O1。</strong></p>
+<p>所以为了避免上述问题，这里需要改进下代码:见<a href="/images/quic_newton.c">附件quic_newton.c</a><br>1) 上文中 res4 = sqrt(num); 都类似对应的改为 res4 += sqrt(num+i)格式<br>2) hot之后将 res1-4都置零一下。<br>3) int num 改为double num，并且相应printf语句里 %d改为%f。<br>（部分可能受制于发生隐式类型转换，不过因为已经是double/float，对于再加int性能消耗是可忽略，或可能通过 -O1优化掉。查计算机指令周期可知，相对于前三个计算方法这个时间影响也很小）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">➜  Test gcc quic_newton.c -o quic_newton</div><div class="line">➜  Test ./quic_newton 2500 100000000</div><div class="line">hot 35850465.000000 :666691578733.306519,666691578514.627563,274877906944.000000,666691578514.627686</div><div class="line"> newton_inl(2500.000000) = 666691578514.627563,     cost: 17829585.000000</div><div class="line"> newton_cos(2500.000000) = 666691578514.627563,     cost: 17944181.000000</div><div class="line">newton_int(2500.000000) = 666691578733.306519,    cost: 18475511.000000</div><div class="line"> InvSqrt(2500.000000) = 274877906944.000000,    cost: 3108139.000000</div><div class="line">sys sqrt(2500.000000) = 666691578514.627686,    cost: 252962.000000</div><div class="line">➜  Test gcc -O3 quic_newton.c -o quic_newton</div><div class="line">➜  Test ./quic_newton 2500 100000000       </div><div class="line">hot 15424798.000000 :666691578733.306519,666691578514.627563,274877906944.000000,666691578514.627686</div><div class="line"> newton_inl(2500.000000) = 666691578514.627563,     cost: 7050614.000000</div><div class="line"> newton_cos(2500.000000) = 666691578514.627563,     cost: 7113696.000000</div><div class="line">newton_int(2500.000000) = 666691578733.306519,    cost: 7668225.000000</div><div class="line"> InvSqrt(2500.000000) = 274877906944.000000,    cost: 417802.000000</div><div class="line">sys sqrt(2500.000000) = 666691578514.627686,    cost: 168760.000000</div><div class="line">➜  Test ./quic_newton 2500 100000000</div><div class="line">hot 15394188.000000 :666691578733.306519,666691578514.627563,274877906944.000000,666691578514.627686</div><div class="line"> newton_inl(2500.000000) = 666691578514.627563,     cost: 7063698.000000</div><div class="line"> newton_cos(2500.000000) = 666691578514.627563,     cost: 7111073.000000</div><div class="line">newton_int(2500.000000) = 666691578733.306519,    cost: 7663540.000000</div><div class="line"> InvSqrt(2500.000000) = 274877906944.000000,    cost: 416777.000000</div><div class="line">sys sqrt(2500.000000) = 666691578514.627686,    cost: 167816.000000</div><div class="line">➜  Test</div></pre></td></tr></table></figure>
+<p>请注意上述命令执行时的参数和输出，可以看到InvSqrt接近一个数量级的提升，sys sqrt 40%提升。这里的优化显然是减少了循环体内的指令。<br>比如：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">begin = clock();</div><div class="line"><span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">    res4 += <span class="built_in">sqrt</span>(num+i);</div><div class="line">end = clock();</div></pre></td></tr></table></figure></p>
+<p>对比一下 -O0和-O1关键部分<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"># -O0</div><div class="line">  callq _clock</div><div class="line">  <span class="keyword">movq</span>  %rax, -<span class="number">24</span>(%rbp)</div><div class="line">  movl  <span class="number">$0</span>, -<span class="number">72</span>(%rbp)</div><div class="line"><span class="symbol">LBB3_24:</span>                                ## =&gt;This Inner <span class="keyword">Loop</span> Header: Depth=<span class="number">1</span></div><div class="line">  movl  -<span class="number">72</span>(%rbp), %eax</div><div class="line">  cmpl  -<span class="number">80</span>(%rbp), %eax</div><div class="line">  <span class="keyword">jge</span> LBB3_27</div><div class="line">## %bb<span class="meta">.25</span>:                              ##   <span class="keyword">in</span> <span class="keyword">Loop</span>: Header=BB3_24 Depth=<span class="number">1</span></div><div class="line">  <span class="keyword">movsd</span> -<span class="number">40</span>(%rbp), %xmm0        ## <span class="built_in">xmm0</span> = mem[<span class="number">0</span>],<span class="meta">zero</span></div><div class="line">  movl  -<span class="number">72</span>(%rbp), %eax</div><div class="line">  cvtsi2sdl %eax, %xmm1</div><div class="line">  <span class="keyword">addsd</span> %xmm1, %xmm0</div><div class="line">  <span class="keyword">sqrtsd</span>  %xmm0, %xmm0</div><div class="line">  <span class="keyword">addsd</span> -<span class="number">64</span>(%rbp), %xmm0</div><div class="line">  <span class="keyword">movsd</span> %xmm0, -<span class="number">64</span>(%rbp)</div><div class="line">## %bb<span class="meta">.26</span>:                              ##   <span class="keyword">in</span> <span class="keyword">Loop</span>: Header=BB3_24 Depth=<span class="number">1</span></div><div class="line">  movl  -<span class="number">72</span>(%rbp), %eax</div><div class="line">  addl  <span class="number">$1</span>, %eax</div><div class="line">  movl  %eax, -<span class="number">72</span>(%rbp)</div><div class="line">  <span class="keyword">jmp</span> LBB3_24</div><div class="line"><span class="symbol">LBB3_27:</span></div><div class="line">  callq _clock</div><div class="line"></div><div class="line"></div><div class="line">#-O1</div><div class="line">  callq _clock</div><div class="line">  <span class="keyword">movsd</span> -<span class="number">48</span>(%rbp), %xmm3        ## <span class="number">8</span>-<span class="built_in">byte</span> Reload</div><div class="line">                                        ## <span class="built_in">xmm3</span> = mem[<span class="number">0</span>],<span class="meta">zero</span></div><div class="line">  <span class="keyword">movq</span>  %rax, %r14</div><div class="line">  testl %r15d, %r15d</div><div class="line">  <span class="keyword">xorpd</span> %xmm4, %xmm4</div><div class="line">  <span class="keyword">jle</span> LBB3_22</div><div class="line">## %bb<span class="meta">.20</span>:</div><div class="line">  <span class="keyword">xorpd</span> %xmm0, %xmm0</div><div class="line">  <span class="keyword">movsd</span> LCPI3_0(%rip), %xmm1    ## <span class="built_in">xmm1</span> = mem[<span class="number">0</span>],<span class="meta">zero</span></div><div class="line">  <span class="keyword">xorpd</span> %xmm4, %xmm4</div><div class="line"><span class="meta">  .p2align</span>  <span class="number">4</span>, <span class="number">0x90</span></div><div class="line"><span class="symbol">LBB3_21:</span>                                ## =&gt;This Inner <span class="keyword">Loop</span> Header: Depth=<span class="number">1</span></div><div class="line">  <span class="keyword">movapd</span>  %xmm3, %xmm2</div><div class="line">  <span class="keyword">addsd</span> %xmm0, %xmm2</div><div class="line">  <span class="keyword">sqrtsd</span>  %xmm2, %xmm2</div><div class="line">  <span class="keyword">addsd</span> %xmm2, %xmm4</div><div class="line">  <span class="keyword">addsd</span> %xmm1, %xmm0</div><div class="line">  decl  %r15d</div><div class="line">  <span class="keyword">jne</span> LBB3_21</div><div class="line"><span class="symbol">LBB3_22:</span></div><div class="line">  <span class="keyword">movsd</span> %xmm4, -<span class="number">40</span>(%rbp)        ## <span class="number">8</span>-<span class="built_in">byte</span> Spill</div><div class="line">  callq _clock</div></pre></td></tr></table></figure></p>
+<p>-O1 优化掉了一个int转浮点型，而且还巧妙的通过自增的方式减少了指令。即优化后相当于<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">double</span> initial=<span class="number">2500f</span>;</div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">10.</span>.<span class="number">.0</span>;i&gt;<span class="number">0</span>;i--)&#123;</div><div class="line">  <span class="built_in">sqrt</span>(initial);</div><div class="line">  initial=initial+<span class="number">1.0f</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上面这个优化有趣，我在后面的Java版代码里也会讨论下这一点。</p>
+<p>需要说明一点，改进后的quic_newton.c耗时统计，跟你添加的gcc参数相关(O1/3支持参数多样来控制你的优化)，当然，也跟你的机器，系统，硬件性能相关。比如我在一台旧的intel xeon+centos5上编译后运行，InvSqrt也在4.1秒左右，sys sqrt在1.8秒了，是mac机结果十倍了，这个时候是看不到 -O3和-O1效果的差异的。<br>至此，要说的其实就是，现代计算机(无论intel/amd)浮点处理器大多支持开根号指令，基于硬件的，虽然可能硬件(arm/fpga)不同他们的实现或有区别，比如x86架构该指令就是基于牛顿迭代实现的，因为精度可控。不是所有的处理器都这么干。<br>不过intel系列最初是基于此提供FSQRT指令，后来提供了更快的指令，SQRTSS (对于双精度是 SQRTSD) 。如果算上支持4个浮点数那就更快了。</p>
+<p>好了，写这些，就是希望记得有人问最快的开根号代码，切勿上来就撸一个卡马克算法。</p>
+<p>不过也有硬件指令(RSQRTSS)是基于卡马克近似算法，性能据说比上述指令快，但是精度就略差了(小于六千分之一),而且仅限单精度。<a href="https://www.felixcloutier.com/x86/rsqrtss" target="_blank" rel="external">RSQRTSS</a></p>
+<pre><code>sqrtss gives a correctly rounded result.  rsqrtss gives an approximation to the reciprocal, accurate to about 11 bits.
+</code></pre><p>如果你对这方面了解更多，欢迎指教 mail: aXRob21hc2xhdUBxcS5jb20=<br><blockquote><p>需要指出上面c代码测试结果会因平台而异，比如在Intel(R) Xeon某型号 + gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-18)上就没有sqrt的性能优化，而是call指令调用，导致-O1编译没能够优化到常量(但是 循环跑Invsqrt 则优化到常量时间了)。</p>
+</blockquote></p>
+<p>同样的，上述测试的是比较的趋势，数值不作为参考，毕竟还可以有比ANSI C 的sqrt更快的选择，比如第三方(fdlibm)优化过的或者含有fpu判断的 __ieee754_sqrt之类函数。<br>但如果你是C和汇编语言高手的话，在Intel平台，你可以直接调用xmmintrin.h库提供的 _mm_rsqrt_ss/_mm_rsqrt<em>sd 之类的函数实现模拟调用汇编开根号\</em>_m128d _mm_sqrt<em>pd(__m128d a)，甚至借助 \</em>_m128d 同时能给四个double数值开根号的特性实现四线程并行，这些就比ANSI C内置的sqrt更快了。</p>
+<h2 id="下面来看看Java里效果怎么样"><a href="#下面来看看Java里效果怎么样" class="headerlink" title="下面来看看Java里效果怎么样"></a>下面来看看Java里效果怎么样</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// JAVA 1</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MathFunc</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">double</span> <span class="title">sqrt_</span><span class="params">(<span class="keyword">double</span> t, Double precise)</span> </span>&#123;</div><div class="line">        <span class="keyword">double</span> x0 = t, x1, differ;</div><div class="line">        <span class="keyword">double</span> prec = <span class="number">1e-7</span>;</div><div class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">            x1 = (x0/<span class="number">2</span> + t/(<span class="number">2</span>*x0));</div><div class="line">            differ = x1 * x1 - t;</div><div class="line">            <span class="keyword">if</span> (differ &lt; prec &amp;&amp; differ &gt; -prec) &#123;</div><div class="line">                <span class="keyword">return</span> x1;</div><div class="line">            &#125;</div><div class="line">            x0 = x1;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">   </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">double</span> <span class="title">sqrt_INT</span><span class="params">(<span class="keyword">double</span> t, Double precise)</span> </span>&#123;</div><div class="line">        <span class="keyword">double</span> x0 = t, x1, differ;</div><div class="line">        <span class="keyword">double</span> prec = <span class="number">1e-7</span>;</div><div class="line">        <span class="keyword">int</span> last = (<span class="keyword">int</span>)x0;</div><div class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</div><div class="line">            x1 = (x0/<span class="number">2</span> + t/(<span class="number">2</span>*x0));</div><div class="line">            differ = x1 * x1 - t;</div><div class="line">            <span class="keyword">if</span> ((differ &lt;= prec &amp;&amp; differ &gt;= -prec)) &#123;</div><div class="line">                <span class="keyword">return</span> x1;</div><div class="line">            &#125;</div><div class="line">            x0 = x1;</div><div class="line">            <span class="keyword">int</span> cur = (<span class="keyword">int</span>)x0;</div><div class="line">            <span class="keyword">if</span> (cur == last) &#123;</div><div class="line">                <span class="keyword">return</span> cur;</div><div class="line">            &#125;</div><div class="line">            last = cur;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</div><div class="line">            sqrt_(<span class="number">230</span>, <span class="keyword">null</span>);</div><div class="line">            sqrt_INT(<span class="number">230</span>, <span class="keyword">null</span>);</div><div class="line">            Math.sqrt(<span class="number">230000</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">double</span> MM = <span class="number">2855</span>;<span class="comment">//230000</span></div><div class="line">        <span class="keyword">double</span> s1=<span class="number">0</span>,s2=<span class="number">0</span>,s3=<span class="number">0</span>;</div><div class="line">        <span class="keyword">long</span> start = System.nanoTime();</div><div class="line">        <span class="keyword">int</span> NN = <span class="number">1_0000_0000</span>;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">            s1 += sqrt_(MM, <span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> start2 = System.nanoTime();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">            s2+= sqrt_INT(MM, <span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> start3 = System.nanoTime();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">            s3+= Math.sqrt(MM+i);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> start4 = System.nanoTime();</div><div class="line">        System.out.println(String.format(<span class="string">"%s-%s-%s"</span>, (start2-start)/<span class="number">1e3</span>, (start3-start2)/<span class="number">1e3</span>, (start4-start3)/<span class="number">1e3</span>));</div><div class="line">        System.out.println(String.format(<span class="string">"%s-%s-%s"</span>, s1,s2,s3));</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上文问题3，这里解答下：<br>如果纯粹从理论上讲，通过判断减少循环次数，则耗时应该减少，但实际上并不这样，<strong>因为double强转int也是耗时的操作，当这个耗时足以弥补减少循环的耗时时，才会得到更少的耗时</strong>。可以简单修改 MM 来验证下，实际上MM=2500/100 则确实耗时更少，MM=2837耗时则几乎相等，MM=2839/2840/2850则耗时多。<br>因为接近平方数 INT版本收敛快。<br>上面验证较简单，就不展开。不过从这段代码，让我们看一点有趣的发现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// JAVA 2</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TwoSqrt</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">double</span> MM = <span class="number">2855</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">int</span> NN = <span class="number">1_0000_0000</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">double</span> s3 = <span class="number">0</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">long</span> start3 = <span class="number">0</span>, start4 = <span class="number">0</span>;</div><div class="line">    <span class="keyword">static</span> <span class="keyword">double</span> j = <span class="number">0</span>;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</div><div class="line">            s3 = <span class="number">0</span>;j=<span class="number">0</span>;</div><div class="line">            <span class="keyword">long</span> d = D();</div><div class="line">            System.out.println(<span class="string">"D:"</span> + s3 + <span class="string">"\t"</span> + d / <span class="number">1e3</span>);</div><div class="line">            s3 = <span class="number">0</span>;j=<span class="number">0</span>;</div><div class="line">            <span class="keyword">long</span> dd = DD();</div><div class="line">            System.out.println(<span class="string">"DD:"</span> + s3 + <span class="string">"\t"</span> + dd / <span class="number">1e3</span>);</div><div class="line">            s3 = <span class="number">0</span>;</div><div class="line">            <span class="keyword">long</span> di = DI();</div><div class="line">            System.out.println(<span class="string">"DI:"</span> + s3 + <span class="string">"\t"</span> + di / <span class="number">1e3</span>);</div><div class="line">        &#125;</div><div class="line">       </div><div class="line">    &#125;</div><div class="line">   </div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">D</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//int s3=0;</span></div><div class="line">        <span class="keyword">long</span> start3 = System.nanoTime();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">            s3 += Math.sqrt(MM);<span class="comment">//0.1;//</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> start4 = System.nanoTime();</div><div class="line">        <span class="keyword">return</span> start4 - start3;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">DD</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> start3 = System.nanoTime();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">            s3 += Math.sqrt(MM + j++);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> start4 = System.nanoTime();</div><div class="line">        <span class="keyword">return</span> start4 - start3;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">DI</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">long</span> start3 = System.nanoTime();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">            s3 += Math.sqrt(MM + i);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> start4 = System.nanoTime();</div><div class="line">        <span class="keyword">return</span> start4 - start3;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>注意上面main函数里，我把每个方法都跑了一百次，并且每个方法内部还有1亿次循环。<br><strong>我在这里新写一个JAVA类，不仅仅是方便JAVA/JVM/汇编代码，还是为了引出下文发现的三个问题。</strong><br>每个函数都赋值给静态变量(该方法作用域外)s3，是为了避免逃逸变量的编译优化，这个简单就不详述。<br>不过，让我们先看 D() 这个方法，含逃逸变量，即可能会被JIT优化的情况<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">D</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">double</span> s3=<span class="number">0</span>;</div><div class="line">    <span class="keyword">long</span> start3 = System.nanoTime();</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">        s3 += Math.sqrt(MM);<span class="comment">//0.1;//i;//0.2;//</span></div><div class="line">    &#125;</div><div class="line">    <span class="keyword">long</span> start4 = System.nanoTime();</div><div class="line">    <span class="keyword">return</span> start4 - start3;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上述代码的 D() 在外层循环跑两轮之后就会发现 D() 耗时几乎为零了。<br>单单看JVM code可能看不出来<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"> <span class="number">0</span>: iconst_0       </div><div class="line"> <span class="number">1</span>: istore_0       </div><div class="line"> <span class="number">2</span>: invokestatic    #<span class="number">20</span>  // Method java/lang/System.nanoTime:()J</div><div class="line"> <span class="number">5</span>: lstore_1       </div><div class="line"> <span class="number">6</span>: iconst_0       </div><div class="line"> <span class="number">7</span>: istore_3       </div><div class="line"> <span class="number">8</span>: iload_3         </div><div class="line"> <span class="number">9</span>: getstatic       #<span class="number">21</span>  // Field NN:I</div><div class="line"><span class="number">12</span>: if_icmpge       <span class="number">25</span>   </div><div class="line"><span class="number">15</span>: iload_0         </div><div class="line"><span class="number">16</span>: iload_3         </div><div class="line"><span class="number">17</span>: iadd           </div><div class="line"><span class="number">18</span>: istore_0       </div><div class="line"><span class="number">19</span>: iinc            <span class="number">3</span>, <span class="number">1</span></div><div class="line"><span class="number">22</span>: goto            <span class="number">8</span>   </div><div class="line"><span class="number">25</span>: invokestatic    #<span class="number">20</span>  // Method java/lang/System.nanoTime:()J</div><div class="line"><span class="number">28</span>: lstore_3       </div><div class="line"><span class="number">29</span>: lload_3         </div><div class="line"><span class="number">30</span>: lload_1         </div><div class="line"><span class="number">31</span>: lsub           </div><div class="line"><span class="number">32</span>: lreturn</div></pre></td></tr></table></figure></p>
+<p>我们看看 C2优化之后的汇编代码<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">....</div><div class="line"><span class="number">0x000000011408c5d6</span>: callq *%r10  <span class="comment">;*invokestatic nanoTime</span></div><div class="line">                                 <span class="comment">; - TwoSqrt::D@2 (line 25)</span></div><div class="line"><span class="number">0x000000011408c5d9</span>: <span class="keyword">mov</span> %rax,%rbx</div><div class="line"><span class="number">0x000000011408c5dc</span>: movabs <span class="number">$0</span>x10728ec10,%r10</div><div class="line"><span class="number">0x000000011408c5e6</span>: callq *%r10  <span class="comment">;*invokestatic nanoTime</span></div><div class="line">                                 <span class="comment">; - TwoSqrt::D@25 (line 29)</span></div><div class="line"><span class="number">0x000000011408c5e9</span>: <span class="keyword">sub</span> %rbx,%rax  <span class="comment">;*lsub</span></div><div class="line">                                   <span class="comment">; - TwoSqrt::D@31 (line 30)</span></div><div class="line">....</div></pre></td></tr></table></figure></p>
+<p>可以看到for循环其实优化掉了，所以上述改一下，return s3; 这样循环显然是不会消除优化掉的。<br>好了，我们再改一下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">long</span> <span class="title">D</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="comment">// double s3=0;</span></div><div class="line">    <span class="keyword">long</span> start3 = System.nanoTime();</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; NN; i++) &#123;</div><div class="line">        s3 += i;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">long</span> start4 = System.nanoTime();</div><div class="line">    <span class="keyword">return</span> start4 - start3;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>即使用全局变量 s3以及 改为 s3+=i，那么耗时会是常量还是跟for循环次数有关？<br>更多的，如果这里改为 s3+=0.1 或者 s3+=1；又会怎样？<br>实际上三者耗时不一样，但都不是几纳秒，即这个时间不是常量，和循环次数有关，也就是说，<strong>即便是 C2优化后，循环依旧。</strong><br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div></pre></td><td class="code"><pre><div class="line"><span class="number">0x000000011a2f1130</span>: <span class="keyword">vaddsd</span> %xmm1,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f1134</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f1137</span>: <span class="keyword">add</span>    <span class="number">$0</span>xd,%r8d</div><div class="line"><span class="number">0x000000011a2f113b</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f113e</span>: <span class="keyword">add</span>    <span class="number">$0</span>xe,%r9d</div><div class="line"><span class="number">0x000000011a2f1142</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm3,%xmm3</div><div class="line"><span class="number">0x000000011a2f1147</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm4,%xmm4</div><div class="line"><span class="number">0x000000011a2f114c</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f114f</span>: <span class="keyword">add</span>    <span class="number">$0</span>xc,%r8d</div><div class="line"><span class="number">0x000000011a2f1153</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f1156</span>: <span class="keyword">add</span>    <span class="number">$0</span>xb,%r9d</div><div class="line"><span class="number">0x000000011a2f115a</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm5,%xmm5</div><div class="line"><span class="number">0x000000011a2f115f</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm6,%xmm6</div><div class="line"><span class="number">0x000000011a2f1164</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f1167</span>: <span class="keyword">add</span>    <span class="number">$0</span>xa,%r8d</div><div class="line"><span class="number">0x000000011a2f116b</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f116e</span>: <span class="keyword">add</span>    <span class="number">$0</span>x8,%r9d</div><div class="line"><span class="number">0x000000011a2f1172</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm7,%xmm7</div><div class="line"><span class="number">0x000000011a2f1177</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm8,%xmm8</div><div class="line"><span class="number">0x000000011a2f117c</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f117f</span>: <span class="keyword">add</span>    <span class="number">$0</span>x7,%r8d</div><div class="line"><span class="number">0x000000011a2f1183</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f1186</span>: <span class="keyword">add</span>    <span class="number">$0</span>x6,%r9d</div><div class="line"><span class="number">0x000000011a2f118a</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm9,%xmm9</div><div class="line"><span class="number">0x000000011a2f118f</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm10,%xmm10</div><div class="line"><span class="number">0x000000011a2f1194</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f1197</span>: <span class="keyword">add</span>    <span class="number">$0</span>x5,%r8d</div><div class="line"><span class="number">0x000000011a2f119b</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f119e</span>: <span class="keyword">add</span>    <span class="number">$0</span>x4,%r9d</div><div class="line"><span class="number">0x000000011a2f11a2</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm11,%xmm11</div><div class="line"><span class="number">0x000000011a2f11a7</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm12,%xmm12</div><div class="line"><span class="number">0x000000011a2f11ac</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f11af</span>: <span class="keyword">add</span>    <span class="number">$0</span>x3,%r8d</div><div class="line"><span class="number">0x000000011a2f11b3</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f11b6</span>: <span class="keyword">add</span>    <span class="number">$0</span>x2,%r9d</div><div class="line"><span class="number">0x000000011a2f11ba</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm13,%xmm13</div><div class="line"><span class="number">0x000000011a2f11bf</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm1,%xmm1</div><div class="line"><span class="number">0x000000011a2f11c4</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f11c7</span>: <span class="keyword">add</span>    <span class="number">$0</span>xf,%r8d</div><div class="line"><span class="number">0x000000011a2f11cb</span>: <span class="keyword">mov</span>    %r11d,%r9d</div><div class="line"><span class="number">0x000000011a2f11ce</span>: <span class="keyword">inc</span>    %r9d</div><div class="line"><span class="number">0x000000011a2f11d1</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm14,%xmm14</div><div class="line"><span class="number">0x000000011a2f11d6</span>: <span class="keyword">vcvtsi2sd</span> %r9d,%xmm2,%xmm2</div><div class="line"><span class="number">0x000000011a2f11db</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm2,%xmm0</div><div class="line"><span class="number">0x000000011a2f11df</span>: <span class="keyword">vaddsd</span> %xmm1,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f11e3</span>: <span class="keyword">vaddsd</span> %xmm13,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f11e8</span>: <span class="keyword">vaddsd</span> %xmm12,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f11ed</span>: <span class="keyword">vaddsd</span> %xmm11,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f11f2</span>: <span class="keyword">vaddsd</span> %xmm10,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f11f7</span>: <span class="keyword">vaddsd</span> %xmm9,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f11fc</span>: <span class="keyword">vaddsd</span> %xmm8,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f1201</span>: <span class="keyword">mov</span>    %r11d,%r8d</div><div class="line"><span class="number">0x000000011a2f1204</span>: <span class="keyword">add</span>    <span class="number">$0</span>x9,%r8d</div><div class="line"><span class="number">0x000000011a2f1208</span>: <span class="keyword">vcvtsi2sd</span> %r8d,%xmm1,%xmm1</div><div class="line"><span class="number">0x000000011a2f120d</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm1,%xmm0</div><div class="line"><span class="number">0x000000011a2f1211</span>: <span class="keyword">vaddsd</span> %xmm7,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f1215</span>: <span class="keyword">vaddsd</span> %xmm6,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f1219</span>: <span class="keyword">vaddsd</span> %xmm5,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000011a2f121d</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm3,%xmm0</div><div class="line"><span class="number">0x000000011a2f1221</span>: <span class="keyword">vaddsd</span> %xmm4,%xmm0,%xmm0  <span class="comment">;*dadd</span></div><div class="line">                                              <span class="comment">; - TT3::D@18 (line 27)</span></div><div class="line"></div><div class="line"><span class="number">0x000000011a2f1225</span>: <span class="keyword">vmovsd</span> %xmm0,<span class="number">0x70</span>(%rdx)   <span class="comment">;*putstatic s3</span></div><div class="line">                                              <span class="comment">; - TT3::D@19 (line 27)</span></div><div class="line"></div><div class="line"><span class="number">0x000000011a2f122a</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm14,%xmm1  <span class="comment">;*dadd</span></div><div class="line">                                              <span class="comment">; - TT3::D@18 (line 27)</span></div><div class="line"></div><div class="line"><span class="number">0x000000011a2f122e</span>: <span class="keyword">vmovsd</span> %xmm1,<span class="number">0x70</span>(%rdx)   <span class="comment">;*putstatic s3</span></div><div class="line">                                              <span class="comment">; - TT3::D@19 (line 27)</span></div><div class="line"></div><div class="line"><span class="number">0x000000011a2f1233</span>: <span class="keyword">add</span>    <span class="number">$0</span>x10,%r11d        <span class="comment">;*iinc</span></div><div class="line">                                              <span class="comment">; - TT3::D@22 (line 26)</span></div><div class="line"></div><div class="line"><span class="number">0x000000011a2f1237</span>: <span class="keyword">vcvtsi2sd</span> %r11d,%xmm0,%xmm0  <span class="comment">;*i2d</span></div><div class="line">                                              <span class="comment">; - TT3::D@17 (line 27)</span></div><div class="line"></div><div class="line"><span class="number">0x000000011a2f123c</span>: <span class="keyword">cmp</span>    %ecx,%r11d</div><div class="line"><span class="number">0x000000011a2f123f</span>: <span class="keyword">jl</span>     <span class="number">0x000000011a2f1130</span>  <span class="comment">;*if_icmpge</span></div><div class="line">                                              <span class="comment">; - TT3::D@10 (line 26)</span></div></pre></td></tr></table></figure></p>
+<p>上面就是 s3 += i 版的 D() C2优化后的代码，即循环确实存在的。<br><strong>GCC会怎么优化呢？实际上，C还是有点不同的地方：C这里优化后耗时为常量。</strong><br>以上文C代码为例：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">begin = clock();</div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">  res += i;</div><div class="line">end = clock();</div><div class="line"><span class="built_in">printf</span>(<span class="string">"asm(%f) sumd = %ld, \t\tcost: %f\n"</span>, MM, res, (<span class="keyword">double</span>)(end-begin));</div></pre></td></tr></table></figure></p>
+<p>比如在gcc -O3 时，当 res为long类型时[JAVA版long跟double都不会有这个优化]，耗时为恒定的时间约4ns，因为此时GCC编译器优化为:<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">leal  -<span class="number">1</span>(%r15), %eax</div><div class="line">leal  -<span class="number">2</span>(%r15), %ebx</div><div class="line">imulq %rax, %rbx</div><div class="line">shrq  %rbx</div></pre></td></tr></table></figure></p>
+<p>即 n*M/2 直接得到结果了，而不用再跑完循环了。<br>但是当 res为double类型时，却是需要跑for循环了，即：<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">LBB0_17:</span>                                ## =&gt;This Inner <span class="keyword">Loop</span> Header: Depth=<span class="number">1</span></div><div class="line">  <span class="keyword">xorps</span> %xmm0, %xmm0</div><div class="line">  cvtsi2sdl %ecx, %xmm0</div><div class="line">  leal  <span class="number">1</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm1, %xmm1</div><div class="line">  cvtsi2sdl %esi, %xmm1</div><div class="line">  <span class="keyword">addsd</span> %xmm3, %xmm0</div><div class="line">  leal  <span class="number">2</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm2, %xmm2</div><div class="line">  cvtsi2sdl %esi, %xmm2</div><div class="line">  <span class="keyword">addsd</span> %xmm0, %xmm1</div><div class="line">  leal  <span class="number">3</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm0, %xmm0</div><div class="line">  cvtsi2sdl %esi, %xmm0</div><div class="line">  <span class="keyword">addsd</span> %xmm1, %xmm2</div><div class="line">  leal  <span class="number">4</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm1, %xmm1</div><div class="line">  cvtsi2sdl %esi, %xmm1</div><div class="line">  <span class="keyword">addsd</span> %xmm2, %xmm0</div><div class="line">  leal  <span class="number">5</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm2, %xmm2</div><div class="line">  cvtsi2sdl %esi, %xmm2</div><div class="line">  <span class="keyword">addsd</span> %xmm0, %xmm1</div><div class="line">  leal  <span class="number">6</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm0, %xmm0</div><div class="line">  cvtsi2sdl %esi, %xmm0</div><div class="line">  <span class="keyword">addsd</span> %xmm1, %xmm2</div><div class="line">  leal  <span class="number">7</span>(%rcx), %esi</div><div class="line">  <span class="keyword">xorps</span> %xmm3, %xmm3</div><div class="line">  cvtsi2sdl %esi, %xmm3</div><div class="line">  <span class="keyword">addsd</span> %xmm2, %xmm0</div><div class="line">  <span class="keyword">addsd</span> %xmm0, %xmm3</div><div class="line">  addl  <span class="number">$8</span>, %ecxa</div><div class="line">  cmpl  %ecx, %edx</div><div class="line">  <span class="keyword">jne</span> LBB0_17</div><div class="line">## %bb<span class="meta">.6</span>:</div><div class="line">  testl %eax, %eax</div><div class="line">  <span class="keyword">je</span>  LBB0_9</div></pre></td></tr></table></figure></p>
+<p>这里插一句，如果你怀疑上文测试是否足够准确，那可以验证下这段代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">begin = clock();</div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">  res += i;</div><div class="line">end = clock();</div><div class="line"><span class="built_in">printf</span>(<span class="string">"asm(%f) sumd = %f, \t\tcost: %f\n"</span>, MM, res, (<span class="keyword">double</span>)(end-begin));</div><div class="line">res=<span class="number">0</span>;</div><div class="line">begin = clock();</div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; loopcnts; i++)</div><div class="line">  res += <span class="built_in">sqrt</span>(MM+i);</div><div class="line">end = clock();</div><div class="line"><span class="built_in">printf</span>(<span class="string">"asm(%f) sums = %f, \t\tcost: %f\n"</span>, MM, res, (<span class="keyword">double</span>)(end-begin));</div></pre></td></tr></table></figure></p>
+<p>在我的Mac机器上前者耗时约为后者1/5以内，足以论证之前C的测试结果，说明sqrt指令比手写的卡马克开根号性能提升是大于40%。<br><blockquote><p>1.<br>java -XX:TieredStopAtLevel=4 TwoSqrt<br>使用上面指令可以指定JIT优化级别<br>使用下面命令看lebel级别：<br>java -XX:+PrintFlagsFinal -version | grep CompileThreshold<br>level 0 - interpreter<br>level 1 - C1 with full optimization (no profiling)<br>level 2 - C1 with invocation and backedge counters<br>level 3 - C1 with full profiling (level 2 + MDO)<br>level 4 - C2<br>2.<br>java -XX:TieredStopAtLevel=1 -XX:+UnlockDiagnosticVMOptions -XX:CompileCommand=’print,<em>DL.D</em>‘ DL<br>使用上面命令可以输出指定方法JIT后的ASM代码<br>3.<br>如何查看java的JIT信息，网上可自行搜索教程。</p>
+</blockquote><br>好了，让我们切回刚才的JAVA代码。<br>再次对TwoSqrt.java <a href="/images/TwoSqrt.java">做个改动</a>，添加了DL，即跟DD一样只是double换成了 long，运行几次，我们可看到跑出来的数据：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">DD :6.666951101979061e+11 176899.189</div><div class="line">DI :6.666951101979061e+11 672762.318</div><div class="line">DL :6.666951101979061e+11 211739.138</div><div class="line">DIJ:6.666951101979061e+11 292870.325</div><div class="line">II :6.666695084696677e+11 228337.677</div><div class="line">------------</div><div class="line">DD :6.666951101979061e+11 171914.117</div><div class="line">DI :6.666951101979061e+11 732866.289</div><div class="line">DL :6.666951101979061e+11 220012.218</div><div class="line">DIJ:6.666951101979061e+11 405955.404</div><div class="line">II :6.666695084696677e+11 223352.986</div><div class="line">------------</div><div class="line">DD :6.666951101979061e+11 168237.792</div><div class="line">DI :6.666951101979061e+11 254137.578</div><div class="line">DL :6.666951101979061e+11 450223.373</div><div class="line">DIJ:6.666951101979061e+11 265043.075</div><div class="line">II :6.666695084696677e+11 255281.007</div><div class="line">------------</div><div class="line">DD :6.666951101979061e+11 169216.409</div><div class="line">DI :6.666951101979061e+11 258624.100</div><div class="line">DL :6.666951101979061e+11 443366.215</div><div class="line">DIJ:6.666951101979061e+11 265902.974</div><div class="line">II :6.666695084696677e+11 255865.587</div><div class="line">....</div></pre></td></tr></table></figure></p>
+<p>这个结果和我用JMH测试下来接近:<a href="/images/JMHBnhSqrt.java">JMHBnhSqrt.java</a><br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Benchmark                Mode  Cnt          Score           Error  Units</div><div class="line">JMHBnhSqrt.benchLoopDD   avgt    3  170126363.572 ±  18897173.028  ns/op</div><div class="line">JMHBnhSqrt.benchLoopDI   avgt    3  304366448.848 ±  10242902.502  ns/op</div><div class="line">JMHBnhSqrt.benchLoopDIJ  avgt    3  380274911.025 ± 311415636.755  ns/op</div><div class="line">JMHBnhSqrt.benchLoopII   avgt    3  270527877.936 ±  68992367.132  ns/op</div><div class="line">JMHBnhSqrt.sqrt          avgt    3          1.482 ±         0.059  ns/op</div></pre></td></tr></table></figure></p>
+<p>其中：<br>benchLoopDD: sumkk += Math.sqrt(MM + kk++);  // kk为double，0开始，++<br>benchLoopDI: sumkk += Math.sqrt(MM + i);     // i为for循环的i，0开始，++<br>benchLoopDIJ:sumjj += Math.sqrt(MM + jj++);  // jj为int，0开始，++<br>benchLoopII: sumii += Math.sqrt(285 + ii++); // ii为int，0开始，++</p>
+<p>1) 需要指出的是，这里其实benchmark的是for循环+sqrt函数的代价，而不仅仅是sqrt的代价了，所以如果你注释掉循环来用JMH benchmark的话再除以循环次数得到的值不一样了(因为for循环下编译优化的缘故)。<br>2) 似乎 JMH得到的 DI/DIJ性能结果和上面2次后的数据有点出入，可能是 对JMH使用掌握的还不够深入，也可能是JMH本身原因，立个flag后面再写篇JMH的文章讨论此问题。<br>3) 总之应该相信JMH测试标准的准确性，但是不要过分迷信JMH的优化，尤其在自己不太确定的影响性能的配置上。</p>
+<p>源码中DNO和D因编译优化不再细说了，我们看看几个：<br>1) Java版的DD的耗时已经非常接近之前C代码测出来的sqrt指令耗时–167888000纳秒，差距千分之一以内了。<br>2) 我们看到 DI 的耗时经历了从600多毫秒到稳定在260毫秒左右，DIJ也类似–这是C2的优化。<br>3) 尽管有上面的优化，但是耗时还是大于 DD 很多，30%多了，而他们区别只不过是被加数是double/int的区别，这是什么原因呢？<br>4) DL的耗时，比较奇怪，C1优化耗时(前两轮循环)还在 211739138纳秒左右，但是第三轮之后竟然到了 450223373纳秒。<br><strong>上述问题3，在C版本是无此区别的，也就是说，无论如何解释优化的原因，这里都可看出来，Java的C2对DI的优化(int类型的循环体)不如 GCC 编译器，后者可以做到 DI和DD同样的耗时。</strong><br><strong>上述问题4，我们是不是可以得到结论，C2的优化效果(性能) 未必比 C1 好？</strong><br>后两个问题，我在下一篇技术文里再讨论。</p>
+<p>其他：<br>DNO/D的常量消除，上文写了，这里不重复，但看下java相关代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 如对于：</span></div><div class="line"><span class="keyword">double</span> ss=<span class="number">0</span>;</div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000000</span>; i++)</div><div class="line">    ss += sqrt(<span class="number">230000</span>);</div></pre></td></tr></table></figure></p>
+<p>实际上，GCC -C1就能把 sqrt(MM) 优化成常量了：<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">_main:</span>                                  ## @main</div><div class="line">...</div><div class="line">    movl    <span class="number">$1000000</span>, %eax          ## imm = <span class="number">0xF4240</span></div><div class="line">    <span class="keyword">movsd</span>   LCPI0_0(%rip), %xmm1    ## <span class="built_in">xmm1</span> = mem[<span class="number">0</span>],<span class="meta">zero</span></div><div class="line"><span class="meta">    .p2align</span>        <span class="number">4</span>, <span class="number">0x90</span></div><div class="line"><span class="symbol">LBB0_1:</span>                                 ## =&gt;This Inner <span class="keyword">Loop</span> Header: Depth=<span class="number">1</span></div><div class="line">    <span class="keyword">addsd</span>   %xmm1, %xmm0</div><div class="line">    decl    %eax</div><div class="line">    <span class="keyword">jne</span>     LBB0_1</div></pre></td></tr></table></figure></p>
+<p>LCPI0_0(%rip)就是 double 479.58315233127195<br>相比之下，JAVA的JVM code和C1都不会把sqrt(230000)优化成常量，C2则会优化。如java 版 C1优化的循环体内调用的还是下面这句：</p>
+<pre><code>0x0000000110f7c229: vsqrtsd %xmm1,%xmm1,%xmm1  ;*invokestatic sqrt ; - TwoSqrt::D@19 (line 46)
+</code></pre><p>java 版 C2优化的循环体内调用的还是下面这句：<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="symbol"> L0002:</span> <span class="keyword">vaddsd</span> -<span class="number">0x138</span>(%rip),%xmm0,%xmm0  # <span class="number">0x0000000110f84480</span> <span class="comment">;*dadd ; - TwoSqrt::D@22 (line 46) ;</span></div><div class="line"><span class="number">0x0000000110f845b8</span>: <span class="keyword">vmovsd</span> %xmm0,<span class="number">0x70</span>(%r10)  <span class="comment">;*putstatic s3 ; - TwoSqrt::D@23 (line 46)</span></div><div class="line"><span class="number">0x0000000110f845be</span>: <span class="keyword">inc</span> %ecx  <span class="comment">;*iinc ; - TwoSqrt::D@26 (line 45)</span></div><div class="line"><span class="number">0x0000000110f845c0</span>: <span class="keyword">cmp</span> %r8d,%ecx</div><div class="line"><span class="number">0x0000000110f845c3</span>: <span class="keyword">jl</span> L0002  <span class="comment">;*if_icmpge ; - TwoSqrt::D@10 (line 45)</span></div></pre></td></tr></table></figure></p>
+<p>就是说循环的相加根号后的数值已经不存在sqrt指令了。即，C2优化和GCC达到同样效果了。</p>
+<p>上述也可见，DD和DI耗时在优化前差距还是很明显的，C2优化后差距减少了些。<br>此外，对于for循环，编译器/Java也有优化，比如for循环步长由 1 变为16(add $0x10,%ecx)为一个批次，减少了跳转指令的使用。<br>JAVA C2 针对DD优化采用了和GCC一样的思路，代码在下面可以看到，不过似乎有点区别是JAVA这里16个寄存器都用上了，而C用了四个，看起来不如C优化的那么紧凑。<br>这里贴一下C2之后代码，看看能不能发现什么。<br><figure class="highlight x86asm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">             L0000:</span> <span class="keyword">vaddsd</span> -<span class="number">0xd8</span>(%rip),%xmm1,%xmm2  # <span class="number">0x000000010feed180</span></div><div class="line">                                                    <span class="comment">;   &#123;section_word&#125;</span></div><div class="line"><span class="number">0x000000010feed258</span>: <span class="keyword">vaddsd</span> -<span class="number">0xe0</span>(%rip),%xmm2,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line">                                                    <span class="comment">;*dadd</span></div><div class="line">                                                    <span class="comment">; - TwoSqrt::DD@26 (line 64)</span></div><div class="line">                                                    <span class="comment">;   &#123;section_word&#125;</span></div><div class="line"><span class="number">0x000000010feed260</span>: <span class="keyword">vaddsd</span> -<span class="number">0xe0</span>(%rip),%xmm2,%xmm2  # <span class="number">0x000000010feed188</span></div><div class="line">                                                    <span class="comment">;   &#123;section_word&#125;</span></div><div class="line"><span class="number">0x000000010feed268</span>: <span class="keyword">vaddsd</span> -<span class="number">0xe8</span>(%rip),%xmm1,%xmm5  # <span class="number">0x000000010feed188</span></div><div class="line">                                                    <span class="comment">;   &#123;section_word&#125;</span></div><div class="line"><span class="number">0x000000010feed270</span>: <span class="keyword">vsqrtsd</span> %xmm2,%xmm3,%xmm3</div><div class="line"><span class="number">0x000000010feed274</span>: <span class="keyword">vsqrtsd</span> %xmm5,%xmm2,%xmm2  <span class="comment">;*invokestatic sqrt</span></div><div class="line">                                               <span class="comment">; - TwoSqrt::DD@29 (line 64)</span></div><div class="line"><span class="symbol">             L0001:</span> <span class="keyword">vaddsd</span> %xmm4,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000010feed27c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x104</span>(%rip),%xmm1,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed284</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm3,%xmm0</div><div class="line"><span class="number">0x000000010feed288</span>: <span class="keyword">vaddsd</span> -<span class="number">0x108</span>(%rip),%xmm1,%xmm3  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed290</span>: <span class="keyword">vaddsd</span> %xmm2,%xmm0,%xmm4</div><div class="line"><span class="number">0x000000010feed294</span>: <span class="keyword">vaddsd</span> -<span class="number">0x11c</span>(%rip),%xmm1,%xmm0  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed29c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x124</span>(%rip),%xmm0,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed2a4</span>: <span class="keyword">vaddsd</span> -<span class="number">0x124</span>(%rip),%xmm0,%xmm2  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed2ac</span>: <span class="keyword">vaddsd</span> -<span class="number">0x12c</span>(%rip),%xmm1,%xmm5  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed2b4</span>: <span class="keyword">vaddsd</span> -<span class="number">0x13c</span>(%rip),%xmm1,%xmm0  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed2bc</span>: <span class="keyword">vaddsd</span> -<span class="number">0x144</span>(%rip),%xmm0,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed2c4</span>: <span class="keyword">vaddsd</span> -<span class="number">0x144</span>(%rip),%xmm0,%xmm6  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed2cc</span>: <span class="keyword">vaddsd</span> -<span class="number">0x14c</span>(%rip),%xmm1,%xmm7  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed2d4</span>: <span class="keyword">vaddsd</span> -<span class="number">0x15c</span>(%rip),%xmm1,%xmm0  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed2dc</span>: <span class="keyword">vaddsd</span> -<span class="number">0x164</span>(%rip),%xmm0,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed2e4</span>: <span class="keyword">vaddsd</span> -<span class="number">0x164</span>(%rip),%xmm0,%xmm8  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed2ec</span>: <span class="keyword">vaddsd</span> -<span class="number">0x16c</span>(%rip),%xmm1,%xmm9  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed2f4</span>: <span class="keyword">vaddsd</span> -<span class="number">0x17c</span>(%rip),%xmm1,%xmm0  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed2fc</span>: <span class="keyword">vaddsd</span> -<span class="number">0x184</span>(%rip),%xmm0,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed304</span>: <span class="keyword">vaddsd</span> -<span class="number">0x184</span>(%rip),%xmm0,%xmm10  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed30c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x18c</span>(%rip),%xmm1,%xmm11  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed314</span>: <span class="keyword">vaddsd</span> -<span class="number">0x19c</span>(%rip),%xmm1,%xmm0  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed31c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1a4</span>(%rip),%xmm0,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed324</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1a4</span>(%rip),%xmm0,%xmm12  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed32c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1ac</span>(%rip),%xmm1,%xmm13  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed334</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1bc</span>(%rip),%xmm1,%xmm0  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed33c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1c4</span>(%rip),%xmm0,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line"><span class="number">0x000000010feed344</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1c4</span>(%rip),%xmm0,%xmm0  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed34c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1cc</span>(%rip),%xmm1,%xmm14  # <span class="number">0x000000010feed188</span></div><div class="line"><span class="number">0x000000010feed354</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1dc</span>(%rip),%xmm1,%xmm1  # <span class="number">0x000000010feed180</span></div><div class="line">                                                     <span class="comment">;*dadd</span></div><div class="line">                                                     <span class="comment">; - TwoSqrt::DD@26 (line 64)</span></div><div class="line">                                                     <span class="comment">;   &#123;section_word&#125;</span></div><div class="line"><span class="number">0x000000010feed35c</span>: <span class="keyword">vaddsd</span> -<span class="number">0x1dc</span>(%rip),%xmm1,%xmm15  # <span class="number">0x000000010feed188</span></div><div class="line">                                                      <span class="comment">;   &#123;section_word&#125;</span></div><div class="line"><span class="number">0x000000010feed364</span>: <span class="keyword">vsqrtsd</span> %xmm3,%xmm3,%xmm3</div><div class="line"><span class="number">0x000000010feed368</span>: <span class="keyword">vaddsd</span> %xmm4,%xmm3,%xmm3</div><div class="line"><span class="number">0x000000010feed36c</span>: <span class="keyword">vsqrtsd</span> %xmm15,%xmm4,%xmm4  <span class="comment">;*invokestatic sqrt</span></div><div class="line">                                                <span class="comment">; - TwoSqrt::DD@29 (line 64)</span></div><div class="line"><span class="number">0x000000010feed371</span>: <span class="keyword">vsqrtsd</span> %xmm14,%xmm14,%xmm14</div><div class="line"><span class="number">0x000000010feed376</span>: <span class="keyword">vsqrtsd</span> %xmm0,%xmm15,%xmm15</div><div class="line"><span class="number">0x000000010feed37a</span>: <span class="keyword">vsqrtsd</span> %xmm13,%xmm13,%xmm13</div><div class="line"><span class="number">0x000000010feed37f</span>: <span class="keyword">vsqrtsd</span> %xmm12,%xmm12,%xmm12</div><div class="line"><span class="number">0x000000010feed384</span>: <span class="keyword">vsqrtsd</span> %xmm11,%xmm11,%xmm11</div><div class="line"><span class="number">0x000000010feed389</span>: <span class="keyword">vsqrtsd</span> %xmm10,%xmm10,%xmm10</div><div class="line"><span class="number">0x000000010feed38e</span>: <span class="keyword">vsqrtsd</span> %xmm9,%xmm9,%xmm9</div><div class="line"><span class="number">0x000000010feed393</span>: <span class="keyword">vsqrtsd</span> %xmm8,%xmm8,%xmm8</div><div class="line"><span class="number">0x000000010feed398</span>: <span class="keyword">vsqrtsd</span> %xmm7,%xmm7,%xmm7</div><div class="line"><span class="number">0x000000010feed39c</span>: <span class="keyword">vsqrtsd</span> %xmm6,%xmm6,%xmm6</div><div class="line"><span class="number">0x000000010feed3a0</span>: <span class="keyword">vsqrtsd</span> %xmm5,%xmm5,%xmm5</div><div class="line"><span class="number">0x000000010feed3a4</span>: <span class="keyword">vsqrtsd</span> %xmm2,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000010feed3a8</span>: <span class="keyword">vaddsd</span> %xmm3,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000010feed3ac</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm5,%xmm0</div><div class="line"><span class="number">0x000000010feed3b0</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm6,%xmm0</div><div class="line"><span class="number">0x000000010feed3b4</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm7,%xmm0</div><div class="line"><span class="number">0x000000010feed3b8</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm8,%xmm0</div><div class="line"><span class="number">0x000000010feed3bc</span>: <span class="keyword">vaddsd</span> %xmm9,%xmm0,%xmm0</div><div class="line"><span class="number">0x000000010feed3c1</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm10,%xmm0</div><div class="line"><span class="number">0x000000010feed3c5</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm11,%xmm0</div><div class="line"><span class="number">0x000000010feed3c9</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm12,%xmm0</div><div class="line"><span class="number">0x000000010feed3cd</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm13,%xmm0</div><div class="line"><span class="number">0x000000010feed3d1</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm15,%xmm0  <span class="comment">;*dadd</span></div><div class="line">                                               <span class="comment">; - TwoSqrt::DD@32 (line 64)</span></div><div class="line"><span class="number">0x000000010feed3d5</span>: <span class="keyword">vmovsd</span> %xmm0,<span class="number">0x70</span>(%r10)  <span class="comment">;*putstatic s3</span></div><div class="line">                                             <span class="comment">; - TwoSqrt::DD@33 (line 64)</span></div><div class="line"><span class="number">0x000000010feed3db</span>: <span class="keyword">vaddsd</span> %xmm0,%xmm14,%xmm0  <span class="comment">;*dadd</span></div><div class="line">                                               <span class="comment">; - TwoSqrt::DD@32 (line 64)</span></div><div class="line"><span class="number">0x000000010feed3df</span>: <span class="keyword">vmovsd</span> %xmm0,<span class="number">0x70</span>(%r10)  <span class="comment">;*putstatic s3</span></div><div class="line">                                             <span class="comment">; - TwoSqrt::DD@33 (line 64)</span></div><div class="line"><span class="number">0x000000010feed3e5</span>: <span class="keyword">add</span> <span class="number">$0</span>x10,%ecx  <span class="comment">;*iinc</span></div><div class="line">                                    <span class="comment">; - TwoSqrt::DD@36 (line 63)</span></div><div class="line"><span class="number">0x000000010feed3e8</span>: <span class="keyword">cmp</span> %r9d,%ecx</div><div class="line"><span class="number">0x000000010feed3eb</span>: <span class="keyword">jl</span> L0000  <span class="comment">;*if_icmpge</span></div><div class="line">                              <span class="comment">; - TwoSqrt::DD@14 (line 63)</span></div><div class="line"><span class="symbol">             L0002:</span> <span class="keyword">cmp</span> %r8d,%ecx</div><div class="line"><span class="number">0x000000010feed3f4</span>: <span class="keyword">jge</span> L0004</div><div class="line"><span class="number">0x000000010feed3f6</span>: <span class="keyword">xchg</span> %ax,%ax  <span class="comment">;*getstatic s3</span></div><div class="line">                                  <span class="comment">; - TwoSqrt::DD@17 (line 64)</span></div></pre></td></tr></table></figure></p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>硬件：MacBook Pro 2017<br>JAVA Version:<br>java version “1.8.0_221”<br>Java(TM) SE Runtime Environment (build 1.8.0_221-b11)<br>Java HotSpot(TM) 64-Bit Server VM (build 25.221-b11, mixed mode)</p>
+<blockquote><p>outro1： 篇幅限制，后面两个问题留到下一篇技术文里解答了。<br>outro2： 8月初开始准备写，中间因太忙，放下一段时间，可能内容不是连贯的，欢迎反馈。</p>
+</blockquote>
+<h2 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h2><ol>
+<li><a href="https://www.jianshu.com/p/dcd73888ac3a" target="_blank" rel="external">牛顿迭代法求开方根</a></li>
+<li><a href="https://www.matongxue.com/madocs/205.html#/madoc" target="_blank" rel="external">如何通俗易懂地讲解牛顿迭代法</a></li>
+<li><a href="https://www.codeproject.com/Articles/69941/Best-Square-Root-Method-Algorithm-Function-Precisi" target="_blank" rel="external">Best-Square-Root-Method</a></li>
+<li><a href="https://www.felixcloutier.com/x86/rsqrtss" target="_blank" rel="external">RSQRTSS — Compute Reciprocal of Square Root of Scalar Single-Precision Floating-Point Value
+</a></li>
+<li><a href="https://software.intel.com/zh-cn/forums/intel-isa-extensions/topic/780640" target="_blank" rel="external">performance implications of using vmovups and vmovapd</a></li>
+<li><a href="https://software.intel.com/sites/default/files/managed/9e/bc/64-ia-32-architectures-optimization-manual.pdf" target="_blank" rel="external">Intel指令周期</a></li>
+<li>To my father. [1955-2019.08.23]</li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Tech/" rel="tag"># Tech</a>
+          
+            <a href="/tags/JIT/" rel="tag"># JIT</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/" rel="next" title="Elasticsearch[曾]在布尔类型字段设计上犯的错">
+                <i class="fa fa-chevron-left"></i> Elasticsearch[曾]在布尔类型字段设计上犯的错
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">29</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题或现象"><span class="nav-number">1.</span> <span class="nav-text">问题或现象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#先了解下牛顿切分法是什么："><span class="nav-number">2.</span> <span class="nav-text">先了解下牛顿切分法是什么：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下面代码是C实现。"><span class="nav-number">3.</span> <span class="nav-text">下面代码是C实现。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#下面来看看Java里效果怎么样"><span class="nav-number">4.</span> <span class="nav-text">下面来看看Java里效果怎么样</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它"><span class="nav-number">5.</span> <span class="nav-text">其它</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ref"><span class="nav-number">6.</span> <span class="nav-text">Ref</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
