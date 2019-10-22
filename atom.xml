@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://thomaslau.github.io/"/>
-  <updated>2019-10-10T00:35:06.766Z</updated>
+  <updated>2019-10-22T00:36:15.977Z</updated>
   <id>http://thomaslau.github.io/</id>
   
   <author>
@@ -14,6 +14,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Many Links 0920</title>
+    <link href="http://thomaslau.github.io/2019/09/20/2019-09-20-many_links_0920/"/>
+    <id>http://thomaslau.github.io/2019/09/20/2019-09-20-many_links_0920/</id>
+    <published>2019-09-19T17:09:07.000Z</published>
+    <updated>2019-10-22T00:36:15.977Z</updated>
+    
+    <content type="html"><![CDATA[<p>1.<br><a href="https://www.easyice.cn/archives/328" target="_blank" rel="external">https://www.easyice.cn/archives/328</a><br>一次 JBD2进程导致磁盘 IO 高的分析解决过程<br>设计不合理，导致对 zk 执行大量写操作，导致io高。<br>临时措施：将 zk 的数据路径调整到系统盘，系统盘为 ssd<br>使用 sysdig+strace 工具<br>2.<br>软件架构被高估，清晰简单的设计被低估<br><a href="https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV" target="_blank" rel="external">https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV</a><br><a id="more"></a><br>3.<br>几种支持分页的ES查询方式<br><a href="https://www.jianshu.com/p/3acc365240b6" target="_blank" rel="external">https://www.jianshu.com/p/3acc365240b6</a><br><blockquote><p>scroll<br>sliced scroll<br>search after<br>…<br>sliced scroll api 除指定上下文保留时间外，还需要指定最大切片和当前切片，最大切片数据一般和shard数一致或者小于shard数，每个切片的scroll操作和scroll api的操作是一致的.<br>…<br>上面两种翻页的方式都无法支撑用户在线高并发操作，search_after提供了一种动态指针的方案，即基于上一页排序值检索下一页实现动态分页：<br>说白了 search_after 并没有解决随机跳页查询的场景，但是可以支撑多query并发请求；search_after 操作需要指定一个支持排序且值唯一的字段用来做下一页拉取的指针，这种翻页方式也可以通过bool查询的range filter实现。</p>
+</blockquote><br>4.<br>为 JPA 插上翅膀的 QueryDSL<br><a href="https://mp.weixin.qq.com/s/WUWSygSUjL4mSoimvzZw3g" target="_blank" rel="external">https://mp.weixin.qq.com/s/WUWSygSUjL4mSoimvzZw3g</a><br>5.<br>用Elasticsearch做Terms聚合计算数据不准的问题<br><a href="https://www.dongwm.com/post/elasticsearch-terms-agg-is-not-accurate/" target="_blank" rel="external">https://www.dongwm.com/post/elasticsearch-terms-agg-is-not-accurate/</a><br><blockquote><p>关于文档计数错误，在延伸阅读链接 1 中有一个小节专门介绍文档计数错误 (Calculating Document Count Error)，其中提到了在返回结果的 aggregations 中包含了doc_count_error_upper_bound(没有在这次聚合中返回、但是可能存在的潜在聚合结果) 和sum_other_doc_count(聚合中没有统计到的文档数)。要注意其中的doc_count_error_upper_bound键名有「上界」的意思，也就是表示在预估的最坏情况下沒有被算进最终结果的值，当然doc_count_error_upper_bound的值越大，最终数据不准确的可能性越大，能确定的是，它的值为 0 表示数据完全正确，但是它不为 0，不代表这次聚合的数据是错误的，大家要记住。</p>
+</blockquote></p>
+<p>6.<br>下面几条均来自阮一峰的每周更新:<br><a href="http://www.ruanyifeng.com/blog/2019/09/weekly-issue-73.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2019/09/weekly-issue-73.html</a><br><blockquote><p>1)世界最古老的在线摄像头<br>位于旧金山的 FogCam，是目前最古老的网络直播摄影头，从1994年开始上线，至今已经直播了25个年头。它于8月30日正式关闭。<br>他们表示关闭摄像头，主要是因为学校里再也找不到地方放置摄像头了。另外，根据维基百科记载，FogCam 网站也是成立最久，而且一直到现在还在运行的网站之一。</p>
+<p>2)中国贫穷地区的发展（中文）<br><a href="https://finance.sina.cn/china/gncj/2019-05-31/detail-ihvhiqay2662671.d.html" target="_blank" rel="external">https://finance.sina.cn/china/gncj/2019-05-31/detail-ihvhiqay2662671.d.html</a><br>Quora 上有人再次针对中国提出尖锐问题：如果中国有那么多钱投资其他国家，为什么不用这些钱发展本国的贫困地区呢？有一个答案内容详实，获赞最高，让围观小伙伴们赞不绝口。<br>3)<br>最黑的黑色汽车<br>宝马发布了 Vantablack 版本的 X6 轿车。Vantablack 是世界最黑的黑色颜料，可以吸收99％以上的光线。这使得宝马 VBX6 是目前世界上最黑的黑色汽车，几乎完全消除了所有反光。理论上，如果一个物体不反射任何光线，本身又不发光，那么视觉上就是一个黑洞。</p>
+</blockquote><br>7.<br>为什么说 Prometheus 是足以取代 Zabbix 的监控神器？<br><a href="https://www.infoq.cn/article/275NDkYNZRpcTIL2R8Ms" target="_blank" rel="external">https://www.infoq.cn/article/275NDkYNZRpcTIL2R8Ms</a><br>8.<br>PageRank、最小生成树：ML开发者应该了解的五种图算法<br><a href="https://www.jiqizhixin.com/articles/2019-09-09-5" target="_blank" rel="external">https://www.jiqizhixin.com/articles/2019-09-09-5</a><br>9.<br><a href="http://www.ruanyifeng.com/blog/2019/10/weekly-issue-76.html" target="_blank" rel="external">http://www.ruanyifeng.com/blog/2019/10/weekly-issue-76.html</a><br>可以用正则表达式检测正则表达式吗？（英文）<br><a href="https://stackoverflow.com/questions/172303/is-there-a-regular-expression-to-detect-a-valid-regular-expression" target="_blank" rel="external">https://stackoverflow.com/questions/172303/is-there-a-regular-expression-to-detect-a-valid-regular-expression</a><br>傅里叶变换交互式入门<br><a href="http://www.jezzamon.com/fourier/zh-cn.html" target="_blank" rel="external">http://www.jezzamon.com/fourier/zh-cn.html</a><br><a href="https://dollarsanity.com/amazon-fba-selling-my-products/" target="_blank" rel="external">https://dollarsanity.com/amazon-fba-selling-my-products/</a><br>我如何一个人实现亚马逊上的100万美元销售额？（英文）一个美国大学生讲述，他如何通过代理中国产品，没有雇佣任何人，一个人在亚马逊上年销售额达到100万美元。<br><a href="https://bpmn.io/toolkit/bpmn-js/" target="_blank" rel="external">https://bpmn.io/toolkit/bpmn-js/</a><br>BPMN-JS,一个在线绘制业务流程图的开源工具<br>10.<br>基于 Javassist 和 Javaagent 实现动态切面<br><a href="https://www.cnblogs.com/chiangchou/p/javassist.html" target="_blank" rel="external">https://www.cnblogs.com/chiangchou/p/javassist.html</a><br>实战结合的介绍，涉及接口比较全<br>11.<br>一个有趣的思考：两个椭圆片能粘合成一个立体吗？<br><a href="https://spaces.ac.cn/archives/6818" target="_blank" rel="external">https://spaces.ac.cn/archives/6818</a><br>12.<br>看到提问现代GC为什么会出现 STW，许多人知道但是讲的原因没到点上，这里提一下：<br>需要Stop The World是因为，比如JAVA，无论是引用计数还是可达性分析，在GC中分析对象的引用关系时，为了保证分析结果的准确性，需要通过停顿所有JVM执行线程，保证引用关系此时不再动态变化.<br>看起来像全局加锁, 虚拟机编译会标记一些位置，表示当执行到该位置时是可以进行GC的，称之 Safepoint</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;1.&lt;br&gt;&lt;a href=&quot;https://www.easyice.cn/archives/328&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://www.easyice.cn/archives/328&lt;/a&gt;&lt;br&gt;一次 JBD2进程导致磁盘 IO 高的分析解决过程&lt;br&gt;设计不合理，导致对 zk 执行大量写操作，导致io高。&lt;br&gt;临时措施：将 zk 的数据路径调整到系统盘，系统盘为 ssd&lt;br&gt;使用 sysdig+strace 工具&lt;br&gt;2.&lt;br&gt;软件架构被高估，清晰简单的设计被低估&lt;br&gt;&lt;a href=&quot;https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV&lt;/a&gt;&lt;br&gt;
+    
+    </summary>
+    
+    
+      <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
+    
+      <category term="weeklyreading" scheme="http://thomaslau.github.io/tags/weeklyreading/"/>
+    
+  </entry>
   
   <entry>
     <title>如何在kafka-streams实现两次group操作</title>
@@ -847,30 +875,6 @@
       <category term="Tech" scheme="http://thomaslau.github.io/tags/Tech/"/>
     
       <category term="weeklyreading" scheme="http://thomaslau.github.io/tags/weeklyreading/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>风雨一年路</title>
-    <link href="http://thomaslau.github.io/2018/05/03/2018-05-03-one_year_summarize/"/>
-    <id>http://thomaslau.github.io/2018/05/03/2018-05-03-one_year_summarize/</id>
-    <published>2018-05-02T16:09:07.000Z</published>
-    <updated>2018-05-08T17:33:14.266Z</updated>
-    
-    <content type="html"><![CDATA[<p>不知不觉的，一年过去，这一年，家人身体安康，幸事。然而来者不可知也。<br><a id="more"></a><br><img src="/images/blog/201805031.png" alt="shanghai"></p>
-<p><img src="/images/blog/201805032.jpg" alt="shanghai"></p>
-<p><img src="/images/blog/201805033m.jpg" alt="shanghai"></p>
-<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="86" src="//music.163.com/outchain/player?type=2&id=22242344&auto=1&height=66"></iframe>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;不知不觉的，一年过去，这一年，家人身体安康，幸事。然而来者不可知也。&lt;br&gt;
-    
-    </summary>
-    
-    
-      <category term="life" scheme="http://thomaslau.github.io/tags/life/"/>
     
   </entry>
   
