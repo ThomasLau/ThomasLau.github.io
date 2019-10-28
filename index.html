@@ -264,6 +264,122 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/" itemprop="url">Https模式下Nginx+SpringSecurity+SSO的一个交互问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T23:59:10+08:00">
+                2019-10-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><strong>现象和问题：</strong><br>有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。<br>问题来了：服务A本身运行正常，但是开启nginx前端代理时候，发现通过https进入系统A时，第一次(sso登录验证成功)通过url1总是跳转到 80端口(http)的服务，而不是443端口(https)的A应用，但是第二次再通过url1就能正常访问A应用。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/20/2019-09-20-many_links_0920/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1313,123 +1429,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/11/19/2018-11-19-many_links_1119 copy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/19/2018-11-19-many_links_1119 copy/" itemprop="url">Many Links 1119</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-19T01:09:07+08:00">
-                2018-11-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>1.<br>NIPS不更名，我就撤资：赞助商加入联合抗议行列<br><a href="https://www.jiqizhixin.com/articles/2018-11-02-12" target="_blank" rel="external">https://www.jiqizhixin.com/articles/2018-11-02-12</a><br>不过后来还是改名字了 <a href="https://www.jiqizhixin.com/articles/2018-11-17" target="_blank" rel="external">NeurIPS</a><br>以后看文章要找对地方啊。<br>2.<br>GitHub Incident Analysis Shows How to Improve Service Reliability<br><a href="https://www.infoq.com/news/2018/11/github-incident-analysis" target="_blank" rel="external">https://www.infoq.com/news/2018/11/github-incident-analysis</a><br>GitHub服务中断24小时11分钟事故分析报告<br><a href="https://mp.weixin.qq.com/s/fFv1ASElHsVNEPPkP53qAQ" target="_blank" rel="external">https://mp.weixin.qq.com/s/fFv1ASElHsVNEPPkP53qAQ</a><br>了解下：<br><blockquote><p>GitHub 拥有多个 MySQL 集群，大小从几百 GB 到 5TB 不等，每个集群最多有几十个只读副本来存储非 Git 元数据，因此我们的应用程序可以提供拉取请求和问题管理、身份验证管理、后台处理协调等原始 Git 对象存储之外的其他功能。应用程序不同部分的数据通过功能分片存储在各种集群中。<br>为了大规模提高性能，应用程序将数据直接写入每个集群的主数据库，但在绝大多数情况下将读取请求委派给副本服务器。我们使用 Orchestrator 来管理 MySQL 集群拓扑和处理自动故障转移。Orchestrator 以 Raft 的共识算法为基础，可以实现应用程序无法支持的拓扑，因此必须十分小心让 Orchestrator 配置与应用程序的期望保持一致。</p>
-</blockquote><br>3.<br>Java应用性能调优之调优准备<br><a href="http://www.rowkey.me/blog/2018/10/31/profile-ready/" target="_blank" rel="external">http://www.rowkey.me/blog/2018/10/31/profile-ready/</a><br>基本涵盖常见注意点，可以保存文章随时查阅。<br>总结简单记住几个命令：<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/11/19/2018-11-19-many_links_1119 copy/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1479,7 +1478,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">46</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1492,7 +1491,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-count">32</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

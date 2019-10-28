@@ -1,0 +1,767 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Nginx,SpringSecurity,CAS SSO," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="现象和问题：有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。问题来了：服务A本身">
+<meta name="keywords" content="Nginx,SpringSecurity,CAS SSO">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Https模式下Nginx+SpringSecurity+SSO的一个交互问题">
+<meta property="og:url" content="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="现象和问题：有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。问题来了：服务A本身">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-28T19:18:26.866Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Https模式下Nginx+SpringSecurity+SSO的一个交互问题">
+<meta name="twitter:description" content="现象和问题：有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。问题来了：服务A本身">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/"/>
+
+
+
+
+
+  <title>Https模式下Nginx+SpringSecurity+SSO的一个交互问题 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Https模式下Nginx+SpringSecurity+SSO的一个交互问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T23:59:10+08:00">
+                2019-10-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>现象和问题：</strong><br>有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。<br>问题来了：服务A本身运行正常，但是开启nginx前端代理时候，发现通过https进入系统A时，第一次(sso登录验证成功)通过url1总是跳转到 80端口(http)的服务，而不是443端口(https)的A应用，但是第二次再通过url1就能正常访问A应用。<br><a id="more"></a><br>怎么去解决这个问题呢？可能大部分人没看懂上文所述问题所在，也会猜到在Nginx上配置80强转443即可解决问题。<br>但本文希望探寻下问题的本质，以及有无其他解决办法。<br><strong>先看简化且脱敏后的nginx配置</strong><br>80端口为原生网页，443为A应用代理端口：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">server &#123;</div><div class="line">        listen       80;</div><div class="line">        server_name  localhost;</div><div class="line">        location / &#123;</div><div class="line">            root   html;</div><div class="line">            index  index.html index.htm;</div><div class="line">        &#125;</div><div class="line">        error_page   500 502 503 504  /50x.html;</div><div class="line">        location = /50x.html &#123;</div><div class="line">            root   html;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    upstream  audit_config.short &#123;</div><div class="line">      server 127.0.0.1:8080 max_fails=200 fail_timeout=10;</div><div class="line">    &#125;</div><div class="line">   </div><div class="line">    server &#123;</div><div class="line">        listen       443 ssl;</div><div class="line">        server_name  dev.example.com;</div><div class="line">        ssl_certificate      /usr/local/etc/nginx/ssl/test.crt; # cert.pem;</div><div class="line">        ssl_certificate_key  /usr/local/etc/nginx/ssl/test.key; # cert.key;</div><div class="line">        ssl_session_cache    shared:SSL:1m;</div><div class="line">        ssl_session_timeout  5m;</div><div class="line">        ssl_ciphers  HIGH:!aNULL:!MD5;</div><div class="line">        ssl_prefer_server_ciphers  on;</div><div class="line">        proxy_set_header    Host $http_host;</div><div class="line">        location / &#123;</div><div class="line">            proxy_pass  http://audit_config.short;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    include servers/*;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如果你对Spring Boot+Spring security+cas部分代码感兴趣，文末也附带脱敏后的代码了。<br>先透露下问题出在nginx的这行配置 “proxy_set_header Host $http_host”。</p>
+<p>打开浏览器访问 <a href="https://dev.example.com/rule/index" target="_blank" rel="external">https://dev.example.com/rule/index</a> ,可以看到前面几个跳转 sso 服务器以及本地service url：<a href="https://dev.example.com/login/cas" target="_blank" rel="external">https://dev.example.com/login/cas</a> 都是正确的，即 SSO登录验证成功，访问<a href="https://dev.example.com/login/cas" target="_blank" rel="external">https://dev.example.com/login/cas</a> 也确实返回了 302 跳转链接： <a href="http://dev.example.com/rule/index" target="_blank" rel="external">http://dev.example.com/rule/index</a> ，问题就在302跳转这一步，返回302时的Location是http:// 而不是https://。</p>
+<p><strong>如何定位是哪一步出错？</strong></p>
+<p>如果把Spring Boot日志设置为debug level可能是可以的，幸而 Spring Security打印的日志足够详细，我们才能看到返回 302 条转链接相关一条log：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">2019-10-28 23:27:56.268 DEBUG 50901 --- [nio-8099-exec-1] o.s.s.w.s.HttpSessionRequestCache        :  \</div><div class="line">DefaultSavedRequest added to Session: DefaultSavedRequest[http://dev.example.com/rule/index]</div></pre></td></tr></table></figure></p>
+<p>即上面A应用返回的是http，而不是htts，是否意味着A应用的spring security cas的bug？<br>下面我会针对这条日志，看几种不同的解决方案。</p>
+<h2 id="0"><a href="#0" class="headerlink" title="0."></a>0.</h2><p>先不看即决方案，先看 http:// 是怎么来的？通过 DefaultSavedRequest 源码，可以看到http其实是 从tomcat的Request的schema取得，tomcat的Request 解析/设置 有其本身的逻辑，当Nginx 设置 “proxy_set_header Host $http_host” 就导致tomcat解析后的Request拿到的schema即是http。</p>
+<p>上面日志，即Spring Security返回http是对错？有的人认为可能是bug，其实不是。Nginx和A应用之间是 http协议，也就是说，nginx传给A应用时已经向其屏蔽了客户端的https信息，如果Spring Security解析出 https的schema，那Spring Security才是真正有bug了。</p>
+<p>故而考虑下面方法。</p>
+<h2 id="1-修改Nginx到tomcat的配置"><a href="#1-修改Nginx到tomcat的配置" class="headerlink" title="1. 修改Nginx到tomcat的配置"></a>1. 修改Nginx到tomcat的配置</h2><p>修改Nginx到tomcat的配置，把客户端的 request 信息通过 proxy_set_header方式都传给 tomcat，从而让Spring security正确解析。<br>这个方法是可行的，可以参考这篇博文：<a href="https://blog.csdn.net/goldenfish1919/article/details/78815192" target="_blank" rel="external">SSO 无法获取正确的schema</a><br>简单摘录下：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"># nginx 配置</div><div class="line">proxy_set_header       Host $host; </div><div class="line">proxy_set_header  X-Real-IP  $remote_addr; </div><div class="line">proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for; </div><div class="line">proxy_set_header X-Forwarded-Proto  $scheme;</div><div class="line">---</div><div class="line"># tomcat 配置</div><div class="line"><span class="tag">&lt;<span class="name">Engine</span> &gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">Valve</span> <span class="attr">className</span>=<span class="string">"org.apache.catalina.valves.RemoteIpValve"</span> </span></div><div class="line">    <span class="attr">remoteIpHeader</span>=<span class="string">"X-Forwarded-For"</span> </div><div class="line">    <span class="attr">protocolHeader</span>=<span class="string">"X-Forwarded-Proto"</span> </div><div class="line">    <span class="attr">protocolHeaderHttpsValue</span>=<span class="string">"https"</span>/&gt;</div><div class="line"><span class="tag">&lt;/<span class="name">Engine</span> &gt;</span></div></pre></td></tr></table></figure></p>
+<p>如果你的应用复杂，多处使用到客户端原始的 request 信息里的header等(或不仅仅在sso登录这一步使用)，那么 推荐该方式，虽然 使用/配置 起来较为复杂。</p>
+<h2 id="2-修改-Spring-Security-CAS代码"><a href="#2-修改-Spring-Security-CAS代码" class="headerlink" title="2. 修改 Spring Security CAS代码"></a>2. 修改 Spring Security CAS代码</h2><p>能否修改Spring Security或者 CAS代码来实现？既然nginx传给应用A时已经丢失了schema信息，那么能否通过Spring的配置信息设置正确的Location？<br>让我们先看看 Spring Security 在哪里生成该Location。追寻 CasAuthenticationFilter 这个CAS的SSO实现filter，可以发现在 SavedRequestAwareAuthenticationSuccessHandler 通过 DefaultRedirectStrategy 生成了 302跳转的redirectUrl：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultRedirectStrategy</span> <span class="keyword">implements</span> <span class="title">RedirectStrategy</span> </span>&#123;</div><div class="line">...</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendRedirect</span><span class="params">(HttpServletRequest request, HttpServletResponse response,</span></span></div><div class="line">            String url) <span class="keyword">throws</span> IOException &#123;</div><div class="line">        String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);</div><div class="line">        redirectUrl = response.encodeRedirectURL(redirectUrl);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</div><div class="line">            logger.debug(<span class="string">"Redirecting to '"</span> + redirectUrl + <span class="string">"'"</span>);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        response.sendRedirect(redirectUrl);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">protected</span> String <span class="title">calculateRedirectUrl</span><span class="params">(String contextPath, String url)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (!UrlUtils.isAbsoluteUrl(url)) &#123;</div><div class="line">            <span class="keyword">if</span> (isContextRelative()) &#123;</div><div class="line">                <span class="keyword">return</span> url;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">return</span> contextPath + url;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// Full URL, including http(s)://</span></div><div class="line"></div><div class="line">        <span class="keyword">if</span> (!isContextRelative()) &#123;</div><div class="line">            <span class="keyword">return</span> url;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="comment">// Calculate the relative URL from the fully qualified URL, minus the last</span></div><div class="line">        <span class="comment">// occurrence of the scheme and base context.</span></div><div class="line">        url = url.substring(url.lastIndexOf(<span class="string">"://"</span>) + <span class="number">3</span>); <span class="comment">// strip off scheme</span></div><div class="line">        url = url.substring(url.indexOf(contextPath) + contextPath.length());</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (url.length() &gt; <span class="number">1</span> &amp;&amp; url.charAt(<span class="number">0</span>) == <span class="string">'/'</span>) &#123;</div><div class="line">            url = url.substring(<span class="number">1</span>);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> url;</div><div class="line">    &#125;</div><div class="line">...</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>重写 sendRedirect 方法即可，即直接加个 如果redirect url以<a href="http://开头则替换为https://的逻辑。" target="_blank" rel="external">http://开头则替换为https://的逻辑。</a><br>不过由于Location是在 Spring Request里拼成的，有的同学可能会想到，那么是否可以通过只让这个 Location 以 // 开头，这样能适配http/https，即是否可以用下面方式？<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (url.startsWith(<span class="string">"http://"</span>)) &#123;</div><div class="line">    tmpUrl = tmpUrl.substring(<span class="string">"http:"</span>.length());</div><div class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span> (url.startsWith(<span class="string">"https://"</span>)) &#123;</div><div class="line">    tmpUrl = tmpUrl.substring(<span class="string">"https:"</span>.length());</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这种方式是不可以的，org.apache.catalina.connector.Response.toAbsolute(String location) 这里实际上会对 redirectUrl 做一个schema的判断并修改为http或https。</p>
+<p>但是考虑到，用https还是 http其实在配置 sso的 service url 时候已经可知了，所以可以根据 service url 来判断用http还是https，见下文MoreDefaultRedirectStrategy.java 部分代码。</p>
+<h2 id="3-删除Nginx配置"><a href="#3-删除Nginx配置" class="headerlink" title="3. 删除Nginx配置"></a>3. 删除Nginx配置</h2><p>上面两种方法都可解决问题，方案2较之方案1改动少，而且无需改nginx，但是他们其实都违背了系统设计之间单一性，增加了不必要的耦合。<br><strong>如果 把 Nginx里 “proxy_set_header Host $http_host;” 这行去掉会发生什么呢？</strong><br>还是开启应用A的Spring log level为debug会发现<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">2019-10-28 23:27:56.268 DEBUG 50901 --- [nio-8099-exec-1] o.s.s.w.s.HttpSessionRequestCache        :   \</div><div class="line">DefaultSavedRequest added to Session: DefaultSavedRequest[http://audit_config.short/rule/index]</div></pre></td></tr></table></figure></p>
+<p>你是否感到奇怪这里返回的跳转链接是 <a href="http://audit_config.short/rule/index" target="_blank" rel="external">http://audit_config.short/rule/index</a> ？更奇怪的是返回给客户端(浏览器)竟然是正确的Location，即 <a href="https://dev.example.com/rule/index" target="_blank" rel="external">https://dev.example.com/rule/index</a> 。<br>首先注意 host 为 audit_config.short ，即配置的nginx的 upstream名字，而不是大多数人认为的 dev.example.com，<br>其次Nginx把 Location中的 audit_config.short 重写了。<br><strong>怎么去验证这个想法呢？</strong><br>nginx debug 日志打开：<br>1）server配置添加 error_log /path/to/log; 这一行。<br>2）如果是Mac brew 安装，需要 “brew install nginx –cc –with-debug”指令，网上搜到几个无 –cc的其实是不对的，至少目前版本的不对。</p>
+<p>可以看到一下nginx日志：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http upstream request: "/login/cas?ticket=ST-114933-UenJLINO5uyRLv6Mq1uA-cas01.example.org"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http upstream process header</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 malloc: 00007FEFE0004C00:4096</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 recv: eof:1, avail:322, err:0</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 recv: fd:11 322 of 4096</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy status 302 "302 "</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "X-Content-Type-Options: nosniff"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "X-XSS-Protection: 1; mode=block"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Cache-Control: no-cache, no-store, max-age=0, must-revalidate"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Pragma: no-cache"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Expires: 0"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "X-Frame-Options: DENY"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 posix_memalign: 00007FEFE000DC00:4096 @16</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Location: http://audit_config.short/rule/index"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Content-Length: 0"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Date: Fri, 25 Oct 2019 11:11:16 GMT"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header: "Connection: close"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http proxy header done</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 rewritten location: "/rule/index"</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 HTTP/1.1 302</span></div><div class="line">Server: nginx/1.17.3</div><div class="line">Date: Mon, 28 Oct 2019 11:11:16 GMT</div><div class="line">Content-Length: 0</div><div class="line">Location: https://dev.example.com/rule/index</div><div class="line">Connection: keep-alive</div><div class="line">X-Content-Type-Options: nosniff</div><div class="line">X-XSS-Protection: 1; mode=block</div><div class="line">Cache-Control: no-cache, no-store, max-age=0, must-revalidate</div><div class="line">Pragma: no-cache</div><div class="line">Expires: 0</div><div class="line">X-Frame-Options: DENY</div><div class="line"></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 write new buf t:1 f:0 00007FEFE000DE98, pos 00007FEFE000DE98, size: 344 file: 0, size: 0</span></div><div class="line">2019/10/28 19:11:16 [debug] 68616<span class="comment">#0: *48 http write filter: l:0 f:0 s:344</span></div></pre></td></tr></table></figure></p>
+<p>也就是说 Nginx其实已经 rewrite 302的Location了，那么什么情况下会rewrite呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div></pre></td><td class="code"><pre><div class="line">// ngx_http_upstream.c</div><div class="line">static ngx_int_t</div><div class="line">ngx_http_upstream_rewrite_location(ngx_http_request_t *r, ngx_table_elt_t *h,</div><div class="line">    ngx_uint_t offset)</div><div class="line">&#123;</div><div class="line">    ngx_int_t         rc;</div><div class="line">    ngx_table_elt_t  *ho;</div><div class="line"></div><div class="line">    ho = ngx_list_push(&amp;r-&gt;headers_out.headers);</div><div class="line">    if (ho == NULL) &#123;</div><div class="line">        return NGX_ERROR;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    *ho = *h;</div><div class="line"></div><div class="line">    if (r-&gt;upstream-&gt;rewrite_redirect) &#123;</div><div class="line">        rc = r-&gt;upstream-&gt;rewrite_redirect(r, ho, 0);</div><div class="line"></div><div class="line">        if (rc == NGX_DECLINED) &#123;</div><div class="line">            return NGX_OK;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        if (rc == NGX_OK) &#123;</div><div class="line">            r-&gt;headers_out.location = ho;</div><div class="line"></div><div class="line">            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r-&gt;connection-&gt;log, 0,</div><div class="line">                           &quot;rewritten location: \&quot;%V\&quot;&quot;, &amp;ho-&gt;value);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return rc;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    if (ho-&gt;value.data[0] != &apos;/&apos;) &#123;</div><div class="line">        r-&gt;headers_out.location = ho;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /*</div><div class="line">     * we do not set r-&gt;headers_out.location here to avoid handling</div><div class="line">     * relative redirects in ngx_http_header_filter()</div><div class="line">     */</div><div class="line"></div><div class="line">    return NGX_OK;</div><div class="line">&#125;</div><div class="line">-----</div><div class="line">static ngx_int_t</div><div class="line">ngx_http_proxy_rewrite_redirect(ngx_http_request_t *r, ngx_table_elt_t *h,</div><div class="line">    size_t prefix)</div><div class="line">&#123;</div><div class="line">    size_t                      len;</div><div class="line">    ngx_int_t                   rc;</div><div class="line">    ngx_uint_t                  i;</div><div class="line">    ngx_http_proxy_rewrite_t   *pr;</div><div class="line">    ngx_http_proxy_loc_conf_t  *plcf;</div><div class="line"></div><div class="line">    plcf = ngx_http_get_module_loc_conf(r, ngx_http_proxy_module);</div><div class="line"></div><div class="line">    pr = plcf-&gt;redirects-&gt;elts;</div><div class="line"></div><div class="line">    if (pr == NULL) &#123;</div><div class="line">        return NGX_DECLINED;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    len = h-&gt;value.len - prefix;</div><div class="line"></div><div class="line">    for (i = 0; i &lt; plcf-&gt;redirects-&gt;nelts; i++) &#123;</div><div class="line">        rc = pr[i].handler(r, h, prefix, len, &amp;pr[i]);</div><div class="line"></div><div class="line">        if (rc != NGX_DECLINED) &#123;</div><div class="line">            return rc;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return NGX_DECLINED;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>代码看下去略长，不过可以参考官方注释：<br><a href="http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_redirect" target="_blank" rel="external">http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_redirect</a><br>即，这里仅能进行简单的 proxy_pass 逆向替换。</p>
+<p><strong>附：相关代码</strong><br>spring-boot.version：1.5.4.RELEASE<br>spring-security-cas：4.2.3.RELEASE</p>
+<p>application.properties<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">login.filter.type=devcas</div><div class="line">sso.cas.servicePath=https://sso.example.com/cas</div><div class="line"># sso.cas.localPath=http://127.0.0.1:8099/login/cas</div><div class="line">sso.cas.localPath=https://dev.example.com/login/cas</div></pre></td></tr></table></figure></p>
+<p>下面是简单写的一段demo代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"login.filter"</span>, name = <span class="string">"type"</span>, havingValue = <span class="string">"devcas"</span>)</div><div class="line"><span class="comment">// @ConfigurationProperties(prefix = "sso.cas")</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CASConfiguation</span> </span>&#123;</div><div class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;sso.cas.servicePath&#125;"</span>)</div><div class="line">    <span class="keyword">private</span> String servicePath;</div><div class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;sso.cas.localPath&#125;"</span>)</div><div class="line">    <span class="keyword">private</span> String localPath;</div><div class="line">   </div><div class="line">    <span class="meta">@Resource</span> CurrentUserDetailsService userDetailsService;</div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> ServiceProperties <span class="title">serviceProperties</span><span class="params">()</span> </span>&#123;</div><div class="line">        ServiceProperties serviceProperties = <span class="keyword">new</span> ServiceProperties();</div><div class="line">        serviceProperties.setService(localPath);</div><div class="line">        <span class="comment">// serviceProperties.setSendRenew(false);</span></div><div class="line">        <span class="keyword">return</span> serviceProperties;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="meta">@Primary</span></div><div class="line">    <span class="function"><span class="keyword">public</span> AuthenticationEntryPoint <span class="title">authenticationEntryPoint</span><span class="params">(ServiceProperties sP)</span> </span>&#123;</div><div class="line">        CasAuthenticationEntryPoint entryPoint = <span class="keyword">new</span> CasAuthenticationEntryPoint();</div><div class="line">        entryPoint.setLoginUrl(servicePath);</div><div class="line">        entryPoint.setServiceProperties(sP);</div><div class="line">        <span class="keyword">return</span> entryPoint;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> TicketValidator <span class="title">ticketValidator</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Cas20ServiceTicketValidator(servicePath);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> CasAuthenticationProvider <span class="title">casAuthenticationProvider</span><span class="params">()</span> </span>&#123;</div><div class="line">        CasAuthenticationProvider provider = <span class="keyword">new</span> CasAuthenticationProvider();</div><div class="line">        provider.setServiceProperties(serviceProperties());</div><div class="line">        provider.setTicketValidator(ticketValidator());</div><div class="line">        provider.setUserDetailsService(userDetailsService);</div><div class="line">        provider.setKey(<span class="string">"CAS_PROVIDER_LOCALHOST_9000"</span>);</div><div class="line">        <span class="keyword">return</span> provider;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> SecurityContextLogoutHandler <span class="title">securityContextLogoutHandler</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SecurityContextLogoutHandler();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> LogoutFilter <span class="title">logoutFilter</span><span class="params">()</span> </span>&#123;</div><div class="line">        LogoutFilter logoutFilter = <span class="keyword">new</span> LogoutFilter(servicePath+<span class="string">"/logout"</span>, securityContextLogoutHandler());</div><div class="line">        logoutFilter.setFilterProcessesUrl(<span class="string">"/logout/cas"</span>);</div><div class="line">        <span class="keyword">return</span> logoutFilter;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> SingleSignOutFilter <span class="title">singleSignOutFilter</span><span class="params">()</span> </span>&#123;</div><div class="line">        SingleSignOutFilter singleSignOutFilter = <span class="keyword">new</span> SingleSignOutFilter();</div><div class="line">        singleSignOutFilter.setCasServerUrlPrefix(servicePath+<span class="string">"/logout"</span>);</div><div class="line">        singleSignOutFilter.setIgnoreInitConfiguration(<span class="keyword">true</span>);</div><div class="line">        <span class="keyword">return</span> singleSignOutFilter;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@EventListener</span></div><div class="line">    <span class="function"><span class="keyword">public</span> SingleSignOutHttpSessionListener <span class="title">singleSignOutHttpSessionListener</span><span class="params">(HttpSessionEvent event)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SingleSignOutHttpSessionListener();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@EnableWebSecurity</span>(debug = <span class="keyword">true</span>)</div><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="meta">@ConditionalOnProperty</span>(prefix = <span class="string">"login.filter"</span>, name = <span class="string">"type"</span>, havingValue = <span class="string">"devcas"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> AuthenticationProvider authenticationProvider;</div><div class="line">    <span class="keyword">private</span> AuthenticationEntryPoint authenticationEntryPoint;</div><div class="line">    <span class="keyword">private</span> SingleSignOutFilter singleSignOutFilter;</div><div class="line">    <span class="keyword">private</span> LogoutFilter logoutFilter;</div><div class="line">    <span class="keyword">private</span> ServiceProperties serviceProperties;</div><div class="line"></div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SecurityConfig</span><span class="params">(CasAuthenticationProvider casAuthenticationProvider, AuthenticationEntryPoint eP,</span></span></div><div class="line">            LogoutFilter lF, SingleSignOutFilter ssF, ServiceProperties serviceProperties) &#123;</div><div class="line">        <span class="keyword">this</span>.authenticationProvider = casAuthenticationProvider;</div><div class="line">        <span class="keyword">this</span>.authenticationEntryPoint = eP;</div><div class="line">        <span class="keyword">this</span>.logoutFilter = lF;</div><div class="line">        <span class="keyword">this</span>.singleSignOutFilter = ssF;</div><div class="line">        <span class="keyword">this</span>.serviceProperties = serviceProperties;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(HttpSecurity http)</span> <span class="keyword">throws</span> Exception </span>&#123;       </div><div class="line">        http</div><div class="line">        .authorizeRequests()</div><div class="line">        .regexMatchers(<span class="string">"/accdenied"</span>, <span class="string">"/css.*"</span>, <span class="string">"/accdenied"</span>,<span class="string">"/assets.*"</span>, <span class="string">"/favicon.ico"</span>, <span class="string">"/login/cas.*"</span>).permitAll()</div><div class="line">        .antMatchers(<span class="string">"/test"</span>).authenticated()<span class="comment">//.access("hasRole('ROLE_USER')")</span></div><div class="line">        .antMatchers(<span class="string">"/secure/**"</span>).access(<span class="string">"hasRole('ROLE_SUPERVISOR')"</span>)</div><div class="line">        .anyRequest().authenticated()</div><div class="line">        .and()</div><div class="line">        .logout()</div><div class="line">        .logoutUrl(<span class="string">"/logout/cas"</span>)</div><div class="line">        .permitAll()</div><div class="line">        .and()</div><div class="line">        .csrf().disable();</div><div class="line"></div><div class="line">        http</div><div class="line">        .exceptionHandling().accessDeniedPage(<span class="string">"/accdenied"</span>)</div><div class="line">        .and().httpBasic().authenticationEntryPoint(authenticationEntryPoint)</div><div class="line">        .and()</div><div class="line">        .addFilter(casAuthenticationFilter(serviceProperties))</div><div class="line">        .addFilterBefore(logoutFilter, LogoutFilter.class)</div><div class="line">        .addFilterBefore(singleSignOutFilter, CasAuthenticationFilter.class);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(AuthenticationManagerBuilder auth)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        auth.authenticationProvider(authenticationProvider);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> AuthenticationManager <span class="title">authenticationManager</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ProviderManager(Arrays.asList(authenticationProvider));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> CasAuthenticationFilter <span class="title">casAuthenticationFilter</span><span class="params">(ServiceProperties serviceProperties)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">        CasAuthenticationFilter filter = <span class="keyword">new</span> CasAuthenticationFilter();</div><div class="line">        filter.setServiceProperties(serviceProperties);</div><div class="line">        filter.setAuthenticationManager(authenticationManager());</div><div class="line">        CasSuccessHandler casSuccessHandler = <span class="keyword">new</span> CasSuccessHandler();</div><div class="line">        filter.setAuthenticationSuccessHandler(casSuccessHandler);</div><div class="line">        <span class="keyword">return</span> filter;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">CasSuccessHandler</span> <span class="keyword">extends</span> <span class="title">SavedRequestAwareAuthenticationSuccessHandler</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAuthenticationSuccess</span><span class="params">(HttpServletRequest request,</span></span></div><div class="line">                                        HttpServletResponse response, Authentication authentication) <span class="keyword">throws</span> ServletException, IOException &#123;</div><div class="line">        CurrentUser userDetails = (CurrentUser) SecurityContextHolder.getContext()</div><div class="line">                .getAuthentication()</div><div class="line">                .getPrincipal();</div><div class="line">        <span class="keyword">if</span> (userDetails != <span class="keyword">null</span>) &#123;</div><div class="line">            SysMenu menuRoot = userDetails.getMenuRoot();</div><div class="line">            String userName = userDetails.getSysUser().getUserName();</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">super</span>.onAuthenticationSuccess(request, response, authentication);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>MoreDefaultRedirectStrategy部分更改：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MoreDefaultRedirectStrategy</span> <span class="keyword">extends</span> <span class="title">DefaultRedirectStrategy</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> rewrite;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendRedirect</span><span class="params">(HttpServletRequest request, HttpServletResponse response,</span></span></div><div class="line">            String url) <span class="keyword">throws</span> IOException &#123;</div><div class="line">        String redirectUrl = calculateRedirectUrl(request.getContextPath(), url);</div><div class="line">        redirectUrl = response.encodeRedirectURL(redirectUrl);</div><div class="line">        <span class="keyword">if</span> (rewrite) &#123;</div><div class="line">            <span class="keyword">if</span> (redirectUrl.startsWith(<span class="string">"http://"</span>)) &#123;</div><div class="line">                redirectUrl = <span class="string">"https://"</span> + redirectUrl.substring(<span class="string">"http://"</span>.length());</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</div><div class="line">            logger.debug(<span class="string">"Redirecting to '"</span> + redirectUrl + <span class="string">"'"</span>);</div><div class="line">        &#125;</div><div class="line">        response.sendRedirect(redirectUrl);</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isRewrite</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> rewrite;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setRewrite</span><span class="params">(<span class="keyword">boolean</span> rewrite)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.rewrite = rewrite;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">---</div><div class="line"><span class="comment">// 其次需要在上述SecurityConfig里变动：</span></div><div class="line"><span class="meta">@Bean</span></div><div class="line"><span class="function"><span class="keyword">public</span> CasAuthenticationFilter <span class="title">casAuthenticationFilter</span><span class="params">(ServiceProperties serviceProperties)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    CasAuthenticationFilter filter = <span class="keyword">new</span> CasAuthenticationFilter();</div><div class="line">    filter.setServiceProperties(serviceProperties);</div><div class="line">    filter.setAuthenticationManager(authenticationManager());</div><div class="line">    CasSuccessHandler casSuccessHandler = <span class="keyword">new</span> CasSuccessHandler();</div><div class="line">   </div><div class="line">    MoreDefaultRedirectStrategy redirect = <span class="keyword">new</span> MoreDefaultRedirectStrategy();</div><div class="line">    String service = serviceProperties.getService();</div><div class="line">    <span class="keyword">if</span> (service.startsWith(<span class="string">"https://"</span>)) &#123;</div><div class="line">        redirect.setRewrite(<span class="keyword">true</span>);</div><div class="line">    &#125;</div><div class="line">    casSuccessHandler.setRedirectStrategy(redirect);</div><div class="line">   </div><div class="line">    filter.setAuthenticationSuccessHandler(casSuccessHandler);</div><div class="line">    <span class="keyword">return</span> filter;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong> outro </strong><br>说一个不相干的感悟，为什么TCP必须三次握手？<br>在网上可以搜到答案，都很有道理，不过我想补充一下，这或许是很多人没重视可能也不在乎的点。<br>就是为什么是三次，五次不行吗？<br>三次其实就是请求确认-&gt;确认-&gt;对确认的确认，如果从严格的科学理论上讲，这可能是不够的，一个无限循环，但是从技术上讲，也就是涉及经验(当然也综合考虑了性能/效率等因素)。<br>超过三次就强制认为失败而已。<br>计算机技术并没有大家想象的那么严谨，甚至可能会有 0.3不等于0.3的情况，如果大学了解过一点数电和模电的知识，就会知道这种区别，如果再学过物理理论的对立面–物理实验，就会理解 误差/精确度 的含义。<br>同时也会知道，流行大众以及电影上的“蝴蝶效应”其实算是个笑话吧。但这并不表示误差就不重要，实际上，上个世纪最伟大的物理理论，跟人们对于极小误差的纠结源远很深呢。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+          
+            <a href="/tags/SpringSecurity/" rel="tag"># SpringSecurity</a>
+          
+            <a href="/tags/CAS-SSO/" rel="tag"># CAS SSO</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/20/2019-09-20-many_links_0920/" rel="next" title="Many Links 0920">
+                <i class="fa fa-chevron-left"></i> Many Links 0920
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">32</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0"><span class="nav-number">1.</span> <span class="nav-text">0.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-修改Nginx到tomcat的配置"><span class="nav-number">2.</span> <span class="nav-text">1. 修改Nginx到tomcat的配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-修改-Spring-Security-CAS代码"><span class="nav-number">3.</span> <span class="nav-text">2. 修改 Spring Security CAS代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-删除Nginx配置"><span class="nav-number">4.</span> <span class="nav-text">3. 删除Nginx配置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
