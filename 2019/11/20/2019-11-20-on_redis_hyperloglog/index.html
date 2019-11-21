@@ -1,0 +1,766 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Redis,Hyperloglog," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="intro1：如何存储以及计算一份资源的累积UV/PV？intro2: 使用 hyperloglog 究竟有多节省内存呢？  现象和问题：接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。 方案自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。Redis的HyperLogLog 每Key只需要12k">
+<meta name="keywords" content="Redis,Hyperloglog">
+<meta property="og:type" content="article">
+<meta property="og:title" content="海量数据计数的一个方法分析">
+<meta property="og:url" content="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：如何存储以及计算一份资源的累积UV/PV？intro2: 使用 hyperloglog 究竟有多节省内存呢？  现象和问题：接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。 方案自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。Redis的HyperLogLog 每Key只需要12k">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-11-21T01:09:12.681Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="海量数据计数的一个方法分析">
+<meta name="twitter:description" content="intro1：如何存储以及计算一份资源的累积UV/PV？intro2: 使用 hyperloglog 究竟有多节省内存呢？  现象和问题：接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。 方案自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。Redis的HyperLogLog 每Key只需要12k">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/"/>
+
+
+
+
+
+  <title>海量数据计数的一个方法分析 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">海量数据计数的一个方法分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-20T23:59:10+08:00">
+                2019-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i><strong>intro1</strong>：如何存储以及计算一份资源的累积UV/PV？</i><br><i><strong>intro2</strong>: 使用 hyperloglog 究竟有多节省内存呢？</i></p>
+</blockquote>
+<h4 id="现象和问题："><a href="#现象和问题：" class="headerlink" title="现象和问题："></a>现象和问题：</h4><p>接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。</p>
+<h4 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h4><p>自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。<br><blockquote><p>Redis的HyperLogLog 每Key只需要12kB就可以统计大到 2^64个的用户，而保持0.81%的误差率。</p>
+</blockquote><br><a id="more"></a><br>文末备注几个关于 HLL 的链接，这里简单白话一下HLL，方便阅读本文:<br>HLL是一种类似bitmap的计数原理，但由于采用了多次高离散的hash函数，使得它比 bitmap 消耗更少的内存，据说Google也在用它计数。<br>借助于精妙的假设采用时间换空间的思想，关键是这个时间还不大。</p>
+<p>对于去重计数，redis提供的就有Set/Bitmap数据结构，这也是最开始考虑几次后对使用HLL有些疑虑原因，我们的资源总量预估十亿，如果仅按三个月过期来算也有数千万：<br><blockquote><ol>
+<li>如果HLL每个Key计数也是耗费KB甚至最大12KB，那么redis内存可能就要上百GB到10个T这么多</li>
+<li>长尾效应：显然这些资源，可能至少百分80不会过千或过万，这个时候是不是用 保存uid的set结构比HLL更节省内存呢</li>
+</ol>
+</blockquote><br>其实还想过性能足够，支持文件存储HBase、Cassandra、Pegasus等，但都未有提供HLL的数据结构或者操作接口，那么他们是否支持近似，比如自己写一个BloomFilter+计数或者HLL的value值操作？<br>估算一下Guava BloomFilter 实现对于500万千分之一的误差耗费空间是 80K bit，不比HLL小，而且众所周知，即便实现，也要解决一个大多数分布式存储更新同一个Key面临的问题： 即非同一线程/进程并发处理同一个Key时的原子性问题。而 HBase、Pegasus都有基于CAS原理的 check_and_put/check_and_mutate 类似操作，Cassandra也不同程度支持原子性更新，但实现起来对于耗时/快照空间可能要慎重，而且更新失败之后再获取再重试，即便几率很小也会导致实现的代码本身难看，而 Redis HLL是add操作即单进程封装了所有逻辑，可谓天生原子性，且数据只需存储一份，更且支持 merge另一个 HLL，而Guava的BloomFilter要直到 15.0 版本才支持 merge 另一个BloomFilter，而且另一个问题是 “As of Guava 23.0, this class is thread-safe and lock-free.”，23.0版本后 Guava 的BF才是线程安全的( <strong>意味着，以前很多介绍Guava Bloomfilter的文章，如果没提到最低支持版本就基本上不严谨/不实用的</strong>)。<br>也不会选择Spark，因为这里的问题本身在于持久化存储，而不是计算资源本身。<br>当然了，单Key的热点问题上述几个选型都是存在的。</p>
+<p>所以，用 Redis+HLL，但是我确实想知道是否存在上文的长尾效应问题，也就是，一份资源累积独立访问用户数达到多少时用HLL比Set “划算”？</p>
+<h4 id="动手试一下"><a href="#动手试一下" class="headerlink" title="动手试一下"></a>动手试一下</h4><p>redis提供了 info memory 和 debug object key 可供查看(精确或近似的对象级别的)内存消耗。</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">-- pfadd_sadd.lua</span></div><div class="line"><span class="keyword">local</span> <span class="built_in">time</span> = redis.call(<span class="string">'time'</span>);</div><div class="line"><span class="keyword">local</span> now_micros = <span class="built_in">tonumber</span>(<span class="built_in">time</span>[<span class="number">1</span>])*<span class="number">1000000</span> + <span class="built_in">tonumber</span>(<span class="built_in">time</span>[<span class="number">2</span>]);</div><div class="line"><span class="built_in">math</span>.<span class="built_in">randomseed</span>(now_micros);</div><div class="line"><span class="keyword">local</span> num = <span class="built_in">math</span>.<span class="built_in">random</span>(<span class="number">100000000</span>, <span class="number">10000000000</span>);</div><div class="line"><span class="keyword">for</span> i=<span class="number">10000</span>,<span class="number">1</span>,<span class="number">-1</span> <span class="keyword">do</span></div><div class="line">    <span class="comment">-- redis.call('sadd',"myset", math.random(1000000000, 10000000000));</span></div><div class="line">    <span class="comment">-- redis.call('PFADD',"mypfa", math.random(1000000000, 10000000000));</span></div><div class="line">    redis.call(KEYS[<span class="number">1</span>],ARGV[<span class="number">1</span>], <span class="built_in">math</span>.<span class="built_in">random</span>(<span class="number">1000000000</span>, <span class="number">10000000000</span>));</div><div class="line"><span class="keyword">end</span></div><div class="line"><span class="keyword">return</span> <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>这个lua脚本就是可以实现 n次随机uid去 sadd myset xxx 和 pfadd myHLL xxx 的操作，简单来说就是通过 lua 随机函数生成10000个随机uid，并sadd或者pfadd到redis里。<br>需要解释下为什么lua随机数这里代码有点”不走寻常路”</p>
+<ol>
+<li>如果直接用math.random() 初始化，可能会导致每次生成的随机uid 序列是一样的，即多次跑脚本后set数量不增。</li>
+<li>为什么不用 math.randomseed(os.time()) 生成随机数更好看？试过，不过redis lua 编译器禁止调用系统相关的os函数，是的，安全考虑。</li>
+</ol>
+<p>运行：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">➜  ztemp redis-cli --<span class="built_in">eval</span> pfadd_sadd.lua pfadd , <span class="string">"myHLL"</span></div><div class="line">(<span class="built_in">integer</span>) 1</div><div class="line">➜  ztemp redis-cli --<span class="built_in">eval</span> pfadd_sadd.lua sadd , <span class="string">"myset2"</span></div><div class="line">(<span class="built_in">integer</span>) 1</div><div class="line">➜  ztemp</div></pre></td></tr></table></figure></p>
+<p>内存查看:<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">127.0.0.1:6379&gt; info memory</div><div class="line"><span class="comment"># Memory</span></div><div class="line">used_memory:7594672</div><div class="line">used_memory_human:7.24M</div><div class="line">used_memory_rss:6213632</div><div class="line">used_memory_rss_human:5.93M</div><div class="line">...</div><div class="line">127.0.0.1:6379&gt; debug object myHLL</div><div class="line">Value at:0x7fb99e614160 refcount:1 encoding:raw serializedlength:10578 lru:14012310 lru_seconds_idle:15</div><div class="line">127.0.0.1:6379&gt; info memory</div><div class="line"><span class="comment"># Memory</span></div><div class="line">used_memory:7608176</div><div class="line">used_memory_human:7.26M</div><div class="line">used_memory_rss:6250496</div><div class="line">used_memory_rss_human:5.96M</div><div class="line">...</div><div class="line">127.0.0.1:6379&gt; debug object myset2</div><div class="line">Value at:0x7fb9a08e3870 refcount:1 encoding:hashtable serializedlength:499960 lru:14012406 lru_seconds_idle:12</div><div class="line">127.0.0.1:6379&gt; info memory</div><div class="line"><span class="comment"># Memory</span></div><div class="line">used_memory:13981680</div><div class="line">used_memory_human:13.33M</div><div class="line">used_memory_rss:8421376</div><div class="line">used_memory_rss_human:8.03M</div><div class="line">...</div><div class="line">127.0.0.1:6379&gt; pfcount myHLL</div><div class="line">(<span class="built_in">integer</span>) 99287</div><div class="line">127.0.0.1:6379&gt; scard myset2</div><div class="line">(<span class="built_in">integer</span>) 99991</div></pre></td></tr></table></figure></p>
+<p>上面是测试 十万次随机(注意不是10万条)uid数据量差，还是蛮大的，分别是在 10KB和 6387KB。<br>ps. 这里也可以看到 lua 伪随机数效果还是不错的。<br>对于一千条测试下来 Set耗费是HLL的五倍。<br>还是蛮意外的。实际上 redis 作者 Salvatore Sanfilippo(Antirez)已经在代码注释里写了些参考数据，值得一看：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*</span></div><div class="line"> ...</div><div class="line"> * The following table shows average cardinality vs bytes used, 100</div><div class="line"> * samples per cardinality (when the set was not representable because</div><div class="line"> * of registers with too big value, the dense representation size was used</div><div class="line"> * as a sample).</div><div class="line"> *</div><div class="line"> * 100 267</div><div class="line"> * 200 485</div><div class="line"> * 300 678</div><div class="line"> * 400 859</div><div class="line"> * 500 1033</div><div class="line"> * 600 1205</div><div class="line"> * 700 1375</div><div class="line"> * 800 1544</div><div class="line"> * 900 1713</div><div class="line"> * 1000 1882</div><div class="line"> * 2000 3480</div><div class="line"> * 3000 4879</div><div class="line"> * 4000 6089</div><div class="line"> * 5000 7138</div><div class="line"> * 6000 8042</div><div class="line"> * 7000 8823</div><div class="line"> * 8000 9500</div><div class="line"> * 9000 10088</div><div class="line"> * 10000 10591</div><div class="line"> *</div><div class="line"> * The dense representation uses 12288 bytes, so there is a big win up to</div><div class="line"> * a cardinality of ~2000-3000. For bigger cardinalities the constant times</div><div class="line"> * involved in updating the sparse representation is not justified by the</div><div class="line"> * memory savings. The exact maximum length of the sparse representation</div><div class="line"> * when this implementation switches to the dense representation is</div><div class="line"> * configured via the define server.hll_sparse_max_bytes.</div><div class="line"> */</div></pre></td></tr></table></figure></p>
+<p>也就是说其实用户UV达到300就已经比set划算了。</p>
+<h4 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h4><ol>
+<li><a href="http://algo.inria.fr/flajolet/Publications/FlFuGaMe07.pdf" target="_blank" rel="external">Hyperloglog: The analysis of a near-optimal cardinality estimation algorithm</a></li>
+<li><a href="http://www.rainybowe.com/blog/2017/07/13/%E7%A5%9E%E5%A5%87%E7%9A%84HyperLogLog%E7%AE%97%E6%B3%95/index.html" target="_blank" rel="external">神奇的HyperLogLog算法</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/58519480" target="_blank" rel="external">走近源码：神奇的HyperLogLog</a></li>
+<li><a href="https://docs.redislabs.com/latest/ri/memory-optimizations/" target="_blank" rel="external">Memory Optimization</a></li>
+</ol>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/Hyperloglog/" rel="tag"># Hyperloglog</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/13/2019-11-13-on_maven_profiles/" rel="next" title="Maven Profile的两个技巧和一个注意事项">
+                <i class="fa fa-chevron-left"></i> Maven Profile的两个技巧和一个注意事项
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">35</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#现象和问题："><span class="nav-number">1.</span> <span class="nav-text">现象和问题：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方案"><span class="nav-number">2.</span> <span class="nav-text">方案</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#动手试一下"><span class="nav-number">3.</span> <span class="nav-text">动手试一下</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#其它"><span class="nav-number">4.</span> <span class="nav-text">其它</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
