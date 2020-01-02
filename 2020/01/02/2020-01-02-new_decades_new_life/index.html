@@ -1,0 +1,757 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="kafka,yearly,elasticsearch,architecture," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="intro1：kafk异常io图，kafka rebalance和reassigne区别intro2: kafka真的只能从leader partition读写吗intro3: 一个不太正常的elasticsaerch分片分布场景下的扩容  从一些系统监控图能看到些什么最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io/cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前">
+<meta name="keywords" content="kafka,yearly,elasticsearch,architecture">
+<meta property="og:type" content="article">
+<meta property="og:title" content="新一年的技术叨叨">
+<meta property="og:url" content="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：kafk异常io图，kafka rebalance和reassigne区别intro2: kafka真的只能从leader partition读写吗intro3: 一个不太正常的elasticsaerch分片分布场景下的扩容  从一些系统监控图能看到些什么最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io/cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://thomaslau.github.io/images/20_kafka_perfect_IO.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/20_kafka_bad_IO.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/20_elasticsearch_cpu_except.png">
+<meta property="og:updated_time" content="2020-01-02T23:51:08.035Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="新一年的技术叨叨">
+<meta name="twitter:description" content="intro1：kafk异常io图，kafka rebalance和reassigne区别intro2: kafka真的只能从leader partition读写吗intro3: 一个不太正常的elasticsaerch分片分布场景下的扩容  从一些系统监控图能看到些什么最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io/cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/20_kafka_perfect_IO.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/"/>
+
+
+
+
+
+  <title>新一年的技术叨叨 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">新一年的技术叨叨</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-02T00:59:10+08:00">
+                2020-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i><strong>intro1</strong>：kafk异常io图，kafka rebalance和reassigne区别</i><br><i><strong>intro2</strong>: kafka真的只能从leader partition读写吗</i><br><i><strong>intro3</strong>: 一个不太正常的elasticsaerch分片分布场景下的扩容</i></p>
+</blockquote>
+<h2 id="从一些系统监控图能看到些什么"><a href="#从一些系统监控图能看到些什么" class="headerlink" title="从一些系统监控图能看到些什么"></a>从一些系统监控图能看到些什么</h2><p>最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io/cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前放大的图<br><a id="more"></a><br><img src="/images/20_kafka_perfect_IO.png" width="100%"><br>放大看，io持续还是明显的<br><img src="/images/20_kafka_bad_IO.png" width="100%"><br>从上述图能够看出，Kafka非常少有大量读磁盘的操作，主要还是定期批量写磁盘操作，而且顺序写操作磁盘非常高效。但为什么上图最近读磁盘增加了许多呢？我们知道Kafka在写消息时，消息实际上时写入page cache(内存)中，然后由异步线程刷盘，消息从page cache落地磁盘。而读取消息时，是直接由page cache转入socket发送出去[也即大家说的零拷贝技术]。如果page cache没有命中相应数据(offset)，Kafka就会通过idx文件，即索引，定位到对应的数据文件，将整个文件从磁盘加载消息到page cache,然后再从socket发出去，此时就会发生不小的磁盘读操作。<br>也就是说，<strong>page cache常没有命中消费的数据，这通常是消费延迟导致</strong>，查看消费监控，确实存在一些groupid的消费者存在严重的消费延迟情况，甚至还有程序经常从头开始消费。<br>这些都应该是尽量避免的，因为 <strong>使用page cahce当遇到问题脏页，内存回收等问题时，易造成消息读写的延迟，而且过多page cache也影响linux系统本身性能，如果未关闭swap问题可能更严重了</strong>。 不过据说来自阿里的 RocketMQ 在这方面做了些优化。</p>
+<h2 id="Kafka-rebalance-vs-Kafka-reassigne"><a href="#Kafka-rebalance-vs-Kafka-reassigne" class="headerlink" title="Kafka rebalance vs Kafka reassigne"></a>Kafka rebalance vs Kafka reassigne</h2><p>还有一点的是，我们知道Kafka读写的都是partition，partition分为leader/follower角色，在过去对于Kafka的partition来说，只有leader才会进行读写操作，folower仅进行同步/复制/备份(当然，有些例外如测试等, 不过现在更例外了，请看下文)，follower对于consumer/producer等client来说是透明的，这也可以认为是kafka数据一致性的方法。<br>同Mysql的实现不同，Mysql分为主从，通常会针对主从作读写分离操作，实现性能提升，而Kafka则分为多个partition，读写分离到多partition上，他们的负载均衡就是通过 broker(机器)+partition+角色(leader) 的均衡实现的。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">We assume that there are many partitions in a cluster and try to </div><div class="line">spread the leaders evenly among brokers. That way, even for a </div><div class="line">particularpartition, all clients have to talk to a single broker, </div><div class="line">the overall workload is still balanced.</div></pre></td></tr></table></figure></p>
+<p>不过，是否读replica这个做法在多数据中心时是有一定益处的，<strong>为此Kafka就做了改进，允许消费者从最近的副本进行获取</strong>，<strong><a href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-392%3A+Allow+consumers+to+fetch+from+closest+replica" target="_blank" rel="external">KIP-392: Allow consumers to fetch from closest replica</a><br><a href="https://github.com/apache/kafka/pull/6832" target="_blank" rel="external">KAFKA-8443 Broker support for fetch from followers #6832</a>, <a href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=125307901" target="_blank" rel="external">Release Plan 2.4.0</a>，</strong> 这个改进可以说更上层楼，<strong>在目前最新的2.4.0版本发布</strong>，如果你通过百度查询，国内相关文章不多，所以需要自己阅读官方指导了。<br>其次，可以看到一些kafka server的监控软件，如Kafka Manager有个leader skew，用来衡量leader倾斜度，简单列举下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Brokers Spread：看作broker使用率，该topic分布的broker占集群broker总量百分比</div><div class="line">Brokers Skew：该topic偏离均值的broker占集群broker总量百分比</div><div class="line">Brokers Leader Skew：Percentage of brokers having more partitions as leader than the average，</div><div class="line">leader partition是否存在倾斜，即没有达到平均leader比重的broker数量占集群broker总量百分比</div></pre></td></tr></table></figure></p>
+<p>这是因为Kafka所有读写都在leader上进行， broker leader skew过高会导致读写负载不均衡，<br>Kafka有个参数 auto.leader.rebalance.enable，默认为true 可以使kafka自动定期做leader的rebalance，消除写不均衡的问题。</p>
+<h2 id="那么这个-rebalance-和reassign-有关系吗"><a href="#那么这个-rebalance-和reassign-有关系吗" class="headerlink" title="那么这个 rebalance 和reassign 有关系吗"></a>那么这个 rebalance 和reassign 有关系吗</h2><p>需要指出，这里的Kafka rebalance，不是指kafka consumer的rebalance，而是kafka partition的rebalance，也就是 kafka leader rebalance，即针对partition的 均衡，与此相关的还有一个 partition reassign，都是实现kafka server的各个broker之间的负载均衡的方式。<br>有的文章没有注意把二者混为一谈，认为partition rebalance 会引起partition重分配， 导致对于大吞吐量的应用在leader rebalance 时，可能导致partition不可用的，无法读写数据，在生产环境关闭该功能，或者 rebalance 可能短暂导致如partition不可写等，其实无此必要。<br><strong>partition reblance 和 partition reassign 是两个概念</strong>，reassign 是在监听ZK事件时触发的，比如我们通过ReassignPartitionsCommand命令操作分片迁移。<br>Kafka rebalance判断依据是 imbalanceRatio 因子的大小，而扩展节点(broker)不会引起imbalanceRatio的变化，因为 totalTopicPartitionsForBroker不变，totalTopicPartitionsNotLedByBroker 和新的broker无关，除非已经手动设置作修改。<br>rebalance是否会引起reasign呢？官方没有详细涉及，从笔者也正在阅读这块代码，尚未发现rebalance会导致resign的情况。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div></pre></td><td class="code"><pre><div class="line"><span class="type">ControllerContext</span>.scala</div><div class="line">...</div><div class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">checkAndTriggerPartitionRebalance</span></span>(): <span class="type">Unit</span> = &#123;</div><div class="line">    <span class="keyword">if</span> (isActive()) &#123;</div><div class="line">      trace(<span class="string">"checking need to trigger partition rebalance"</span>)</div><div class="line">      <span class="comment">// get all the active brokers</span></div><div class="line">      <span class="keyword">var</span> preferredReplicasForTopicsByBrokers: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">Map</span>[<span class="type">TopicAndPartition</span>, <span class="type">Seq</span>[<span class="type">Int</span>]]] = <span class="literal">null</span></div><div class="line">      inLock(controllerContext.controllerLock) &#123;</div><div class="line">        preferredReplicasForTopicsByBrokers =</div><div class="line">          controllerContext.partitionReplicaAssignment.filterNot(p =&gt; deleteTopicManager.isTopicQueuedUpForDeletion(p._1.topic)).groupBy &#123;</div><div class="line">            <span class="keyword">case</span>(topicAndPartition, assignedReplicas) =&gt; assignedReplicas.head</div><div class="line">          &#125;</div><div class="line">      &#125;</div><div class="line">      debug(<span class="string">"preferred replicas by broker "</span> + preferredReplicasForTopicsByBrokers)</div><div class="line">      <span class="comment">// for each broker, check if a preferred replica election needs to be triggered</span></div><div class="line">      preferredReplicasForTopicsByBrokers.foreach &#123;</div><div class="line">        <span class="keyword">case</span>(leaderBroker, topicAndPartitionsForBroker) =&gt; &#123;</div><div class="line">          <span class="keyword">var</span> imbalanceRatio: <span class="type">Double</span> = <span class="number">0</span></div><div class="line">          <span class="keyword">var</span> topicsNotInPreferredReplica: <span class="type">Map</span>[<span class="type">TopicAndPartition</span>, <span class="type">Seq</span>[<span class="type">Int</span>]] = <span class="literal">null</span></div><div class="line">          inLock(controllerContext.controllerLock) &#123;</div><div class="line">            topicsNotInPreferredReplica =</div><div class="line">              topicAndPartitionsForBroker.filter &#123;</div><div class="line">                <span class="keyword">case</span>(topicPartition, replicas) =&gt; &#123;</div><div class="line">                  controllerContext.partitionLeadershipInfo.contains(topicPartition) &amp;&amp;</div><div class="line">                  controllerContext.partitionLeadershipInfo(topicPartition).leaderAndIsr.leader != leaderBroker</div><div class="line">                &#125;</div><div class="line">              &#125;</div><div class="line">            debug(<span class="string">"topics not in preferred replica "</span> + topicsNotInPreferredReplica)</div><div class="line">            <span class="keyword">val</span> totalTopicPartitionsForBroker = topicAndPartitionsForBroker.size</div><div class="line">            <span class="keyword">val</span> totalTopicPartitionsNotLedByBroker = topicsNotInPreferredReplica.size</div><div class="line">            imbalanceRatio = totalTopicPartitionsNotLedByBroker.toDouble / totalTopicPartitionsForBroker</div><div class="line">            trace(<span class="string">"leader imbalance ratio for broker %d is %f"</span>.format(leaderBroker, imbalanceRatio))</div><div class="line">          &#125;</div><div class="line">          <span class="comment">// check ratio and if greater than desired ratio, trigger a rebalance for the topic partitions</span></div><div class="line">          <span class="comment">// that need to be on this broker</span></div><div class="line">          <span class="keyword">if</span> (imbalanceRatio &gt; (config.leaderImbalancePerBrokerPercentage.toDouble / <span class="number">100</span>)) &#123;</div><div class="line">            topicsNotInPreferredReplica.foreach &#123;</div><div class="line">              <span class="keyword">case</span>(topicPartition, replicas) =&gt; &#123;</div><div class="line">                inLock(controllerContext.controllerLock) &#123;</div><div class="line">                  <span class="comment">// do this check only if the broker is live and there are no partitions being reassigned currently</span></div><div class="line">                  <span class="comment">// and preferred replica election is not in progress</span></div><div class="line">                  <span class="keyword">if</span> (controllerContext.liveBrokerIds.contains(leaderBroker) &amp;&amp;</div><div class="line">                      controllerContext.partitionsBeingReassigned.size == <span class="number">0</span> &amp;&amp;</div><div class="line">                      controllerContext.partitionsUndergoingPreferredReplicaElection.size == <span class="number">0</span> &amp;&amp;</div><div class="line">                      !deleteTopicManager.isTopicQueuedUpForDeletion(topicPartition.topic) &amp;&amp;</div><div class="line">                      controllerContext.allTopics.contains(topicPartition.topic)) &#123;</div><div class="line">                    onPreferredReplicaElection(<span class="type">Set</span>(topicPartition), <span class="literal">true</span>)</div><div class="line">                  &#125;</div><div class="line">                &#125;</div><div class="line">              &#125;</div><div class="line">            &#125;</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">/**</span></div><div class="line">   * This callback is invoked by the reassigned partitions listener. When an admin command initiates a partition</div><div class="line">   * reassignment, it creates the /admin/reassign_partitions path that triggers the zookeeper listener.</div><div class="line">   * Reassigning replicas for a partition goes through a few steps listed in the code.</div><div class="line">   * RAR = Reassigned replicas</div><div class="line">   * OAR = Original list of replicas for partition</div><div class="line">   * AR = current assigned replicas</div><div class="line">   *</div><div class="line">   * 1. Update AR in ZK with OAR + RAR.</div><div class="line">   * 2. Send LeaderAndIsr request to every replica in OAR + RAR (with AR as OAR + RAR). We do this by forcing an update</div><div class="line">   *    of the leader epoch in zookeeper.</div><div class="line">   * 3. Start new replicas RAR - OAR by moving replicas in RAR - OAR to NewReplica state.</div><div class="line">   * 4. Wait until all replicas in RAR are in sync with the leader.</div><div class="line">   * 5  Move all replicas in RAR to OnlineReplica state.</div><div class="line">   * 6. Set AR to RAR in memory.</div><div class="line">   * 7. If the leader is not in RAR, elect a new leader from RAR. If new leader needs to be elected from RAR, a LeaderAndIsr</div><div class="line">   *    will be sent. If not, then leader epoch will be incremented in zookeeper and a LeaderAndIsr request will be sent.</div><div class="line">   *    In any case, the LeaderAndIsr request will have AR = RAR. This will prevent the leader from adding any replica in</div><div class="line">   *    RAR - OAR back in the isr.</div><div class="line">   * 8. Move all replicas in OAR - RAR to OfflineReplica state. As part of OfflineReplica state change, we shrink the</div><div class="line">   *    isr to remove OAR - RAR in zookeeper and sent a LeaderAndIsr ONLY to the Leader to notify it of the shrunk isr.</div><div class="line">   *    After that, we send a StopReplica (delete = false) to the replicas in OAR - RAR.</div><div class="line">   * 9. Move all replicas in OAR - RAR to NonExistentReplica state. This will send a StopReplica (delete = false) to</div><div class="line">   *    the replicas in OAR - RAR to physically delete the replicas on disk.</div><div class="line">   * 10. Update AR in ZK with RAR.</div><div class="line">   * 11. Update the /admin/reassign_partitions path in ZK to remove this partition.</div><div class="line">   * 12. After electing leader, the replicas and isr information changes. So resend the update metadata request to every broker.</div><div class="line">   *</div><div class="line">   * For example, if OAR = &#123;1, 2, 3&#125; and RAR = &#123;4,5,6&#125;, the values in the assigned replica (AR) and leader/isr path in ZK</div><div class="line">   * may go through the following transition.</div><div class="line">   * AR                 leader/isr</div><div class="line">   * &#123;1,2,3&#125;            1/&#123;1,2,3&#125;           (initial state)</div><div class="line">   * &#123;1,2,3,4,5,6&#125;      1/&#123;1,2,3&#125;           (step 2)</div><div class="line">   * &#123;1,2,3,4,5,6&#125;      1/&#123;1,2,3,4,5,6&#125;     (step 4)</div><div class="line">   * &#123;1,2,3,4,5,6&#125;      4/&#123;1,2,3,4,5,6&#125;     (step 7)</div><div class="line">   * &#123;1,2,3,4,5,6&#125;      4/&#123;4,5,6&#125;           (step 8)</div><div class="line">   * &#123;4,5,6&#125;            4/&#123;4,5,6&#125;           (step 10)</div><div class="line">   *</div><div class="line">   * Note that we have to update AR in ZK with RAR last since it's the only place where we store OAR persistently.</div><div class="line">   * This way, if the controller crashes before that step, we can still recover.</div><div class="line">   */</div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">onPartitionReassignment</span></span>(topicAndPartition: <span class="type">TopicAndPartition</span>, reassignedPartitionContext: <span class="type">ReassignedPartitionsContext</span>) &#123;</div><div class="line">    <span class="keyword">val</span> reassignedReplicas = reassignedPartitionContext.newReplicas</div><div class="line">    areReplicasInIsr(topicAndPartition.topic, topicAndPartition.partition, reassignedReplicas) <span class="keyword">match</span> &#123;</div><div class="line">      <span class="keyword">case</span> <span class="literal">false</span> =&gt;</div><div class="line">        info(<span class="string">"New replicas %s for partition %s being "</span>.format(reassignedReplicas.mkString(<span class="string">","</span>), topicAndPartition) +</div><div class="line">          <span class="string">"reassigned not yet caught up with the leader"</span>)</div><div class="line">        <span class="keyword">val</span> newReplicasNotInOldReplicaList = reassignedReplicas.toSet -- controllerContext.partitionReplicaAssignment(topicAndPartition).toSet</div><div class="line">        <span class="keyword">val</span> newAndOldReplicas = (reassignedPartitionContext.newReplicas ++ controllerContext.partitionReplicaAssignment(topicAndPartition)).toSet</div><div class="line">        <span class="comment">//1. Update AR in ZK with OAR + RAR.</span></div><div class="line">        updateAssignedReplicasForPartition(topicAndPartition, newAndOldReplicas.toSeq)</div><div class="line">        <span class="comment">//2. Send LeaderAndIsr request to every replica in OAR + RAR (with AR as OAR + RAR).</span></div><div class="line">        updateLeaderEpochAndSendRequest(topicAndPartition, controllerContext.partitionReplicaAssignment(topicAndPartition),</div><div class="line">          newAndOldReplicas.toSeq)</div><div class="line">        <span class="comment">//3. replicas in RAR - OAR -&gt; NewReplica</span></div><div class="line">        startNewReplicasForReassignedPartition(topicAndPartition, reassignedPartitionContext, newReplicasNotInOldReplicaList)</div><div class="line">        info(<span class="string">"Waiting for new replicas %s for partition %s being "</span>.format(reassignedReplicas.mkString(<span class="string">","</span>), topicAndPartition) +</div><div class="line">          <span class="string">"reassigned to catch up with the leader"</span>)</div><div class="line">      <span class="keyword">case</span> <span class="literal">true</span> =&gt;</div><div class="line">        <span class="comment">//4. Wait until all replicas in RAR are in sync with the leader.</span></div><div class="line">        <span class="keyword">val</span> oldReplicas = controllerContext.partitionReplicaAssignment(topicAndPartition).toSet -- reassignedReplicas.toSet</div><div class="line">        <span class="comment">//5. replicas in RAR -&gt; OnlineReplica</span></div><div class="line">        reassignedReplicas.foreach &#123; replica =&gt;</div><div class="line">          replicaStateMachine.handleStateChanges(<span class="type">Set</span>(<span class="keyword">new</span> <span class="type">PartitionAndReplica</span>(topicAndPartition.topic, topicAndPartition.partition,</div><div class="line">            replica)), <span class="type">OnlineReplica</span>)</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//6. Set AR to RAR in memory.</span></div><div class="line">        <span class="comment">//7. Send LeaderAndIsr request with a potential new leader (if current leader not in RAR) and</span></div><div class="line">        <span class="comment">//   a new AR (using RAR) and same isr to every broker in RAR</span></div><div class="line">        moveReassignedPartitionLeaderIfRequired(topicAndPartition, reassignedPartitionContext)</div><div class="line">        <span class="comment">//8. replicas in OAR - RAR -&gt; Offline (force those replicas out of isr)</span></div><div class="line">        <span class="comment">//9. replicas in OAR - RAR -&gt; NonExistentReplica (force those replicas to be deleted)</span></div><div class="line">        stopOldReplicasOfReassignedPartition(topicAndPartition, reassignedPartitionContext, oldReplicas)</div><div class="line">        <span class="comment">//10. Update AR in ZK with RAR.</span></div><div class="line">        updateAssignedReplicasForPartition(topicAndPartition, reassignedReplicas)</div><div class="line">        <span class="comment">//11. Update the /admin/reassign_partitions path in ZK to remove this partition.</span></div><div class="line">        removePartitionFromReassignedPartitions(topicAndPartition)</div><div class="line">        info(<span class="string">"Removed partition %s from the list of reassigned partitions in zookeeper"</span>.format(topicAndPartition))</div><div class="line">        controllerContext.partitionsBeingReassigned.remove(topicAndPartition)</div><div class="line">        <span class="comment">//12. After electing leader, the replicas and isr information changes, so resend the update metadata request to every broker</span></div><div class="line">        sendUpdateMetadataRequest(controllerContext.liveOrShuttingDownBrokerIds.toSeq, <span class="type">Set</span>(topicAndPartition))</div><div class="line">        <span class="comment">// signal delete topic thread if reassignment for some partitions belonging to topics being deleted just completed</span></div><div class="line">        deleteTopicManager.resumeDeletionForTopics(<span class="type">Set</span>(topicAndPartition.topic))</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><strong>partition reassign又具体做了些什么</strong>，上文 onPartitionReassignment 部分可以看出大概，不必追踪代码具体细节，只通过上述代码里方法名字和注释，大概可以了解到，在controller接收到reassign指令，并updateLeaderEpochAndSendRequest后，会新分配一个副本，并努力追上 Leader 的位移，从而加入ISR(In Sync Replicas)，待全部的RAR副本(Reassigned replicas)都加入 ISR 之后，就会进行分区 Leader 选举，选举完删除原有的副本，在Kafka扩容broker时，kafka-reassign-partitions.sh脚本的–generate/–execute 配合即可完成上述变更。</p>
+<h2 id="Elasticsearch-的扩容"><a href="#Elasticsearch-的扩容" class="headerlink" title="Elasticsearch 的扩容"></a>Elasticsearch 的扩容</h2><p>同Kafka partition reassign一样，Elasticseach在扩展节点时也会遇到shards的平衡问题，此时通过master节点手动/自动指定shards之间的 rebalance，如通过控制集群的 cluster.routing.allocation.enable/cluster.routing.rebalance.enable来决定哪类分片可被分配/哪类分片可被再平衡，尽量做到不影响线上的读写。<br>这在主节点都具备至少一个从节点时，机制运行良好，但在些极端情况下，有些shards因不得已原因没有从shards，如何扩容而不影响线上读写呢？<br>下一篇文章里笔者会总结下，这里贴一张elasticsearch某个数据节点的cpu负载图，同时告知磁盘io/网络io图走势都和该cpu走势类似，你能在图上指出正常、磁盘超85%、磁盘超95%、挂载MFS存储、卸载MFS存储、扩容所对应的时间点吗（假设索引是daily的，只需指出天级别的即可）<br><img src="/images/20_elasticsearch_cpu_except.png" width="100%"></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>最后是，例行夹带私货部分。<br>设计模式至今仍被国内许多编程人奉为圭臬，也成了面试青睐的问题，若你从事架构/中间件，那可能必考题了。<br>十年前，笔者还是在校生的时候，是设计模式的拥趸，那一年笔者读完了从 HeadFirst的《设计模式》到一千多页《Java与模式》( <a href="https://book.douban.com/subject/1214074/" target="_blank" rel="external">https://book.douban.com/subject/1214074/</a> ,阎宏博士著 )，再到斥巨资买来GoF的《设计模式：可复用面向对象软件的基础》看完。<br>但经历越久，越觉得设计模式可以扩展一个人的编程世界，但亦有其局限性。<br><strong>为什么这么说？</strong><br>23个设计模式是Erich Gamma等四位博士(Gang of four), 从前人的经验中总结出来的，从面向对象的设计中精选出23种构建健壮/灵活代码设计的技巧，正如其前言所述 <i><strong>本书假设你至少已经比较熟悉一种面向对象编程语言，并且有一定的面向对象设计经验。当我们提及“类型”和“多态”，或“接口”继承与“实现”继承的关系时，你应该对这些概念了然于胸”</strong></i>。<br>23种模式比如工厂模式里分简单工厂/抽象工厂模式是否算设计模式，这也曾经是个争论点。<br>如今笔者认为设计模式是不存在的，如果类似主题的话，不如看《面向模式的软件架构》上下卷，后者更接近怎么去设计软件。<br>甚至，对于JAVA研发来说，背诵设计模式不如背诵阿里巴巴的《阿里巴巴Java规范》，尽管笔者对其评价是负面为主，但同意其在实际开发中的实用性。<br>不赞同上述观点的人可能会以JAVA的BIO就通过装饰者模式实现了各种便捷的reader/stream或者dubbo里的策略模式反驳笔者，但请问下，读小文件或配置之类的文件时大家的选择是各种stream装饰读，还是IOUtils.tostrings或者java 7后提供的Files.listAsstring之类方法“一言以蔽之”略过这些stream？高性能拷贝文件时大家又会选择各种stream组装吗？<br><strong>今人有二十三种设计模式，古人也有三十六计</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/kafka/" rel="tag"># kafka</a>
+          
+            <a href="/tags/yearly/" rel="tag"># yearly</a>
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+            <a href="/tags/architecture/" rel="tag"># architecture</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" rel="next" title="一段IP查找函数的优化及其它">
+                <i class="fa fa-chevron-left"></i> 一段IP查找函数的优化及其它
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">50</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从一些系统监控图能看到些什么"><span class="nav-number">1.</span> <span class="nav-text">从一些系统监控图能看到些什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-rebalance-vs-Kafka-reassigne"><span class="nav-number">2.</span> <span class="nav-text">Kafka rebalance vs Kafka reassigne</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#那么这个-rebalance-和reassign-有关系吗"><span class="nav-number">3.</span> <span class="nav-text">那么这个 rebalance 和reassign 有关系吗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Elasticsearch-的扩容"><span class="nav-number">4.</span> <span class="nav-text">Elasticsearch 的扩容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">5.</span> <span class="nav-text">其他</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
