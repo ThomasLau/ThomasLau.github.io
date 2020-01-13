@@ -1,0 +1,759 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Lucene,elasticsearch,architecture," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="intro1：一个不太正常的elasticsaerch分片分布场景下的扩容intro2: elasticsaerch到底往Lucene中写了些什么数据intro3: Lucene的文件的压缩  前文问题解答前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。">
+<meta name="keywords" content="Lucene,elasticsearch,architecture">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch 的几个冷门知识点">
+<meta property="og:url" content="http://thomaslau.github.io/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：一个不太正常的elasticsaerch分片分布场景下的扩容intro2: elasticsaerch到底往Lucene中写了些什么数据intro3: Lucene的文件的压缩  前文问题解答前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://thomaslau.github.io/images/2020_es_io_load.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/2020_es_status_green.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/2020_es_lucene_data.png">
+<meta property="og:updated_time" content="2020-01-13T19:42:25.024Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Elasticsearch 的几个冷门知识点">
+<meta name="twitter:description" content="intro1：一个不太正常的elasticsaerch分片分布场景下的扩容intro2: elasticsaerch到底往Lucene中写了些什么数据intro3: Lucene的文件的压缩  前文问题解答前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/2020_es_io_load.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/"/>
+
+
+
+
+
+  <title>Elasticsearch 的几个冷门知识点 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Elasticsearch 的几个冷门知识点</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-12T00:59:10+08:00">
+                2020-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i><strong>intro1</strong>：一个不太正常的elasticsaerch分片分布场景下的扩容</i><br><i><strong>intro2</strong>: elasticsaerch到底往Lucene中写了些什么数据</i><br><i><strong>intro3</strong>: Lucene的文件的压缩</i></p>
+</blockquote>
+<h2 id="前文问题解答"><a href="#前文问题解答" class="headerlink" title="前文问题解答"></a>前文问题解答</h2><p>前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。<br><a id="more"></a><br><img src="/images/2020_es_io_load.png" width="100%"><br>可以看到十几号已有迹象，20号明显，只不过转移或者丢弃，然后定期删除，21/22基本就无法支撑大量写入，之后是在23号下午15点挂载mfs存储，集群开始恢复，但是写入性能比之前写磁盘下降，于是25号下午15点卸载mfs，并删除更多数据来恢复，31号等来了机器之后开始扩容，主分片可以正常写入/查询，3号开启replica，至此完全恢复正常。如下图cpu/存储/网卡监控恢复。<br><img src="/images/2020_es_status_green.png" width="100%"><br>集群有8台数据节点，每台1。6-2T，索引是每天生成一份，每天大约60个新索引，并且会删除N天以前的数据，最大索引的数据量的已降为20亿，最占存储索引约 310GB(单副本)，这些索引都因磁盘空间有限，调整为无副本的了。</p>
+<h1 id="那么，对于这非正常情况如何扩容，即增加数据节点呢"><a href="#那么，对于这非正常情况如何扩容，即增加数据节点呢" class="headerlink" title="那么，对于这非正常情况如何扩容，即增加数据节点呢"></a>那么，对于这非正常情况如何扩容，即增加数据节点呢</h1><p>需要说明的是，ES官方有一个滚动升级/维修的方案，前提是需要暂停写入，<strong>如果不停止写入索引数据时应该怎么做呢？要考虑到有些索引是没有副本的</strong>。<br>如果增加节点，按官方操作，primary 分片就会被被 rebalance到新增节点上，且几百G的数据会迁移，导致往ES集群长时间写入失败，当然我们可以预先手动将已有的历史索引往新分片上迁移，足够均衡后在开启 allocation all，但需要花时间整理迁移的索引。<br>所以笔者想到了另外一种做法，即：<br>1) cluster.routing.allocation.enable设置为 new_primaries，cluster.routing.rebalance.enable 设置为none<br>那么启用新节点后，当前以及历史索引的 primaries 分片不受影响，故不影响现有索引读写，新索引的 primaries分配和写入也都不受影响.<br>2) 这样持续N天后，集群中老的索引已经被删除，剩下多是通过 new_primaries 分配的索引.<br>3) 此时将 cluster.routing.allocation.enable恢复为all，cluster.routing.rebalance.enable 设置为 replicas，此时至副本会被创建完成，这段时间因为异步复制数据，性能会有影响，但是可控，不过重要的是不会影响数据的写入和查询。<br>4) 恢复 cluster.routing.rebalance.enable 为all<br>需要指出的是：<br>1) 因为N天是单副本，还是存在数据仅一份带来的风险的。<br>2) 3/4步其实可以一部到位，但还是稳妥起见，其实2/3步也可以第二天开始，不必等N天。<br>当然上述是在允许少量数据丢失情况下懒人操作法，笔者操作下来看到还是会有接近万分之一的数据丢失。</p>
+<h1 id="如果是迁移一个数据节点呢？"><a href="#如果是迁移一个数据节点呢？" class="headerlink" title="如果是迁移一个数据节点呢？"></a>如果是迁移一个数据节点呢？</h1><p><strong>比如将故障的机器A替换为新机器B(此时机器A有当日正在写入的主分片)</strong>，也可以通过上述 cluster.routing.allocation.enable和cluster.routing.rebalance.enable操作的方法，不过这种情况下，其实也可以通过预先创建好 第二天的索引，并将 第二日索引从A上迁移走(如果有的话)，然后在第二日将A上的分片作为历史数据都迁移到B即可。<br>这里附上几个迁移/上下线node常用的es命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line">curl -XPUT 10.135.20.38:9200/_cluster/settings -d&apos;&#123;</div><div class="line">    &quot;transient&quot;: &#123;</div><div class="line">        &quot;cluster.routing.allocation.enable&quot;: &quot;none&quot;</div><div class="line">    &#125;</div><div class="line">&#125;&apos;</div><div class="line">取值可以是: all/primaries/new_primaries/none</div><div class="line">重新启动节点时，此设置不会影响本地主分片的恢复, 如果重新启动的节点具有未分配的主分片的副本，会立即恢复该主分片</div><div class="line">即该配置影响新创建的索引不会被 allocate</div><div class="line"></div><div class="line">curl -XPUT 10.135.20.38:9200/_cluster/settings -d&apos;&#123;</div><div class="line">    &quot;transient&quot;: &#123;</div><div class="line">        &quot;cluster.routing.rebalance.enable&quot;: &quot;replicas&quot;</div><div class="line">    &#125;</div><div class="line">&#125;&apos;</div><div class="line">取值可以是: all/primaries/replicas/none</div><div class="line">该配置影响已有索引的分片不会进行rebalance</div><div class="line"></div><div class="line"># 当然在rebalance时你可以调整带宽，默认时40MB，可以调整100MB，增加速度</div><div class="line"># 其他优化如压缩等就不再详述，参见官方doc</div><div class="line">curl -XPUT &apos;http://10.135.20.38:9200/_cluster/settings&apos; -d&apos;&#123;</div><div class="line">  &quot;persistent&quot;:&#123;</div><div class="line">    &quot;indices.recovery.max_bytes_per_sec&quot;:&quot;100mb&quot;</div><div class="line">  &#125;</div><div class="line">&#125;&apos;</div><div class="line">其他：</div><div class="line">transport.tcp.compress</div><div class="line">cluster.routing.allocation.allow_rebalance</div><div class="line">cluster.routing.allocation.balance.shard</div><div class="line">cluster.routing.allocation.balance.index</div><div class="line">cluster.routing.allocation.balance.threshold</div><div class="line">操作分片</div><div class="line">curl -XPOST &apos;10.135.20.38:9200/_cluster/reroute?pretty&apos; -d &apos;&#123;</div><div class="line">    &quot;commands&quot; : [</div><div class="line">        &#123;</div><div class="line">          &quot;allocate_empty_primary&quot; : &#123;</div><div class="line">              &quot;index&quot; : &quot;abcd-2019.12.23&quot;, &quot;shard&quot; : 4, &quot;node&quot; : &quot;jOsYiEk_S3C7U0r0XDadzQ&quot;, &quot;accept_data_loss&quot; : true</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;&apos;</div><div class="line"></div><div class="line">curl -XPOST &apos;10.135.20.38:9200/_cluster/reroute?pretty&apos; -d &apos;&#123;</div><div class="line">    &quot;commands&quot; : [</div><div class="line">        &#123;</div><div class="line">          &quot;allocate_replica&quot; : &#123;</div><div class="line">              &quot;index&quot; : &quot;abcd-2020.01.03&quot;, &quot;shard&quot; : 4, &quot;node&quot; : &quot;jOsYiEk_S3C7U0r0XDadzQ&quot;</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;&apos;</div></pre></td></tr></table></figure></p>
+<h1 id="一个分词问题"><a href="#一个分词问题" class="headerlink" title="一个分词问题"></a>一个分词问题</h1><p>笔者曾被问到如何搜索 一个超长(约530个字符串)的问题，即业务写入ES的数据有个msg字段，值是下面那段很长的文本，像这种超长的字符串，ES会怎么索引？<br> <i>为什么用 7B22626F64* 可以搜索到，而 7B22626F64 却搜索不到？</i><br>该索引使用 ES 默认的 standard analyzer分词，我们看下：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">[java@10-135-16-105 logs]$ curl -s 10.135.20.38:9200/_analyze?text=<span class="string">"7B22626F6479223A22222C2263726561746554696D65223A313537383338353930383736312C22657854797065223A312C22657874656E73696F6E223A227B5C227264436D645C223A7B7D2C5C2267624366675C223A7B5C22756E6B6E6F776E446973636172645C223A747275657D7D222C22666C6167223A302C2266726F6D223A223040636D642E796F756E69222C226D6964223A224F6F6566656566663434333835393037383737222C22737461747573223A302C2273756254797065223A372C2273796E634B6579223A2233222C22746F223A22343132333435363738394068656C6C6F776F726C64222C2274797065223A34322C2276657273696F6E223A31353730313430327D&amp;pretty"</span></div><div class="line">&#123;</div><div class="line">  <span class="string">"tokens"</span> : [</div><div class="line">    &#123;</div><div class="line">      <span class="string">"token"</span> : <span class="string">"7b22626f6479223a22222c2263726561746554696d65223a313537383338353930383736312c22657854797065223a312c22657874656e73696f6e223a227b5c227264436d645c223a7b7d2c5c2267624366675c223a7b5c22756e6b6e6f776e446973636172645c223a747275657d7d222c22666c6167223a302c2266726f6"</span>,</div><div class="line">      <span class="string">"start_offset"</span> : 0,</div><div class="line">      <span class="string">"end_offset"</span> : 255,</div><div class="line">      <span class="string">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</div><div class="line">      <span class="string">"position"</span> : 0</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      <span class="string">"token"</span> : <span class="string">"d223a223040636d642e796f756e69222c226d6964223a224f6f6566656566663434333835393037383737222c22737461747573223a302c2273756254797065223a372c2273796e634b6579223a2233222c22746f223a22343132333435363738394068656c6c6f776f726c64222c2274797065223a34322c2276657273696f"</span>,</div><div class="line">      <span class="string">"start_offset"</span> : 255,</div><div class="line">      <span class="string">"end_offset"</span> : 510,</div><div class="line">      <span class="string">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</div><div class="line">      <span class="string">"position"</span> : 1</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      <span class="string">"token"</span> : <span class="string">"6e223a31353730313430327d"</span>,</div><div class="line">      <span class="string">"start_offset"</span> : 510,</div><div class="line">      <span class="string">"end_offset"</span> : 534,</div><div class="line">      <span class="string">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</div><div class="line">      <span class="string">"position"</span> : 2</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>也即这个534字节长的字符串实际上被分词分成了三个词</strong>：两个255长度的字符串，和剩下的”6e223a31353730313430327d”，所以如果不用正则/模糊查询，那我们就要用上述的 三个词(两个255长的词和6e223a31353730313430327d)作为搜索词才能查到。<br>ES的 StandardAnalyzer 正是下面所示类，可以看到 max_token_length 就是设置了255长度。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StandardAnalyzerProvider</span> <span class="keyword">extends</span> <span class="title">AbstractIndexAnalyzerProvider</span>&lt;<span class="title">StandardAnalyzer</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> StandardAnalyzer standardAnalyzer;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">StandardAnalyzerProvider</span><span class="params">(IndexSettings indexSettings, Environment env, String name, Settings settings)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(indexSettings, name, settings);</div><div class="line">        <span class="keyword">final</span> CharArraySet defaultStopwords = CharArraySet.EMPTY_SET;</div><div class="line">        CharArraySet stopWords = Analysis.parseStopWords(env, settings, defaultStopwords);</div><div class="line">        <span class="keyword">int</span> maxTokenLength = settings.getAsInt(<span class="string">"max_token_length"</span>, StandardAnalyzer.DEFAULT_MAX_TOKEN_LENGTH);</div><div class="line">        standardAnalyzer = <span class="keyword">new</span> StandardAnalyzer(stopWords);</div><div class="line">        standardAnalyzer.setVersion(version);</div><div class="line">        standardAnalyzer.setMaxTokenLength(maxTokenLength);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> StandardAnalyzer <span class="title">get</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.standardAnalyzer;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>题外话，笔者知道这里msg之前是json字符串，初看起来猜测试base64编码，但是没有=所以暂不考虑，仔细观察发现字符串都是以7B22开头，7D结尾，看起来是个对齐位数的编码，base32/base16解压下，发现确实base16，因为无意义，所以读者想对该字段禁用index。</p>
+<h1 id="Elasticsearch如何通过Lucene存储"><a href="#Elasticsearch如何通过Lucene存储" class="headerlink" title="Elasticsearch如何通过Lucene存储"></a>Elasticsearch如何通过Lucene存储</h1><p>上述 msg字段所在索引，一天可以产生310G数据，可以看下面数据, 一天单shard的tim文件已经有30GB了。<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">-rw-rw-r-- 1 elast elast 1159905974 Dec 31 10:01 _3qr.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1178870155 Dec 31 15:17 _665.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1193478301 Dec 31 18:51 _7uo.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1207594933 Dec 31 03:48 _1dd.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1211229272 Dec 31 08:15 _2y6.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1212375992 Dec 31 11:58 _4n3.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1216719366 Dec 31 16:53 _6x4.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1221544713 Dec 31 13:25 _5bk.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 1236112172 Dec 31 20:04 _8go.fdt</div><div class="line">-rw-rw-r-- 1 elast elast 3313610786 Dec 31 10:13 _3qr_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3386240596 Dec 31 15:30 _665_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3393837649 Dec 31 19:03 _7uo_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3397969349 Dec 31 12:10 _4n3_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3471182659 Dec 31 17:06 _6x4_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3471365535 Dec 31 20:17 _8go_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3473142411 Dec 31 13:38 _5bk_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3492353187 Dec 31 04:00 _1dd_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 3502603707 Dec 31 08:28 _2y6_Lucene50_0.tim</div><div class="line">-rw-rw-r-- 1 elast elast 5142369032 Dec 31 23:51 _a4z.cfs</div><div class="line">-rw-rw-r-- 1 elast elast 5200590671 Dec 31 22:41 _9k4.cfs</div><div class="line">-rw-rw-r-- 1 elast elast 5225322674 Dec 31 21:43 _91t.cfs</div></pre></td></tr></table></figure></p>
+<p>不过在笔者禁用 msg 的索引后，ES该Index的存储数据量降到每天110G，这个降幅让笔者有点意外。<br>我们知道ES底层就是通过Lucene实现索引的存储，所以先了解下，这几个后缀名文件含义：<br><blockquote><p>.fdt .fdm .fdx 其中.fdt(field data)用于存储具有Store.YES属性的Field的数据，fdx/fdm则是对fdt的索引。<br>.tim .tip .doc 其中 .tim 存储倒排索引的文件，它存储了分词后的词条（Term）和doc的索引信息<br>.dvd .dvm 用于聚合排序的列存文件<br>.cfs 是复合索引格式，就是上述后缀文件的大杂烩，es IndexWriter的useCompoundFile默认true，就是该功能，这是性能考虑，为了减少索引文件数量，减少同时打开的文件数量。</p>
+</blockquote><br>更多可以参考 <a href="https://lucene.apache.org/core/3_5_0/fileformats.html" target="_blank" rel="external">Apache Lucene - Index File Formats</a></p>
+<h1 id="Elasticsearch底层-到底-往Lucene写入了些什么"><a href="#Elasticsearch底层-到底-往Lucene写入了些什么" class="headerlink" title="Elasticsearch底层 到底 往Lucene写入了些什么"></a>Elasticsearch底层 到底 往Lucene写入了些什么</h1><p>很简单，这是笔者 通过Luke查看一段 ES 的一个索引看到的数据，如图示：<br><img src="/images/2020_es_lucene_data.png" width="100%"><br><strong>我们首先可以看到 _all,_source,_uid,_type,_version,_field_names 这些下划线开头的字段名，这些就是属于ES的元数据</strong><br>_source就是大家熟知的写入es的消息体内容，_all 是把所有其它(indexed)的字段值合并成一个大字符串来索引的特殊字段，_field_names就是字段名的索引(用于es的<em>exists</em>查询)，但图中的 _uid 字段是什么呢？其实就是ES的 _id 字段，只不过ES在内部使用 _uid（_uid的格式是：type + ‘#’ + id）实现，即把_uid存储在Lucene中，关于ES的内部字段，可以参考： <a href="https://blog.csdn.net/zhaipengfei1231/article/details/80031261" target="_blank" rel="external">https://blog.csdn.net/zhaipengfei1231/article/details/80031261</a> ，这里不展开。<br>同时我们还可以看到许多如 msg、name等一些业务字段，而这些字段都对应着一个 XX.keyword 字段。<br>从图上看到，ES写入Lucene的 字段，除了_uid和_source，其他字段都是 不存储到 Lucene中的，即这些field都是Store.NO ！<br>这些字段的type都可以在ES的org.elasticsearch.index.mapper package下看到源码，比如_source 这个field type 可以看到它是 store，但不索引，不参与index-time boosting<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> MappedFieldType FIELD_TYPE = <span class="keyword">new</span> SourceFieldType();</div><div class="line"><span class="keyword">static</span> &#123;</div><div class="line">    FIELD_TYPE.setIndexOptions(IndexOptions.NONE); <span class="comment">// not indexed</span></div><div class="line">    FIELD_TYPE.setStored(<span class="keyword">true</span>);</div><div class="line">    FIELD_TYPE.setOmitNorms(<span class="keyword">true</span>);</div><div class="line">    FIELD_TYPE.setIndexAnalyzer(Lucene.KEYWORD_ANALYZER);</div><div class="line">    FIELD_TYPE.setSearchAnalyzer(Lucene.KEYWORD_ANALYZER);</div><div class="line">    FIELD_TYPE.setName(NAME);</div><div class="line">    FIELD_TYPE.freeze();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>同时我们还可以看到 _source 的值为 “7b 22 62 69 7a 41 63 74 69 6f 6e 22…”这一串，其实是因为 源数据是作为二进制的Byte存入 _source并写入Lucene的，即将 _source值拷贝出来，通过HEX 解码，我们就可以得到源数据。</p>
+<h1 id="但为什么去掉msg后就可以节省66-的空间？"><a href="#但为什么去掉msg后就可以节省66-的空间？" class="headerlink" title="但为什么去掉msg后就可以节省66%的空间？"></a>但为什么去掉msg后就可以节省66%的空间？</h1><p>我们知道，ES借助Lucene有许多压缩，比如_source的存储，就会以LZ4的方式被压缩存储，也就是ES官方默认和推荐的压缩方式：Best Speed，另外一种方式是 Best Compressed。<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/tune-for-disk-usage.html" target="_blank" rel="external">Elasticsearch Tune for disk usage</a><br>LZ4是通用的非常快的压缩/解压算法，但是压缩比不好，Deflate(通常如gzip压缩)压缩比较好，但是耗时，因为Deflate首先也是基于LZ77压缩，然后再经Huffman编码再压缩，所以理论上压缩更少，但压缩也更耗时。<br>好了，我们看看上文提到.tim文件，即倒排索引文件，无论其数据格式如何，底层实际是保存了倒排索引需要的 term 和doc(doc id) 的索引关系，那么这个term的内容是否需要压缩呢？<br>通常经过分词后得到的就是极小的词单元，已经是小文本了，再压缩似乎没有必要，而且倒排索引本身就是一种压缩方式，这点和LZ4一样，都是基于字典技术，处理重复文本的压缩，但是 Lucene还是有针对term在存储时进行压缩的。 而且在 tim 文件中，为了构建Lucene的高性能查询数据结构(即FST), term在存储时就是按字典排序存储的，这也适合压缩。<br>但是，目前已知的无损压缩对于非常随机的字符串压缩效果都不好，lz4亦然，笔者曾测试过80万次随机541字节长的字符串的文本(413MB)压缩，tar/gzip基本上是压缩后稳定在263MB左右，LZ4 则在413MB，比原文件大了1KB左右。<br>不过如果文本是80万次重复530字节长的字符串时，tar/zip基本上是400MB压缩后稳定在1.7MB左右，而LZ4也可压缩到1.7MB。深入展开需要了解压缩“Compress”这门技术了，google以及一些研究机构也在此付出巨大努力，Netflix曾经爆款剧《硅谷》就是以主角 Richard发明神奇压缩算法Pied Piper展开，笔者最早接触还是WinRAR/Winzip之类，这里附上一个有意思的知乎链接<a href="https://www.zhihu.com/question/20583075/answer/26673424" target="_blank" rel="external">世界上最大的文件压缩率是多少</a>，不过不建议大家尝试里面的解压炸弹(decompression bomb)。<br>需要指出的是上述80万次重复文本 LZ4 压缩效果要看 LZ4设置的block size，1K时压缩到160MB，16K时压缩到12MB，512K时才压缩到1.8MB，16MB时压缩到1.2MB，而ES基于Lucene使用LZ4时block size 是16KB，也就是官方推荐，默认可以装进L1 cache的配置，即考虑性能优先，而不是压缩比，所以对于超大文本的压缩不要过于指望压缩效果。<br>因为 deflate压缩性能比lz4差许多，对于写多情况也不建议 BEST_COMPRESSION，理论上至少会导致写入性能下降，至于读性能则还需要考虑磁盘读写，所以作这个测试需要考虑到，虽然官方推荐在Tune for disk usage可以考虑，但是在对存储要求时才考虑，对于小文本没有必要选择最优压缩。<br>如上面两点提到的，我们看下ES字段存储，还记得ES 5之后字段都会有一个.keyword字段吗，上文图片可以看到，即不分词的索引，同时还默认开启 _all，_all 字段索引就是包含全部字段的内容索引，也即上文图片所述 _all，他们都会写入Lucene的 xx.keyword或_all字段，所以对于启用 _all 的索引排除某字段后，几乎是相当于排除三份针对该字段索引的字节数，而msg文本也是比较随机的，压缩不好占空间，这也是为什么 上文中禁用 msg 索引后，该index的存储文件从310G降到了110G。<br>最后，如果对ES写入Lucene的这段代码感兴趣，可以从 ES 的 org.elasticsearch.index.engine.InternalEngine看起，ES对于索引的CRUD操作等接口都是通过InternalEngine实现的，相关追溯在 IndexResult index(Index index)方法。</p>
+<h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><p><a href="https://lucene.apache.org/core/3_5_0/fileformats.html" target="_blank" rel="external">Apache Lucene - Index File Formats</a><br><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/tune-for-disk-usage.html" target="_blank" rel="external">Elasticsearch Tune for disk usage</a><br><a href="https://github.com/DmitryKey/luke" target="_blank" rel="external">Luke, the Lucene Toolbox Project + Swing</a><br><a href="http://www.shenyanchao.cn/blog/2018/12/04/lucene-fst/" target="_blank" rel="external">Lucene FST</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Lucene/" rel="tag"># Lucene</a>
+          
+            <a href="/tags/elasticsearch/" rel="tag"># elasticsearch</a>
+          
+            <a href="/tags/architecture/" rel="tag"># architecture</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/02/2020-01-02-new_decades_new_life/" rel="next" title="新一年的技术叨叨">
+                <i class="fa fa-chevron-left"></i> 新一年的技术叨叨
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">43</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前文问题解答"><span class="nav-number">1.</span> <span class="nav-text">前文问题解答</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#那么，对于这非正常情况如何扩容，即增加数据节点呢"><span class="nav-number"></span> <span class="nav-text">那么，对于这非正常情况如何扩容，即增加数据节点呢</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如果是迁移一个数据节点呢？"><span class="nav-number"></span> <span class="nav-text">如果是迁移一个数据节点呢？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一个分词问题"><span class="nav-number"></span> <span class="nav-text">一个分词问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch如何通过Lucene存储"><span class="nav-number"></span> <span class="nav-text">Elasticsearch如何通过Lucene存储</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Elasticsearch底层-到底-往Lucene写入了些什么"><span class="nav-number"></span> <span class="nav-text">Elasticsearch底层 到底 往Lucene写入了些什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#但为什么去掉msg后就可以节省66-的空间？"><span class="nav-number"></span> <span class="nav-text">但为什么去掉msg后就可以节省66%的空间？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ref"><span class="nav-number"></span> <span class="nav-text">Ref</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
