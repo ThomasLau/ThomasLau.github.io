@@ -264,6 +264,124 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/" itemprop="url">卡马克是最快的开根号方法吗</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-07T21:00:10+08:00">
+                2019-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：卡马克算法时最快的开根号方式吗？C/Java语言本身是怎么实现开根号的？</i><br><i><strong>intro2</strong>: java的内置sqrt和c的内置sqrt哪个更快？Java的编译/JIT优化和GCC的编译优化是否有不足之处？</i><br><i><strong>intro3</strong>: java的C2优化效果一定比C1效果好吗(对性能而言)？</i></p>
+</blockquote>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得到x，再对x取整返回。<br>博文的解法是使用二分查找，Java代码实现，不过这里想对该题再讨论几点<br>1）二分查找也可以优化下，建立一个简单的范围表，再二分查找，某几个国产IP库查询也是该做法(因为比BTree省太多内存)。<br>2）其实还可以用 牛顿切线法 ，每个ACMer入门练手时都会碰到的算法。<br>3）因为本题目只是要求返回正整数，那么如果我在 牛顿切分法阈值判断的时候，再加一个条件，判断本轮的整数部分和上一轮的整数部分是否相等，会不会更快？<br>4）开根号怎能少了卡马克算法，要知道在关于开根号方法中祭出卡马克算法，也就基本意味着本次交谈该结束了，但是卡马克是最快的方法吗？<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1314,122 +1432,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/" itemprop="url">Spring + Hikari的一个SQLFeatureNotSupportedException问题</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-06T01:09:07+08:00">
-                2018-07-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>1.<br><i>题记：</i><br>遇到个使用Spring xml方式配置Hikari，因为一个Bean的命名原因导致爆出 SQLFeatureNotSupportedException，追溯原因过程其实很简单，但是找到问题所在确实浪费不少时间。<br>2.<br>先看源码。<br>由于某些原因，只能使用 Spring XML方式配置 Hikari的 datasource，我自己使用jdk 1.7版本，不过粗看了下适用1.8+的Hikari代码，应该也是存在这个问题的。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1479,7 +1481,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">52</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1492,7 +1494,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">48</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

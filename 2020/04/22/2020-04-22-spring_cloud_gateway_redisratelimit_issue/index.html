@@ -1,0 +1,789 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="SpringCloud,RedisLua,ratelimiter," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="本文主要讨论Spring Cloud Gateway的基于Redis分布式限频存在的失效/不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件.  阅读本文不需要了解Spring Cloud Gateway（下简称SCG）怎么使用或具体实现，本文只是基于限频角度讨论下常规的组件使用问题。主要讨论SCG提供的基于Redis分布式限频">
+<meta name="keywords" content="SpringCloud,RedisLua,ratelimiter">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring Cloud RedisRateLimit限频存在的几个问题">
+<meta property="og:url" content="http://thomaslau.github.io/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="本文主要讨论Spring Cloud Gateway的基于Redis分布式限频存在的失效/不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件.  阅读本文不需要了解Spring Cloud Gateway（下简称SCG）怎么使用或具体实现，本文只是基于限频角度讨论下常规的组件使用问题。主要讨论SCG提供的基于Redis分布式限频">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-04-22T18:27:02.295Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spring Cloud RedisRateLimit限频存在的几个问题">
+<meta name="twitter:description" content="本文主要讨论Spring Cloud Gateway的基于Redis分布式限频存在的失效/不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件.  阅读本文不需要了解Spring Cloud Gateway（下简称SCG）怎么使用或具体实现，本文只是基于限频角度讨论下常规的组件使用问题。主要讨论SCG提供的基于Redis分布式限频">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/"/>
+
+
+
+
+
+  <title>Spring Cloud RedisRateLimit限频存在的几个问题 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spring Cloud RedisRateLimit限频存在的几个问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-22T22:59:10+08:00">
+                2020-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p><i>本文主要讨论Spring Cloud Gateway的基于Redis分布式限频存在的失效/不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件.</i></p>
+</blockquote>
+<p>阅读本文不需要了解Spring Cloud Gateway（下简称SCG）怎么使用或具体实现，本文只是基于限频角度讨论下常规的组件使用问题。<br>主要讨论SCG提供的基于Redis分布式限频存在的失效/不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件，其次也讨论该方案其他不足。如果你对SCG RedisRateLimit有所了解或已知道其存在的几个问题或觉得TLDR;，可以直接跳到<a href="/#最大的问题">本文最后</a>。<br><a id="more"></a></p>
+<h2 id="SCG-RedisRateLimit如何实现"><a href="#SCG-RedisRateLimit如何实现" class="headerlink" title="SCG RedisRateLimit如何实现"></a>SCG RedisRateLimit如何实现</h2><p>Spring Cloud Gateway定义了RateLimiter接口来达到限频效果，通过RedisRateLimiterFactory生成这个bean，借助于基于spring的各种扩展，我们可以通过诸如：</p>
+<ul>
+<li>spring 配置/Configuation</li>
+<li><p>GatewayRedisAutoConfiguration</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="attr">name:</span> <span class="string">RequestRateLimiter</span></div><div class="line"><span class="attr">  args:</span></div><div class="line"><span class="attr">    key-resolver:</span> <span class="string">"#&#123;@remoteAddrKeyResolver&#125;"</span></div><div class="line">    <span class="string">redis-rate-limiter.replenishRate:</span> <span class="number">1</span></div><div class="line">    <span class="string">redis-rate-limiter.burstCapacity:</span> <span class="number">5</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>注解<br>@RateLimiter(base = RateLimiter.Base.IP, path=”/xxx”, permits = 4, timeUnit = TimeUnit.MINUTES)</p>
+</li>
+</ul>
+<p>上面不需要理解，总之，通过上述等，最后生成RedisRateLimiter类型的bean，而限频最终就是通过该bean调用一段 Redis的Lua脚本来实现，该lua脚本基于令牌桶（Token Bucket）算法实现限频限流，支持从服务、用户、IP或自定义等维度限流。<br>我们来看下基于redis的限频逻辑和SCG的调用逻辑。</p>
+<h3 id="简要介绍下脚本的内容"><a href="#简要介绍下脚本的内容" class="headerlink" title="简要介绍下脚本的内容"></a>简要介绍下脚本的内容</h3><p>这里lua脚本是本文主要讨论的内容，它位于SCG的spring-cloud-gateway-core模块的<a href="https://github.com/spring-cloud/spring-cloud-gateway/blob/master/spring-cloud-gateway-core/src/main/resources/META-INF/scripts/request_rate_limiter.lua" target="_blank" rel="external">META-INF/scripts/request_rate_limiter.lua</a>下面:</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">local</span> tokens_key = KEYS[<span class="number">1</span>]</div><div class="line"><span class="keyword">local</span> timestamp_key = KEYS[<span class="number">2</span>]</div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"tokens_key "</span> .. tokens_key)</div><div class="line"></div><div class="line"><span class="keyword">local</span> rate = <span class="built_in">tonumber</span>(ARGV[<span class="number">1</span>])</div><div class="line"><span class="keyword">local</span> capacity = <span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>])</div><div class="line"><span class="keyword">local</span> now = <span class="built_in">tonumber</span>(ARGV[<span class="number">3</span>])</div><div class="line"><span class="keyword">local</span> requested = <span class="built_in">tonumber</span>(ARGV[<span class="number">4</span>])</div><div class="line"></div><div class="line"><span class="keyword">local</span> fill_time = capacity/rate</div><div class="line"><span class="keyword">local</span> ttl = <span class="built_in">math</span>.<span class="built_in">floor</span>(fill_time*<span class="number">2</span>)</div><div class="line"></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "rate " .. ARGV[1])</span></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "capacity " .. ARGV[2])</span></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "now " .. ARGV[3])</span></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "requested " .. ARGV[4])</span></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "filltime " .. fill_time)</span></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "ttl " .. ttl)</span></div><div class="line"><span class="keyword">local</span> last_tokens = <span class="built_in">tonumber</span>(redis.call(<span class="string">"get"</span>, tokens_key))</div><div class="line"><span class="keyword">if</span> last_tokens == <span class="literal">nil</span> <span class="keyword">then</span></div><div class="line">  last_tokens = capacity</div><div class="line"><span class="keyword">end</span></div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"last_tokens "</span> .. last_tokens)</div><div class="line"></div><div class="line"><span class="keyword">local</span> last_refreshed = <span class="built_in">tonumber</span>(redis.call(<span class="string">"get"</span>, timestamp_key))</div><div class="line"><span class="keyword">if</span> last_refreshed == <span class="literal">nil</span> <span class="keyword">then</span></div><div class="line">  last_refreshed = <span class="number">0</span></div><div class="line"><span class="keyword">end</span></div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"last_refreshed "</span> .. last_refreshed)</div><div class="line"></div><div class="line"><span class="keyword">local</span> delta = <span class="built_in">math</span>.<span class="built_in">max</span>(<span class="number">0</span>, now-last_refreshed)</div><div class="line"><span class="keyword">local</span> filled_tokens = <span class="built_in">math</span>.<span class="built_in">min</span>(capacity, last_tokens+(delta*rate))</div><div class="line"><span class="keyword">local</span> allowed = filled_tokens &gt;= requested</div><div class="line"><span class="keyword">local</span> new_tokens = filled_tokens</div><div class="line"><span class="keyword">local</span> allowed_num = <span class="number">0</span></div><div class="line"><span class="keyword">if</span> allowed <span class="keyword">then</span></div><div class="line">  new_tokens = filled_tokens - requested</div><div class="line">  allowed_num = <span class="number">1</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"delta "</span> .. delta)</div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"filled_tokens "</span> .. filled_tokens)</div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"new_tokens "</span> .. new_tokens)</div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "allowed_num " .. allowed_num)</span></div><div class="line"><span class="comment">--redis.log(redis.LOG_WARNING, "new_tokens " .. new_tokens)</span></div><div class="line">redis.<span class="built_in">log</span>(redis.LOG_WARNING, <span class="string">"--------"</span>)</div><div class="line"></div><div class="line">redis.call(<span class="string">"setex"</span>, tokens_key, ttl, new_tokens)</div><div class="line">redis.call(<span class="string">"setex"</span>, timestamp_key, ttl, now)</div><div class="line"></div><div class="line"><span class="keyword">return</span> &#123; allowed_num, new_tokens &#125;</div></pre></td></tr></table></figure>
+<p>在介绍下该脚本之前，我们先看下SCG怎么调用的，这里简单贴下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@ConfigurationProperties</span>(<span class="string">"spring.cloud.gateway.redis-rate-limiter"</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisRateLimiter</span> <span class="keyword">extends</span> <span class="title">AbstractRateLimiter</span>&lt;<span class="title">RedisRateLimiter</span>.<span class="title">Config</span>&gt; <span class="keyword">implements</span> <span class="title">ApplicationContextAware</span> </span>&#123;</div><div class="line">    <span class="comment">//......</span></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * This uses a basic token bucket algorithm and relies on the fact that Redis scripts</div><div class="line">     * execute atomically. No other operations can run between fetching the count and</div><div class="line">     * writing the new count.</div><div class="line">     */</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">    <span class="function"><span class="keyword">public</span> Mono&lt;Response&gt; <span class="title">isAllowed</span><span class="params">(String routeId, String id)</span> </span>&#123;</div><div class="line">        <span class="comment">//...</span></div><div class="line">        <span class="comment">// How many requests per second do you want a user to be allowed to do?</span></div><div class="line">        <span class="keyword">int</span> replenishRate = routeConfig.getReplenishRate();</div><div class="line">        <span class="comment">// How much bursting do you want to allow?</span></div><div class="line">        <span class="keyword">int</span> burstCapacity = routeConfig.getBurstCapacity();</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            List&lt;String&gt; keys = getKeys(id);</div><div class="line">            <span class="comment">// The arguments to the LUA script. time() returns unixtime in seconds.</span></div><div class="line">            List&lt;String&gt; scriptArgs = Arrays.asList(replenishRate + <span class="string">""</span>, burstCapacity + <span class="string">""</span>,</div><div class="line">                    Instant.now().getEpochSecond() + <span class="string">""</span>, <span class="string">"1"</span>);</div><div class="line">            <span class="comment">// allowed, tokens_left = redis.eval(SCRIPT, keys, args)</span></div><div class="line">            Flux&lt;List&lt;Long&gt;&gt; flux = <span class="keyword">this</span>.redisTemplate.execute(<span class="keyword">this</span>.script, keys, scriptArgs);</div><div class="line">            ...</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="function"><span class="keyword">static</span> List&lt;String&gt; <span class="title">getKeys</span><span class="params">(String id)</span> </span>&#123;</div><div class="line">        <span class="comment">// use `&#123;&#125;` around keys to use Redis Key hash tags</span></div><div class="line">        <span class="comment">// this allows for using redis cluster</span></div><div class="line">        <span class="comment">// Make a unique key per user.</span></div><div class="line">        String prefix = <span class="string">"request_rate_limiter.&#123;"</span> + id;</div><div class="line">        <span class="comment">// You need two Redis keys for Token Bucket.</span></div><div class="line">        String tokenKey = prefix + <span class="string">"&#125;.tokens"</span>;</div><div class="line">        String timestampKey = prefix + <span class="string">"&#125;.timestamp"</span>;</div><div class="line">        <span class="keyword">return</span> Arrays.asList(tokenKey, timestampKey);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">//......</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>为便于理解，我把大部分代码都省略了，只保留调用部分，如上可看到，isAllowed方法判断是否限频时，通过6个参数调用上文的redis lua脚本，分别是：</p>
+<ul>
+<li>tokenKey ：限频的key，如 request_rate_limiter.{userId123}</li>
+<li>timestampKey：限频ke对应的时间戳，request_rate_limiter.{userId123}.timestamp</li>
+<li>rate：限频的频率，为次每秒</li>
+<li>capacity：令牌桶算法支持的突发量(burst)</li>
+<li>now：当前时间（unix Epoch）</li>
+<li>requested：请求量，(代码写死)统一为一次</li>
+</ul>
+<p>其中 tokenKey 就是限频的维度，即是限频是针对用户还是服务等，SCG默认支持的有：<strong>General（统一控制，通常是request path）,IP（用户IP）,User（按用户控制）</strong>，此外也可自定义，诸如上文配置里的 key-resolver。</p>
+<h3 id="几个小问题讨论"><a href="#几个小问题讨论" class="headerlink" title="几个小问题讨论"></a>几个小问题讨论</h3><p>上面介绍SCG redis限频实现，不过不是必须理解的，上述归纳起来只是要说明一点：SCG redis限频就是通过 Redis Lua脚本实现，上文代码贴出，并且，这段代码也是国内一些公司自研的基于redis Lua实现限频功能的组件常参考的代码。<br>一段题外话，如果读者可能已经知道限频常用算法分为漏桶(Leaky Bucket)和令牌桶(Token Bucket)，Spring Cloud 定义是该Lua脚本是基于 Token bucket算法实现，这里可以简单了解下，不过笔者认为没必要纠结Leaky Bucket和Token Bucket的区别，事实上guava官方doc/代码没有说自己是Token Bucket实现甚至没有提及，Nginx认为自己是基于Leaky Bucket实现，但核心代码类似上述，Ali Sentinel还认为Guava的实现更接近Leaky，如果你用guava和toekn bucket搜索得到的是中文结果或英文但作者中文名，不过不是本文重点，笔者会在自己的下一篇博客讨论下这个问题，总之不要认为leaky和token是不同的限频/限流算法即可。<br>好了，看几个小问题：</p>
+<ul>
+<li>基于用户维度<br>显然这是比较耗费Redis内存的，每个用户都需要一点redis存储和redis TTL数据，这个级别是基于TTl时长的活跃用户级别的，并且如果多个接口都使用限频，那么redis的数据量就是是 M*N 量级了。<br>并且，这个限频是基于用户级别限频，不是针对服务限频的，即该维护无法提供系统服务级别本身的限频能力</li>
+<li>基于General（path、接口）维度<br>该维度限频，可以提供服务级别的限频能力，也是笔者认为大多数微服务里的限频限流模块以及各类容器里的限频限流模块所指代的对象。<br>但该脚本实现存在这 <strong>热点</strong> 数据问题，即无论redis以何种方式部署，<strong>最终都会读写tokenKey这个热点数据</strong>，也就是最终操作都会聚集到一台redis机器上，其实无论你使用何种实现：Guava的RateLimiter、Bucket4j、Zuul、Ali的Sentinel，或者无论何后端存储（Bucket4j-Jcache、Caffeine、Hazelcast、Redis、RocksDB等，都存在热点问题，而高性能的redis get/set一般在10几万每秒级别，笔者没有测试过，但理论上QPS在10万以内，也就是说无论如何扩容，该接口性能不会超过10万每秒，当然，如果你认为接口限频一定小于这个数值，那么可以忽略。<br>我们可以将一个lua function分解成多个的方式避免此问题，笔者在下一篇文章再讨论。</li>
+<li>基于IP维度<br>这个维度没有服务/业务意义，但是一个适中的力度，当然，如果有人特别需求ip到区域的，笔者推荐 IP2Location Nginx Module，lua可参考。</li>
+<li>时间回退问题<br>读者是否注意到，计算可用token时，依赖时间，因为token bucket算法就是把时间等价成一段段token均匀放入的。上述lua脚本now参数就是java的unix Epoch time，如果对应机器时间发生校正了（前置/回退），那么上述计算结果就是不准确的。<br>事实上，<em><strong>像Nginx实现的leaky bucket限频算法，阿里的Sentinel实现的Token bucket算法，都存在时间回退问题</strong></em>，而Guava的SmoothRatelimiter实现最终用的是<strong>nanoTime</strong>就不存在这个问题。</li>
+</ul>
+<h3 id="最大的问题"><a href="#最大的问题" class="headerlink" title="最大的问题"></a>最大的问题</h3><p>以下讨论都是针对 同一个 tokenKey 的情况，即tokenkey为general/api/path时现象明显，uid时存在可能性但不明显。<br>任何参考上述SCG通过Redis Lua脚本实现的基于Redis分布式限频，最大问题就是限频功能可能会失效。<br>为什么这么说？<br>首先，Token Bucket计算依赖于时间，这个时间是脚本参数传入的，假设我们的分布式系统中服务器的时间不一样，比如有一台机器慢了一秒或任何秒数，我相信该现象时间可能极短，但是应该频繁发生。<br>其次，我们看下有一台时间慢一秒，该lua脚本会发生什么。<br><em>这里需要读懂上述lua脚本代码，不过也可只看下面推理即可</em></p>
+<ul>
+<li>假设某次请求时间正常，为21:00:09秒某秒段內，且已达限频临界条件。</li>
+<li>此时慢几秒的机器发送请求（21:00:06秒），按上述脚本，则该请求会被限频，但是 redis.call(“setex”, timestamp_key, ttl, now)这句，把当前时间更新为21:00:06秒了</li>
+<li>之后其他机器请求进来，时间为21:00:09秒，基于Token bucket算法，以秒为单位时，我们知道当前秒数大于上次秒数时，请求会立即放行，并且可用缓冲permits能达到capacity。</li>
+</ul>
+<p>上面分析结论就是 21:00:09秒 限频临界后的请求本该被限频，但是却被放行了，即限频失效。</p>
+<p>下面这个脚本可以验证上述想法：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash </span></div><div class="line"></div><div class="line">sleep 4;</div><div class="line">date</div><div class="line">snds=`date +<span class="string">"%s"</span>`</div><div class="line"></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..4&#125; </div><div class="line"><span class="keyword">do</span> </div><div class="line">    redis-cli --<span class="built_in">eval</span> ~/git/spc_ratelimit.lua uuid1 uuid1.tmp , 2 4 <span class="variable">$snds</span> 1;</div><div class="line"><span class="keyword">done</span></div><div class="line">redis-cli --<span class="built_in">eval</span> ~/git/spc_ratelimit.lua uuid1 uuid1.tmp , 2 4 <span class="variable">$snds</span> 1;</div><div class="line"><span class="built_in">echo</span> <span class="string">"--reset---"</span></div><div class="line">redis-cli --<span class="built_in">eval</span> ~/git/spc_ratelimit.lua uuid1 uuid1.tmp , 2 4 $((snds-10)) 1</div><div class="line"><span class="built_in">echo</span> <span class="string">"--after reset---"</span></div><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..4&#125; </div><div class="line"><span class="keyword">do</span> </div><div class="line">    redis-cli --<span class="built_in">eval</span> ~/git/spc_ratelimit.lua uuid1 uuid1.tmp , 2 4 <span class="variable">$snds</span> 1; </div><div class="line"><span class="keyword">done</span></div><div class="line">redis-cli --<span class="built_in">eval</span> ~/git/spc_ratelimit.lua uuid1 uuid1.tmp , 2 4 <span class="variable">$snds</span> 1;</div><div class="line">date</div></pre></td></tr></table></figure></p>
+<p>上述 spc_ratelimit.lua uuid1 uuid1.tmp , 2 4 $snds 1;即是调用该脚本，uuid1即为tokenkey，2是频率，4是capacity，$snds是当前秒，1是请求量，redis ttl时间是4秒，所以开头sleep 4秒来清空历史数据。<br>开启redis-server，运行上述shell，本人机器输出：<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">➜  2019 sh test.sh</div><div class="line">Wed Apr 22 23:59:57 CST 2020</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 3</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 2</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 1</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 0</div><div class="line">1) (<span class="built_in">integer</span>) 0</div><div class="line">2) (<span class="built_in">integer</span>) 0</div><div class="line">--reset---</div><div class="line">1) (<span class="built_in">integer</span>) 0</div><div class="line">2) (<span class="built_in">integer</span>) 0</div><div class="line">--after reset---</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 3</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 2</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 1</div><div class="line">1) (<span class="built_in">integer</span>) 1</div><div class="line">2) (<span class="built_in">integer</span>) 0</div><div class="line">1) (<span class="built_in">integer</span>) 0</div><div class="line">2) (<span class="built_in">integer</span>) 0</div><div class="line">Wed Apr 22 23:59:57 CST 2020</div></pre></td></tr></table></figure></p>
+<p>可以看到，在调用四次被限频后，通过模拟一次慢10秒（$((snds-10))）的请求调用后，请求又被放行了，即 在 “Wed Apr 22 23:59:57 CST 2020至Wed Apr 22 23:59:57 CST 2020”这段时间內，接口被访问了8次(本该4次)。</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><p>1，拆分<br>个人觉得比较好的办法是将一个热点数据拆分成16个或更多，可以提高性能，然后通过设置机器相关的key将同一台机器请求路由至同一台redis，但该方案需要些hash改进，且需要解决分布式调用均衡的问题。<br>2，改lua脚本<br>该方法是将 now 这个时间由服务传参方式，改为 lua脚本自己获取时间，lua本身有 os.time 可以获取时间，但是redis安全原因 禁止lua调用系统函数，所以想到了 redis本身有个 time 指令，所以将 request_rate_limiter.lua 脚本里的</p>
+<p>local now = tonumber(ARGV[3])</p>
+<p>改为</p>
+<p>now = tonumber(redis.call(“time”)[1])</p>
+<p>即可，上述改完后再次sh test.sh 就会发现限频生效，仅放行四次，但需要指出的是，该改动多了一次redis调用(但无需重新路由)。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/SpringCloud/" rel="tag"># SpringCloud</a>
+          
+            <a href="/tags/RedisLua/" rel="tag"># RedisLua</a>
+          
+            <a href="/tags/ratelimiter/" rel="tag"># ratelimiter</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" rel="next" title="Unix Time 的几个冷门知识点">
+                <i class="fa fa-chevron-left"></i> Unix Time 的几个冷门知识点
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#SCG-RedisRateLimit如何实现"><span class="nav-number">1.</span> <span class="nav-text">SCG RedisRateLimit如何实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简要介绍下脚本的内容"><span class="nav-number">1.1.</span> <span class="nav-text">简要介绍下脚本的内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#几个小问题讨论"><span class="nav-number">1.2.</span> <span class="nav-text">几个小问题讨论</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最大的问题"><span class="nav-number">1.3.</span> <span class="nav-text">最大的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#解决办法"><span class="nav-number">1.4.</span> <span class="nav-text">解决办法</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>

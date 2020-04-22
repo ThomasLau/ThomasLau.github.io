@@ -264,6 +264,122 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/" itemprop="url">Spring + Hikari的一个SQLFeatureNotSupportedException问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-06T01:09:07+08:00">
+                2018-07-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>1.<br><i>题记：</i><br>遇到个使用Spring xml方式配置Hikari，因为一个Bean的命名原因导致爆出 SQLFeatureNotSupportedException，追溯原因过程其实很简单，但是找到问题所在确实浪费不少时间。<br>2.<br>先看源码。<br>由于某些原因，只能使用 Spring XML方式配置 Hikari的 datasource，我自己使用jdk 1.7版本，不过粗看了下适用1.8+的Hikari代码，应该也是存在这个问题的。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/07/06/2018-07-06-a-ridiculous-Ex-of-Hikari/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/07/05/2018-07-05-many_links_0705/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1326,125 +1442,6 @@ pipreqs ./
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/03/25/2018-03-25-pearls_of_Elasticsearch/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/25/2018-03-25-pearls_of_Elasticsearch/" itemprop="url">Elasticsearch几点体会</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-25T15:12:07+08:00">
-                2018-03-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。</p>
-<p>1，<br><strong> 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 </strong><br>考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&gt;128G内存），分配两个端口。比如9300/19300.<br>比如集群在 10.135.30.12:9200/9300 是一个master节点，之后拷贝配置新增如下一个节点：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">cluster.name: elasts</div><div class="line">node.master: false</div><div class="line">node.data: true</div><div class="line">transport.tcp.port: 19300</div><div class="line">discovery.zen.ping.unicast.hosts: ["10.135.30.12"]</div></pre></td></tr></table></figure>
-<p>会发现该节点启动成功，但是<strong><em>没有加入到elasts这个cluster里</em></strong>。 设置为debug级别再启动，不仔细看是发现不了问题的。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/03/25/2018-03-25-pearls_of_Elasticsearch/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1494,7 +1491,7 @@ pipreqs ./
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">52</span>
+                <span class="site-state-item-count">53</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1507,7 +1504,7 @@ pipreqs ./
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">45</span>
+                <span class="site-state-item-count">48</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
