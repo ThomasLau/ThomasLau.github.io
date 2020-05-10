@@ -264,6 +264,122 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/" itemprop="url">如何在kafka-streams实现两次group操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-13T21:00:10+08:00">
+                2019-09-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><strong>如何通过kafka-streams实现去重后再groupBy统计频率？</strong><br>使用Kafka-Streams做流计算的大家想必知道，它本身提供了 groupBy 操作可以方便我们做一些聚合计算，比如统计每分钟内每个人发出的消息数量，这个时候就可以 groupBy 用户的uid去，统计用户间互动消息频率就可以使用groupBy 用户uid和他的互动用户uid即可。<br>但如果现在需求是：如何统计每分钟和任一用户互动消息超过某频率的用户？<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1316,122 +1432,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/08/03/2018-08-03-many_links_0803/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/08/03/2018-08-03-many_links_0803/" itemprop="url">Many Links 0803</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-03T01:09:07+08:00">
-                2018-08-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>1.<br>继续 SCALA TIMES 上的分享<br><a href="https://mailchi.mp/softwaremill/scala-times-issue-2607957" target="_blank" rel="external">https://mailchi.mp/softwaremill/scala-times-issue-2607957</a><br><a href="https://manuel.bernhardt.io/2018/07/20/akka-anti-patterns-java-serialization/" target="_blank" rel="external">Akka anti-patterns: Java serialization</a><br><a href="https://mostafa-asg.github.io/post/practical-scala-cats-applicative-functor/" target="_blank" rel="external">Practical Cats: Functor and Applicative</a><br><a href="https://kubuszok.com/2018/implicits-type-classes-and-extension-methods-part-4/" target="_blank" rel="external">Implicits, type classes, and extension methods, part 4: understanding implicits</a><br><a href="http://lampwww.epfl.ch/~doeraene/thesis/" target="_blank" rel="external">Cross-Platform Language Design</a><br>2.<br>Be Nice And Write Stable Code<br><a href="http://technosophos.com/2018/07/04/be-nice-and-write-stable-code.html" target="_blank" rel="external">http://technosophos.com/2018/07/04/be-nice-and-write-stable-code.html</a><br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/08/03/2018-08-03-many_links_0803/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1481,7 +1481,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-count">54</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1494,7 +1494,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">48</span>
+                <span class="site-state-item-count">50</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
