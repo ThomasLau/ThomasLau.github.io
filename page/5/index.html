@@ -264,6 +264,126 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/" itemprop="url">从noInflation看Java Method.invoke</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T21:01:07+08:00">
+                2017-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>旧文，现重新整理下：</p>
+<h1 id="1-缘起"><a href="#1-缘起" class="headerlink" title="1. 缘起"></a>1. 缘起</h1><p>最近有同事发来如下一段异常，程序已开始运行正常，只是很快就会莫名其妙的抛这个异常，不知道如何着手解决:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl</div><div class="line">    at sun.misc.Unsafe.defineClass(Native Method)</div><div class="line">    at sun.reflect.ClassDefiner.defineClass(ClassDefiner.java:63)</div><div class="line">    at sun.reflect.MethodAccessorGenerator<span class="variable">$1</span>.run(MethodAccessorGenerator.java:399)</div><div class="line">    at sun.reflect.MethodAccessorGenerator<span class="variable">$1</span>.run(MethodAccessorGenerator.java:394)</div><div class="line">    at java.security.AccessController.doPrivileged(Native Method)</div><div class="line">    at sun.reflect.MethodAccessorGenerator.generate(MethodAccessorGenerator.java:393)</div><div class="line">    at sun.reflect.MethodAccessorGenerator.generateConstructor(MethodAccessorGenerator.java:92)</div><div class="line">    at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:55)</div><div class="line">    at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)</div><div class="line">    at java.lang.reflect.Constructor.newInstance(Constructor.java:423)</div><div class="line">    at java.lang.Class.newInstance(Class.java:442)</div><div class="line">    at com.thomas.classloader.unload.MonitorHotSwap.main(MonitorHotSwap.java:34)</div><div class="line">Caused by: java.lang.ClassNotFoundException: sun.reflect.ConstructorAccessorImpl</div><div class="line">    at java.net.URLClassLoader.findClass(URLClassLoader.java:381)</div><div class="line">    ...</div></pre></td></tr></table></figure></p>
+<p>我把他的代码稍作简化，主要部分是类似下面的逻辑，功能是程序监控某几个文件的变动，发现符合条件就会编译并会重新加载class，<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HotSwapURLClassLoader</span> <span class="keyword">extends</span> <span class="title">URLClassLoader</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="keyword">public</span> Class&lt;?&gt; loadClass(String name, <span class="keyword">boolean</span> resolve) <span class="keyword">throws</span> ClassNotFoundException &#123;</div><div class="line">        Class&lt;?&gt; clazz = <span class="keyword">null</span>;</div><div class="line">        clazz = findLoadedClass(name);</div><div class="line">        <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="comment">//...一段热替换逻辑</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (name.startsWith(<span class="string">"java."</span>)) &#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                ClassLoader system = ClassLoader.getSystemClassLoader();</div><div class="line">                clazz = system.loadClass(name);</div><div class="line">                <span class="keyword">if</span> (clazz != <span class="keyword">null</span>) &#123;</div><div class="line">                    <span class="keyword">if</span> (resolve)</div><div class="line">                        resolveClass(clazz);</div><div class="line">                    <span class="keyword">return</span> (clazz);</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</div><div class="line">                <span class="comment">// Ignore</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> customLoad(name, <span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">X</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">hot</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">        <span class="comment">//System.out.println(String.format("ver:%s, classLoader: %s.", ver, this.getClass().getClassLoader()));</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上面的异常，不同于常遇到的异常，我们根据异常栈逆推可能不会很容易的定位到root cause。所以我在hot方法加了一条日志信息，即注释打开，运行多次，发现每次都是<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ver:15, classLoader: com.thomas.unload.HotSwapURLClassLoader@4e25154f.</div><div class="line">Exception <span class="keyword">in</span> thread <span class="string">"main"</span> java.lang.NoClassDefFoundError: sun/reflect/ConstructorAccessorImpl</div></pre></td></tr></table></figure></p>
+<p>这让我想起了JVM参数有inflationThreshold=15<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/07/25/2017-07-25-from_noInflation_to_Java_Method_invoke/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2017/06/19/2017-06-19-from_Monte_Carlo_to_pySpark_fork_Bug/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1320,128 +1440,6 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2015/01/20/2015-01-20-新浪微博明文发送信息，搜狗输入法收集设备信息/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/01/20/2015-01-20-新浪微博明文发送信息，搜狗输入法收集设备信息/" itemprop="url">新浪微博明文发送信息，搜狗输入法收集设备信息</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-01-20T11:01:07+08:00">
-                2015-01-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>先看solidot一则新闻：<a href="http://www.solidot.org/story?sid=42744" target="_blank" rel="external">原文链接</a></p>
-<pre><code>迈克菲实验室称，新浪微博App通过明文HTTP发送消息，用户没有任何隐私，
-攻击者很容易收集Cookie，或通过中间人攻击修改信息，比如插入恶意链接。
-利用  Wireshark捕捉流量，用户通过聊天窗口与朋友的聊天记录完全一览无余。
-迈克菲实验室还发现，搜狗输入法会收集用户插入到电脑上的设备的信息，
-然后明文HTTP发送出去。
-</code></pre>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/01/20/2015-01-20-新浪微博明文发送信息，搜狗输入法收集设备信息/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1491,7 +1489,7 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">55</span>
+                <span class="site-state-item-count">56</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1504,7 +1502,7 @@ When you compare two databases, to get fair numbers, they need to share *a lot*:
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">53</span>
+                <span class="site-state-item-count">54</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
