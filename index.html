@@ -264,6 +264,124 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/06/20/2020-06-20-on_hash_4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/06/20/2020-06-20-on_hash_4/" itemprop="url">开发常见的Hash函数(四)-图片哈希</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-20T20:59:10+08:00">
+                2020-06-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：JPG文件生成/压缩原理</i><br><i><strong>intro2</strong>: 对离散余弦变换在图片压缩应用的思考</i><br><i><strong>intro3</strong>: JPG文件存储格式</i><br><i><strong>intro4</strong>: aHash/dHash/pHash原理及源码介绍</i><br><i><strong>intro5</strong>: 对aHash/dHash/pHash准确度、局限、场景等思考</i></p>
+</blockquote>
+<p>前一篇文章介绍Simhash/Minhash等，下面来看下之前留下的图片的相似性度量算法：ahash、dHash、pHash，在笔者经历的图片/PDf上传的经历中，上述方法效果不错。<br>本文主要以JPEG格式为例探索下图像几种哈希算法，不过图像的处理并非本文要介绍重点，只是为了方便下文理解，如果你只对怎么寻找近似图片感兴趣或看这里感到不适，可以跳过本节。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/06/20/2020-06-20-on_hash_4/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/06/13/2020-06-13-on_hash_3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1321,126 +1439,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/11/20/2019-11-20-on_redis_hyperloglog/" itemprop="url">海量数据计数的一个方法分析</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-20T23:59:10+08:00">
-                2019-11-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote><p><i><strong>intro1</strong>：如何存储以及计算一份资源的累积UV/PV？</i><br><i><strong>intro2</strong>: 使用 hyperloglog 究竟有多节省内存呢？</i></p>
-</blockquote>
-<h4 id="现象和问题："><a href="#现象和问题：" class="headerlink" title="现象和问题："></a>现象和问题：</h4><p>接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。</p>
-<h4 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h4><p>自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。<br><blockquote><p>Redis的HyperLogLog 每Key只需要12kB就可以统计大到 2^64个的用户，而保持0.81%的误差率。</p>
-</blockquote><br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/11/20/2019-11-20-on_redis_hyperloglog/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1490,7 +1488,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">58</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1503,7 +1501,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-count">58</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

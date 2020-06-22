@@ -107,7 +107,7 @@
 <meta property="og:image" content="http://thomaslau.github.io/images/geohash_err.png">
 <meta property="og:image" content="http://thomaslau.github.io/images/geohash-world.png">
 <meta property="og:image" content="http://thomaslau.github.io/images/geohash-china.png">
-<meta property="og:updated_time" content="2020-06-01T18:47:29.358Z">
+<meta property="og:updated_time" content="2020-06-21T23:37:24.615Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="开发常见的Hash函数（二）-Geohash">
 <meta name="twitter:description" content="intro1：Geohash祛魅intro2: Geohash原理及常见运算intro3: Geohash与填充曲线/二进制小数/bitHacksintro4: Geohash在Lucene/Elasticsearch/Redis等应用  前文介绍数据结构和密码学的哈希函数，本文介绍下带hash的Geohash，即如何把地理空间映射为字符编码。写作本文的时候，笔者发现一篇比较清晰的Geohash/">
@@ -443,7 +443,7 @@
 <h3 id="Lucene改进-FST-vs-BKD-tree"><a href="#Lucene改进-FST-vs-BKD-tree" class="headerlink" title="Lucene改进 FST vs BKD-tree"></a>Lucene改进 FST vs BKD-tree</h3><p>trie树可以实现前缀树和后缀树，前缀树较常见，常用与分词和字符串查询，像Lucene中DoubleArrayXX的也是，像Lucene实现的FST（Finite State Transducer）理论上像是一种前缀trie（官方自称<a href="http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3499" target="_blank" rel="external">burst trie</a>），<br>这或许也是为什么FST不能直接查询子串(不含分词)或通配符不能用于第一个，子串查询需要使用通配符或正则式模式查询。<br>但FST类似FSM（FSA/FSM有穷状态自动机，其他如DFA/NFA）， 作者自述其实是基于<a href="http://www.cs.nyu.edu/~mohri/pub/fla.pdf" target="_blank" rel="external">Weighted Finite-State Transducer</a>，比较深奥，我们比较常见的实现状态机使用的是trie图，如国内某款分词器在用的大名鼎鼎的AC自动机算法（用于字符多模式匹配的）即是trie的实现（基于trie图进行KMP匹配），这种trie图对树前缀或后缀压缩，可以较少的内存保留较多的字典信息同时，查询次数可以保持在O(1)即字符串长度。</p>
 <p><strong>所以FST具备速度快/压缩了空间，FST使得加载到内存完全可以没有索引的词，尤其是英文，所以4.0开始，FST成为重要的数据结构</strong>，影响后续功能的实现，如正排文件存储部分改动面向FST，(BlockTreeTerms类实现)加入了FST的信息和格式，term聚合到block不再是随即而是按前缀聚合…所以阅读源码最好在4.x之后，比如最主要的Term Dictionary的tim/tix/tip等文件。<br>但如果你看到 ”xx版本后倒排索引实现为FST tree“或者“xx开始大量使用的数据结构是FST”，笔者认为是较模棱两可的。倒排索引是Lucene的核心之一(basic data structure)，是一种设计思想，Lucene后来引入了BKD tree新的方式进行geo_shape查询，<a href="https://www.elastic.co/cn/blog/bkd-backed-geo-shapes-in-elasticsearch-precision-efficiency-speed" target="_blank" rel="external">在此之前倒排索引是唯一</a>，的skip list也算一种算法/数据结构，早期Lucene可能用了DefaultSkipListWriter的实现，4.0之后抛弃该类并加入FST同时后续版本也逐渐设计/改进新的skiplist实现，像各个版本产生了各种postings的(writer/reader)，我们常看到Lucene40/50/60/80之类版本好命名的包/writer类/reader类，一般对应索引读写格式的变化，但都存在扩展MultiLevelSkipListWriter/Reader这个存在很久的抽象类的类。<br>比如7.4版本<strong>Lucene50PostingsFormat的BlockTreeTermsWriter在写词典/词索引(Terms Dictionary/index)到tim/tip文件时，就用到了Lucene50PostingsWriter</strong>，其内部即是Lucene50SkipWriter，即MultiLevelSkipListWriter 负责根据block的信息写入skiplist，<a href="https://lucene.apache.org/core/8_0_0//core/org/apache/lucene/codecs/blocktree/BlockTreeTermsWriter.html" target="_blank" rel="external">BlockTreeTermsWriter</a>本身会写 .tim(Term Dictionary)和.tip(Term Index)文件，后者用来构建FST，前者用来将FST和postings倒排信息关联，FST拿到的 BlockTermState 信息通过reader的postings定位document，当Disjunction的时候BlockDocsEnum的skip就可能是Lucene50SkipReader实现(doc/pos/payload)，也可以看到其他不同的skiplist实现或相关基于skiplist提供功能的，如ParallelPostingsArray，lucene近20年历史，个人觉得看起来可能会比较跳跃。<br>elasticsearch的suggest就是基于Lucene的suggest(基于FST)，<a href="https://www.elastic.co/cn/blog/you-complete-me" target="_blank" rel="external">只不过elasticsearch不是在查询而是在建立索引时就基于segment建立</a>。<br>不过虽然是一个FSA，FST应该还不能用来实现RegexQuery/Fuzzyquery查询，一个简单的例子是“.*abc+”这样的regex查询，不过<strong>Lucene正则查询的确使用到了FST</strong>，其添加了自动机（Automaton，FSA/DFA）相关实现，blocktree匹配的时候会分SegmentTermsEnum、IntersectTermsEnum等，后者用于fuzzy/regex查找，AutomatonTermsEnum用于遍历，虽然如IntersectTermsEnum代码所示，正则查询也是依赖FST实现，而且据说速度提高百倍<a href="http://blog.mikemccandless.com/2011/03/lucenes-fuzzyquery-is-100-times-faster.html" target="_blank" rel="external">Lucene’s FuzzyQuery is 100 times faster in 4.0</a>。<br>另外，Lucene的term index，term dictionary等大多数都是pos/docid/skip这种int/long类型数据建立关联，这也是为什么lucene比较青睐对int/long进行压缩。</p>
 <h2 id="其他："><a href="#其他：" class="headerlink" title="其他："></a>其他：</h2><p>1）elasticsearch支持基于 geo_point/geo_shape 的查询，官方文档好懂，DSL使用起来非常容易。<br>其地理操作目前支持gis主要常见图形和操作，如geo_bounding_box、geo_distance、geo_distance_range、geo_polygon，但语法似乎和geojson有点差别。<br>2）对于geo_point/geo_shape，提醒一个注意点，Lucene/Elasticsearch接受point定义的多边形时，要求point不交叉，否则构成图形会有问题，这一点要注意。除此外，Lucene似乎未定义多边形点的输入顺序，像其他系统可能要求point的输入必须是逆时针顺序，笔者之前不明白原因，现在想到了，因为在球面上点围成的图形其实是两个，内和外，所以建议最好也逆时针输入。</p>
-<p><i>计划继续写Google S2和Uber以及Lucene的BKDtree，限于时间仅写到这，不过推荐一篇<a href="https://github.com/halfrost/Halfrost-Field/blob/master/contents/Go/go_s2_regionCoverer.md" target="_blank" rel="external">Google S2 是如何解决空间覆盖最优解问题的</a>。<br>最后，推荐网站在线看全球geohash编码的，因某地图需要翻墙，这里最后贴个图看下世界和中国的geohash效果：</i><br><img src="/images/geohash-world.png" width="100%"><br><img src="/images/geohash-china.png" width="100%"><br><strong> 遵循CC协议，但转载请标注来源 </strong></p>
+<p><i>计划继续写Google S2和Uber以及Lucene的BKDtree，限于时间仅写到这，不过推荐一篇<a href="https://github.com/halfrost/Halfrost-Field/blob/master/contents/Go/go_s2_regionCoverer.md" target="_blank" rel="external">Google S2 是如何解决空间覆盖最优解问题的</a>。<br>最后，推荐网站在线看全球geohash编码的，因某地图需要翻墙，这里最后贴个图看下世界和中国的geohash效果：</i><br><img src="/images/geohash-world.png" width="100%"><br><img src="/images/geohash-china.png" width="100%"><br><strong> 遵循CC协议，转载请标注来源 </strong></p>
 
       
     </div>
@@ -574,7 +574,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">57</span>
+                <span class="site-state-item-count">58</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -587,7 +587,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">56</span>
+                <span class="site-state-item-count">58</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
