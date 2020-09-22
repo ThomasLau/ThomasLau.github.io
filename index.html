@@ -264,6 +264,124 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/09/21/2020-09-21-on_consistent_hash/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/09/21/2020-09-21-on_consistent_hash/" itemprop="url">正确理解一致性哈希</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-21T20:59:10+08:00">
+                2020-09-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：正确地理解一致性哈希</i><br><i><strong>intro2</strong>: 介绍几种其他优质一致性哈希算法</i><br><i><strong>intro3</strong>: Redis Sentinel和Cluster</i></p>
+</blockquote>
+<p>之前写过几篇哈希函数的blog，本文继续对之前的 一致性哈希(consis 本文简称CoH)的进一步补充，讨论下CoH的作用，以及哪些分类。<br>阅读本文可以先阅读下 <a href="https://medium.com/@dgryski/consistent-hashing-algorithmic-tradeoffs-ef6b8e2fcae8" target="_blank" rel="external">Consistent Hashing: Algorithmic Tradeoffs</a>，原文介绍了 常见的 Consistent Hashing、Jump Hash、Multi-Probe Consistent Hashing(MPCH)、Rendezvous Hashing、、Maglev Hashing等几种一致性哈希方式，本文主要从实用角度探讨下一致性哈希实现，同时讨论下不同于原文的几点思考。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/09/21/2020-09-21-on_consistent_hash/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/08/26/2020-08-26-on_roaringbitmap_bf/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1318,124 +1436,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/01/02/2020-01-02-new_decades_new_life/" itemprop="url">新一年的技术叨叨</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-02T00:59:10+08:00">
-                2020-01-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote><p><i><strong>intro1</strong>：kafk异常io图，kafka rebalance和reassigne区别</i><br><i><strong>intro2</strong>: kafka真的只能从leader partition读写吗</i><br><i><strong>intro3</strong>: 一个不太正常的elasticsaerch分片分布场景下的扩容</i></p>
-</blockquote>
-<h2 id="从一些系统监控图能看到些什么"><a href="#从一些系统监控图能看到些什么" class="headerlink" title="从一些系统监控图能看到些什么"></a>从一些系统监控图能看到些什么</h2><p>最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io/cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前放大的图<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/01/02/2020-01-02-new_decades_new_life/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1485,7 +1485,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">59</span>
+                <span class="site-state-item-count">60</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1498,7 +1498,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
