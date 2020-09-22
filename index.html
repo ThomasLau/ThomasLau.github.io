@@ -333,7 +333,7 @@
         
           <blockquote><p><i><strong>intro1</strong>：正确地理解一致性哈希</i><br><i><strong>intro2</strong>: 介绍几种其他优质一致性哈希算法</i><br><i><strong>intro3</strong>: Redis Sentinel和Cluster</i></p>
 </blockquote>
-<p>之前写过几篇哈希函数的blog，本文继续对之前的 一致性哈希(consis 本文简称CoH)的进一步补充，讨论下CoH的作用，以及哪些分类。<br>阅读本文可以先阅读下 <a href="https://medium.com/@dgryski/consistent-hashing-algorithmic-tradeoffs-ef6b8e2fcae8" target="_blank" rel="external">Consistent Hashing: Algorithmic Tradeoffs</a>，原文介绍了 常见的 Consistent Hashing、Jump Hash、Multi-Probe Consistent Hashing(MPCH)、Rendezvous Hashing、、Maglev Hashing等几种一致性哈希方式，本文主要从实用角度探讨下一致性哈希实现，同时讨论下不同于原文的几点思考。<br>
+<p>之前写过几篇哈希函数的blog，本文继续对一致性哈希(Consistent Hashing，本文简称CoH)部分作进一步补充，讨论下CoH的作用，以及其他一致性哈希实现。<br>阅读本文前可先阅读下 <a href="https://medium.com/@dgryski/consistent-hashing-algorithmic-tradeoffs-ef6b8e2fcae8" target="_blank" rel="external">Consistent Hashing: Algorithmic Tradeoffs，需FQ</a>，原文概要介绍了Consistent Hashing、Jump Hash、Multi-Probe Consistent Hashing(MPCH)、Rendezvous Hashing、、Maglev Hashing等几种一致性哈希方式，本文主要从实用角度探讨下一致性哈希实现，同时讨论下不同于原文的几点思考。<br>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/09/21/2020-09-21-on_consistent_hash/#more" rel="contents">
