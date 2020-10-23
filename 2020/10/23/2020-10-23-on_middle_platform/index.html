@@ -1,0 +1,724 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="中台," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="一篇不是技术的文章，记录下自己对技术中台的思考和预言。阐述下什么是中台，谁有资格定义中台。">
+<meta name="keywords" content="中台">
+<meta property="og:type" content="article">
+<meta property="og:title" content="什么是中台">
+<meta property="og:url" content="http://thomaslau.github.io/2020/10/23/2020-10-23-on_middle_platform/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="一篇不是技术的文章，记录下自己对技术中台的思考和预言。阐述下什么是中台，谁有资格定义中台。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-10-23T16:18:52.348Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="什么是中台">
+<meta name="twitter:description" content="一篇不是技术的文章，记录下自己对技术中台的思考和预言。阐述下什么是中台，谁有资格定义中台。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2020/10/23/2020-10-23-on_middle_platform/"/>
+
+
+
+
+
+  <title>什么是中台 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/10/23/2020-10-23-on_middle_platform/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">什么是中台</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-10-23T20:59:10+08:00">
+                2020-10-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p>一篇不是技术的文章，记录下自己对技术中台的思考和预言。<br>阐述下什么是中台，谁有资格定义中台。</p>
+</blockquote>
+<a id="more"></a>
+<p>中台是什么，不同的人显然会有不同定义，如有雷同可能不是巧合而是同一个小组织里的或者看过同一篇文章。</p>
+<p>国内成熟的大公司正如火如荼的投入中台的建设中，如果你有机会同多家企业进行技术交流，就会听到大家常聊基础服务/中台/业务面对中台带来的改变，就能够感受到许多技术人员不仅仅是热情，还投入精力，深入的思考、设计和实现。</p>
+<p>这篇水文的目的并非否定中台，因为中台建设已经是国内成熟企业必然道路，有点像是军备竞赛，只不过是没有竞争目的的，真正技术达人已经在实践中台的路上了。本文希望对哪些还在“跂而望矣”的技术人带来一些感悟。</p>
+<p>各位知道 中台 应该对应什么英文吗？或者能谷歌/百度到吗？</p>
+<p>什么是中台？我觉得这个问题目前无法取得答案，不如看看“谁才是中台的定义者”，这个问题更有意义。<br><strong>谁具备资格定义中台？</strong><br>显然supercell不认为自己有中台，所以解铃还须系铃人，只有阿里的才是中台的定义者，除非阿里把定义权开放出来。<br>笔者不是说只有阿里有这个技术实力才有这个资格定义中台，想表达的只是 当出现阿里版本的中台和腾讯版本的中台(假设有的话)，大家会认为哪个才是最名正言顺的“中台”呢？从技术影响力的角度看，各位又认为自比腾讯何如呢？<br>笔者觉得普通公司获得中台认证的机会可能就是几大厂商联合制定规范，或者技术布道，再其次就是通过产品出关于中台的书阐释中台了。</p>
+<p>如果我们看百度百科对中台对目标的定义：”提高企业快速低成本创新的能力，减少沟通成本，提升协作效率。“<br>有点好笑的是，这里强调的是沟通成本/写作文效率，但如果你是开发的话，就知道这两句其实是同一个意思。着实浪费字数。<br>相信大部分中台架构/研发绝不会这么简单、单纯的思考中台。</p>
+<p>但中台实施的背后确实是技术研发。</p>
+<p>笔者目前有近十年行业经历，见过金字塔型组织成功也见过扁平化组织的成功，当我们都关注于supercell连续成功数个产品，觉得成功仿佛可以复制时，却不知道他们自己曾公开过这家2000年创建的公司过去失败了很多产品。<br>系统的背后永远是开发者，是人，人和人就组成了团队，团队的建立需要成本，团队的文化和价值观会有磨合，团队的调整会放大这些成本，决策方向的管理者可以不考虑这些，但是真正实施的团队管理者却不能不考虑。<br>当大家都憧憬着似乎无所不能的用户中心、订单中心、支付中心、评价/运单/物流等中心时，似乎all-in-one的未来那么近。<br>一个简单的问题，你听过腾讯技术分享过自己的中台吗，网上有一篇腾讯业务线总裁分享的“中台”理念，我认为国内应该没有公司会否认腾讯的用户中心/平台会是国内最强大的用户中心，不仅仅是用户覆盖面之广和积累历史之久，数据就是金山。<br>似乎中台就像是一场但行好事莫问前程的选择。<br>中台也是一场企业管理者对技术产出者提出的一场革命，相信会有美好的未来，但我始终认为有个“度”需要看清楚，就像SOA尽管带来了 抽象/复用/平台化/统一化/可扩展度，但 性能/冗余/繁复 随之而来，固化的形式主义也掣肘着业务往差异化方向发展。多想想腾讯这个多元化差异化的互联巨兽。</p>
+<p>最后讨论下DDD。<br>雁过留声，即便是看paxos原论文虽然不懂也能感受到满满的有趣，但是如果你读领域驱动设计（Domain-Driven Design，简称DDD）相关的文章，过一段时间能记得多少呢？笔者重复看过多次但几乎都没有记得住一条实用的，这其中的确是有一部分个人记忆力问题，但如果看近百遍都没有记住一条实用的信息，是记忆力问题还是内容本身的问题呢？我想大部分人看设计模式和软件架构模式看十遍也能记得住几条或有所启发。<br>笔者认为DDD有时候是一种玄学，DDD追求高内聚低耦合，但高内聚有时看起来何尝不是高耦合，低耦合看起来何尝不是低内聚。</p>
+<p><strong> 遵循CC协议，转载请标注来源 </strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/中台/" rel="tag"># 中台</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/09/21/2020-09-21-on_consistent_hash/" rel="next" title="正确理解一致性哈希">
+                <i class="fa fa-chevron-left"></i> 正确理解一致性哈希
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
