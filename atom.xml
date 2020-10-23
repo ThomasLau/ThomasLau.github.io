@@ -823,11 +823,11 @@
     </summary>
     
     
-      <category term="Lucene" scheme="http://thomaslau.github.io/tags/Lucene/"/>
-    
       <category term="elasticsearch" scheme="http://thomaslau.github.io/tags/elasticsearch/"/>
     
       <category term="architecture" scheme="http://thomaslau.github.io/tags/architecture/"/>
+    
+      <category term="Lucene" scheme="http://thomaslau.github.io/tags/Lucene/"/>
     
   </entry>
   
@@ -862,11 +862,11 @@
     
       <category term="kafka" scheme="http://thomaslau.github.io/tags/kafka/"/>
     
+      <category term="yearly" scheme="http://thomaslau.github.io/tags/yearly/"/>
+    
       <category term="elasticsearch" scheme="http://thomaslau.github.io/tags/elasticsearch/"/>
     
       <category term="architecture" scheme="http://thomaslau.github.io/tags/architecture/"/>
-    
-      <category term="yearly" scheme="http://thomaslau.github.io/tags/yearly/"/>
     
   </entry>
   
