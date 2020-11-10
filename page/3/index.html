@@ -264,6 +264,124 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/" itemprop="url">Elasticsearch[曾]在布尔类型字段设计上犯的错</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-17T13:29:10+08:00">
+                2019-08-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro</strong>: 对于布尔类型字段的处理，Elasticsearch 曾犯了一个错，直到数年后 发布6.0版本才修正过来，这个设计或多或少会遇到，只是没留意，但是查询的时候结果还是让人困惑的。</i></p>
+</blockquote>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>前几天刚到公司，同事抛出一个问题，就是发现前一天某个搜索查询条件没有结果，但是第二天却出来结果，不过这个出来的结果是不对的，即搜索result=90时，出现了result=91的结果。<br>于是给我发了链接，我点过去就是下图这样子：<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
     <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/08/14/2019-08-14-on_logstash_quiz1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1312,122 +1430,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2018/07/05/2018-07-05-many_links_0705/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Thomas Lau">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/myLogo.png">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="e+Thomas">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/07/05/2018-07-05-many_links_0705/" itemprop="url">Many Links 0705</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-05T01:09:07+08:00">
-                2018-07-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>1.<br>首先推荐来自今天的 <a href="https://wanqu.co/issues/1205?s=/issues" target="_blank" rel="external">湾区日报</a><br>从最初坚持每天5篇分享至今已经1205期了，点赞作者.<br>  1)<a href="https://wanqu.co/a/6700/2018-07-04-who-has-the-best-business-model-and-its-not-google-or-facebook.html?s=/issues/1205" target="_blank" rel="external">最好的商业模式</a>, 微软、苹果、Netflix：花钱的用户是用产品的人；谷歌与FB：花钱的是广告商，用产品的人免费；Amazon、腾讯、阿里：小比例的超级用户花大钱，间接让整个生态变得更好。哪种商业模式好？<br>  2)Firefox + Pocket：打造更好的文章推荐引擎。恐怕很多人不知道Pocket已经被Mozilla收购了。如果你有使用Firefox，打开一个空白新窗口就会看到Pocket推荐的文章，这是根据你使用Firefox的本地浏览记录推荐的。<br>2.<br>Microsoft: The Early Days: <a href="http://www.memecentral.com/mylife.htm" target="_blank" rel="external">http://www.memecentral.com/mylife.htm</a><br>这篇也是湾日的推荐。<br>1981年，作者和其老板Charles Simonyi从计算机人机交互界面发展先驱的施乐走出，经同事即3Com创始人的建议，一起成为微软第77位员工，当时微软刚要开始做应用程序，开始山寨Mac上的电子表格，后来开始做“长得像电子表格的字处理系统”，也就是Word。<br>Word，成为了之后数年的Revenue Bomb， 难怪当年求伯君把自己关在张旋龙（金山创始人，张小龙的哥哥，不是八卦里的微信张小龙）为他在深圳包的一个房间里，日夜兼程写出了字处理系统WPS， 不过当初目标据说是为了超越当时尚火WordStar，WordStar兼容DOS，不过90年后被MS Word超越。<br>求伯君后来吐露，虽然WPS每年收入数千万（1993年前后），但是自己只是个给老板打工的。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/07/05/2018-07-05-many_links_0705/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1477,7 +1479,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-count">62</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -1490,7 +1492,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">63</span>
+                <span class="site-state-item-count">64</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>

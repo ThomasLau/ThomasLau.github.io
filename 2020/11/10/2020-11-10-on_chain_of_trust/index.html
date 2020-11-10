@@ -1,0 +1,703 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="随感," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="一篇不是技术的文章，记录下自己对软件研发中的信任链的思考。也是最近看一篇监控哲学的文章和参加一场技术复盘讨论有感，这场复盘会笔者听下来觉得最大的问题就是软件研发中的信任链导致的。">
+<meta name="keywords" content="随感">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件研发中的信任链问题">
+<meta property="og:url" content="http://thomaslau.github.io/2020/11/10/2020-11-10-on_chain_of_trust/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="一篇不是技术的文章，记录下自己对软件研发中的信任链的思考。也是最近看一篇监控哲学的文章和参加一场技术复盘讨论有感，这场复盘会笔者听下来觉得最大的问题就是软件研发中的信任链导致的。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-11-10T17:59:04.289Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="软件研发中的信任链问题">
+<meta name="twitter:description" content="一篇不是技术的文章，记录下自己对软件研发中的信任链的思考。也是最近看一篇监控哲学的文章和参加一场技术复盘讨论有感，这场复盘会笔者听下来觉得最大的问题就是软件研发中的信任链导致的。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/2020/11/10/2020-11-10-on_chain_of_trust/"/>
+
+
+
+
+
+  <title>软件研发中的信任链问题 | e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/11/10/2020-11-10-on_chain_of_trust/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">软件研发中的信任链问题</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-11-10T20:59:10+08:00">
+                2020-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote><p>一篇不是技术的文章，记录下自己对软件研发中的信任链的思考。<br>也是最近看一篇监控哲学的文章和参加一场技术复盘讨论有感，这场复盘会笔者听下来觉得最大的问题就是软件研发中的信任链导致的。</p>
+</blockquote>
+<a id="more"></a>
+<p>软件研发信任链其实在日常研发、交付、使用过程中无处不在，以至于太多人熟视无睹，像我们系统研发就是基于相信spring,netty,openssl这类组件是安全可靠的，也是基于java/JDK是安全的，JDK基于Linux甚至intel CPU是安全可靠的，但实际上他们都有不可靠的时候，比如曾经Intel处理器设计缺陷进而引发的一系列史诗级别的芯片漏洞Spoiler/Spectre就曾经轰动一时，还有OpenSSL的Heartbleed，很难相信这些存在几十年的基础软件潜藏着幽灵，像Spring Data*和SpEL以及Fastjson等都爆出过高危漏洞。</p>
+<p>但大部分研发其实不会涉及基础软件漏洞，相信基础软件是大多数研发必然的选择，但研发日常还是存在信任链的，比如以前我们做过一个数据打点收集系统，上游是资深数据分析专家，而下游也是长久不出事故的入库系统，某天数据专家提出数据不对，某时间段的数据量异常，而下游反馈服务无异常。<br>这个时候我们这一环就处于被动境地，因为下游排查数据丢失是很困难的，要求业务系统证明没有丢数据（服务当机/传输错误/甚至客户端被拦截等），显然我们这时候就丢失了信任链的基础，或许可以将责任递推给下游，但如果我们的有监控数据，能对比五日历史发现曲线其实基本重合的，理论上数据量应该至少也是接近的，这时候僵局就存在打破的可能，好在最后对比几条数据发现是处理方一台机器，有台机器时区不正确导致入库落到错误的partition/表里去了。<br>如果考虑任何可能，严格地说，大部分系统是无法自证的，大部分监控也是不能自证的，但可以作为参考，或者如果我们比较历史等能让事实更加可信。</p>
+<p>笔者认为研发信任链绝不是一无是处，毕竟软件研发就是建立在信任之上的，不论早期unix时各位大神就是信任研发，个人的经历和技术成就本身就是信任的基础，现代研发其实看人/组织的信任链依旧是主流，而且是特别主流的，否则也不会有nodejs病毒包依赖/fastjson漏洞这样影响力（开源简直伟大，又是必然的！）</p>
+<p>但不是所有人都是大神，都值得被信任，尤其是那些开发节奏紧促的公司，这时候把信任链产生的错误在可控范围内是共识，所以通常的 压测/灰度/回归/功能测试都是可以很大程度避免的手段，但没有足够的测试时怎么办？<br>监控，监控，监控！<br>这也是本文第二个目的，推荐一下这篇翻译的文章：<a href="https://mp.weixin.qq.com/s/lJRPt7I0SeUwZ4HhVZn8AQ" target="_blank" rel="external">报警的哲学</a>。</p>
+<p>不过，技术人很容易主动，我认为这是很难避免的，即便有再多的技术性手段可以约束和规范，总会有人为上的错误，需要经历才能体会，要么经历后从此畏手畏脚，要么经历后学会更多技术性技巧吃一堑长十智，后者就是好的技术人员，提供这样氛围的就是好的技术团队，值得被感恩。</p>
+<p>当然除了信任链，更多还需要自己去考虑，比如像把Elasticsearch添加xPack插件做权限校验或者升级Elasticsearch，官方文档给了<a href="https://blog.csdn.net/barry_wang2016/article/details/107908337" target="_blank" rel="external">升级路径</a>，但其实还需要多一步思考，比如可以做到不停机平滑安装吗，不仅ES本身，还有相关应用本身，滚动重启时es各节点正常通信吗，需要停止写入吗，应用本身无认证/有认证的查询请求能正常访问吗。<br>或许在ES运维/专家看来看到的只是ES安装插件或者升级这件事，多么简单的一件事，官方文档有解决方案，但是对于上层服务提供者需要考虑更多，才会关注服务是否平滑。<br>我认为上述场景也是一种信任链问题，<strong>当系统被划分为多层时，不同层面的人思考关注的问题不一样，并且这种不同有时甚至造成误解</strong>。比如上述场景的运维角度看，自己做的就是平滑升级/安装插件这个事，如果应用方也认为这个 平滑 对应用来说也是平滑的，那么这时就产生问题了。<br>上面问题当然可以通过基础组件提高运维/积累解决方案能力来避免，但那可能不过是诸多问题中的一个而已，笔者就听过有研发听到腾讯Elastisearch运维专家就无条件相信对方的方案，结果做的时候才发现大家对 平滑升级 理解不同。</p>
+<p>忘记在哪本书里看过，大型系统开发曾被比作焦油坑，人们困在其中，少数团队爬出来，什么样团队能爬出来？作者列举几个，如水平需要风格统一，要具备稳定性鲁棒性，好维护，细想起来这几点其实围绕的就是信任链问题，风格规范（如maven的约定优于配置哲学）不就是从风格规范提升软件信任度吗，Java/C++等社区提倡的命名规范(如get/set方法不要产生副作用)就更是一种信任链了，如此对后续维护者也是一种承诺。<br>更一般的，我们对项目研发的进度安排规划本身也是一种信任链，而人月神话作者Brooks提倡的法则：向进度落后的项目中增加人手只会使进度更加落后，或许也和对新加入者的信任度有关。<br>而接口文档就更是一种软件信任链了，而且更具书面性，更正式，这或许也是为什么程序员不爱写文档的另一个原因，实际上Brooks也对软件手册着重讨论，书中提出了不少不错的建议，总之接口文档是一种信任链，但也是一把双刃剑，其中学问需要多经历和积累。</p>
+<p>最后，上述信任链导致ES升级故障的事，其实笔者认为这是一种<strong>积极的错误</strong>，因为这通常意味着这家公司很可能是在上升发展期，这是有ownership精神的技术员会做的事，相比因循守旧不想大动干戈的想躺赢的技术员，主动性更难能可贵。</p>
+<p><strong> 遵循CC协议，转载请标注来源 </strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/随感/" rel="tag"># 随感</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/23/2020-10-23-on_middle_platform/" rel="next" title="什么是中台">
+                <i class="fa fa-chevron-left"></i> 什么是中台
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+
+  
+
+  
+
+</body>
+</html>
