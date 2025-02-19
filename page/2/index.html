@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html>
 <head>
@@ -283,10 +284,702 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <blockquote><p><i><strong>intro1</strong>：对一段解析17monipdb&#x2F;ipip.net ip库 函数的 15倍-70倍-300倍 性能优化</i><br><i><strong>intro2</strong>: 一个sql count 语句的优化</i></p>
+=======
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon32.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="e+Thomas">
+<meta property="og:url" content="http://thomaslau.github.io/page/2/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="e+Thomas">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"hide","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://thomaslau.github.io/page/2/"/>
+
+
+
+
+
+  <title>e+Thomas</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?22bda74eb54c0d90672fd5c06458004c";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left 
+   page-home 
+ ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">e+Thomas</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+  <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/03/07/2020-03-07-on_unix_time_unix_epoch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" itemprop="url">Unix Time 的几个冷门知识点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-07T22:59:10+08:00">
+                2020-03-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：一文搞懂unix time、unix epoch、utc时间、gmt时间</i><br><i><strong>intro2</strong>: 大部分人对unix time的误解</i></p>
+</blockquote>
+<p>本计划对上一篇文章做点补充，不过今天来点简单的。</p>
+<h3 id="unix-time"><a href="#unix-time" class="headerlink" title="unix time"></a>unix time</h3><p>许多人对 unix time有误解，只知其是相对世界时/格林威治时1970年1月1号0点0分0秒整的时间差，有的人可能还记得是0时区。<br>但这些认识是不对的。而一些文档如Java API Doc里写的并不全，或没有明确使阅读者明确理解。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" itemprop="url">Elasticsearch 的几个冷门知识点</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-12T00:59:10+08:00">
+                2020-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：一个不太正常的elasticsaerch分片分布场景下的扩容</i><br><i><strong>intro2</strong>: elasticsaerch到底往Lucene中写了些什么数据</i><br><i><strong>intro3</strong>: Lucene的文件的压缩</i></p>
+</blockquote>
+<h3 id="前文问题解答"><a href="#前文问题解答" class="headerlink" title="前文问题解答"></a>前文问题解答</h3><p>前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/01/02/2020-01-02-new_decades_new_life/" itemprop="url">新一年的技术叨叨</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-02T00:59:10+08:00">
+                2020-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：kafk异常io图，kafka rebalance和reassigne区别</i><br><i><strong>intro2</strong>: kafka真的只能从leader partition读写吗</i><br><i><strong>intro3</strong>: 一个不太正常的elasticsaerch分片分布场景下的扩容</i></p>
+</blockquote>
+<h2 id="从一些系统监控图能看到些什么"><a href="#从一些系统监控图能看到些什么" class="headerlink" title="从一些系统监控图能看到些什么"></a>从一些系统监控图能看到些什么</h2><p>最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io/cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前放大的图<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/02/2020-01-02-new_decades_new_life/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" itemprop="url">一段IP查找函数的优化及其它</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-03T00:59:10+08:00">
+                2019-12-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：对一段解析17monipdb/ipip.net ip库 函数的 15倍-70倍-300倍 性能优化</i><br><i><strong>intro2</strong>: 一个sql count 语句的优化</i></p>
+>>>>>>> b8a71e02d0bd39ce9accff930f912ab1f95d241c
 </blockquote>
 <p>声明：</p>
 <ol>
 <li>本文代码均为本人所写或可在网上搜索的到的开源代码，遵循开源协议。</li>
+<<<<<<< HEAD
 <li>文中引用代码不涉及所就职公司代码，即便有也是本人从开源代码获取，或做了混淆处理。</li>
 </ol>
         
@@ -644,21 +1337,1076 @@
 
 
 <script src="/js/jquery-3.6.4.min.js"></script>
+=======
+<li>文中引用代码不涉及所就职公司代码，即便有也是本人从开源代码获取，或做了混淆处理。
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/20/2019-11-20-on_redis_hyperloglog/" itemprop="url">海量数据计数的一个方法分析</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-20T23:59:10+08:00">
+                2019-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：如何存储以及计算一份资源的累积UV/PV？</i><br><i><strong>intro2</strong>: 使用 hyperloglog 究竟有多节省内存呢？</i></p>
+</blockquote>
+<h4 id="现象和问题："><a href="#现象和问题：" class="headerlink" title="现象和问题："></a>现象和问题：</h4><p>接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。</p>
+<h4 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h4><p>自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。<br><blockquote><p>Redis的HyperLogLog 每Key只需要12kB就可以统计大到 2^64个的用户，而保持0.81%的误差率。</p>
+</blockquote><br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/11/20/2019-11-20-on_redis_hyperloglog/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/11/13/2019-11-13-on_maven_profiles/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/13/2019-11-13-on_maven_profiles/" itemprop="url">Maven Profile的两个技巧和一个注意事项</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-13T23:59:10+08:00">
+                2019-11-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><strong>现象和问题：</strong><br>写了个 xx-service 的基于maven项目，借助spring配置文件可执行，现在有需求是希望将该项目以SDk方式打包到maven仓库以便使用其中某些service类(暂不论合理与否)，如何通过maven profile实现在编辑器里不同开发人员默认用不同的 active profile？<br>实现不同的 active profile是希望双方在开发的时候，一个可以直接package出来 不含配置文件的纯 SDK 包，而我这边使用eclipse时可以默认生成需要的配置文件(local profile)到classpath下，免于命令行切换,提高开发/测试效率。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/11/13/2019-11-13-on_maven_profiles/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/" itemprop="url">Https模式下Nginx+SpringSecurity+SSO的一个交互问题</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-28T23:59:10+08:00">
+                2019-10-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><strong>现象和问题：</strong><br>有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。<br>问题来了：服务A本身运行正常，但是开启nginx前端代理时候，发现通过https进入系统A时，第一次(sso登录验证成功)通过url1总是跳转到 80端口(http)的服务，而不是443端口(https)的A应用，但是第二次再通过url1就能正常访问A应用。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/20/2019-09-20-many_links_0920/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/20/2019-09-20-many_links_0920/" itemprop="url">Many Links 0920</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-20T01:09:07+08:00">
+                2019-09-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>1.<br><a href="https://www.easyice.cn/archives/328" target="_blank" rel="external">https://www.easyice.cn/archives/328</a><br>一次 JBD2进程导致磁盘 IO 高的分析解决过程<br>设计不合理，导致对 zk 执行大量写操作，导致io高。<br>临时措施：将 zk 的数据路径调整到系统盘，系统盘为 ssd<br>使用 sysdig+strace 工具<br>2.<br>软件架构被高估，清晰简单的设计被低估<br><a href="https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV" target="_blank" rel="external">https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV</a><br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/09/20/2019-09-20-many_links_0920/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/" itemprop="url">如何在kafka-streams实现两次group操作</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-13T21:00:10+08:00">
+                2019-09-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><strong>如何通过kafka-streams实现去重后再groupBy统计频率？</strong><br>使用Kafka-Streams做流计算的大家想必知道，它本身提供了 groupBy 操作可以方便我们做一些聚合计算，比如统计每分钟内每个人发出的消息数量，这个时候就可以 groupBy 用户的uid去，统计用户间互动消息频率就可以使用groupBy 用户uid和他的互动用户uid即可。<br>但如果现在需求是：如何统计每分钟和任一用户互动消息超过某频率的用户？<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Thomas Lau">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/myLogo.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="e+Thomas">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/" itemprop="url">卡马克是最快的开根号方法吗</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-07T21:00:10+08:00">
+                2019-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote><p><i><strong>intro1</strong>：卡马克算法时最快的开根号方式吗？C/Java语言本身是怎么实现开根号的？</i><br><i><strong>intro2</strong>: java的内置sqrt和c的内置sqrt哪个更快？Java的编译/JIT优化和GCC的编译优化是否有不足之处？</i><br><i><strong>intro3</strong>: java的C2优化效果一定比C1效果好吗(对性能而言)？</i></p>
+</blockquote>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得到x，再对x取整返回。<br>博文的解法是使用二分查找，Java代码实现，不过这里想对该题再讨论几点<br>1）二分查找也可以优化下，建立一个简单的范围表，再二分查找，某几个国产IP库查询也是该做法(因为比BTree省太多内存)。<br>2）其实还可以用 牛顿切线法 ，每个ACMer入门练手时都会碰到的算法。<br>3）因为本题目只是要求返回正整数，那么如果我在 牛顿切分法阈值判断的时候，再加一个条件，判断本轮的整数部分和上一轮的整数部分是否相等，会不会更快？<br>4）开根号怎能少了卡马克算法，要知道在关于开根号方法中祭出卡马克算法，也就基本意味着本次交谈该结束了，但是卡马克是最快的方法吗？<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+  </nav>
+
+
+
+          </div>
+          
+
+
+          
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/myLogo.png"
+               alt="Thomas Lau" />
+          <p class="site-author-name" itemprop="name">Thomas Lau</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">62</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">64</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/ThomasLau" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://twitter.com/liuyongzhi0218" target="_blank" title="Twitter">
+                  
+                    <i class="fa fa-fw fa-twitter"></i>
+                  
+                  Twitter
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Thomas Lau</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+>>>>>>> b8a71e02d0bd39ce9accff930f912ab1f95d241c
 
 
 
   
+<<<<<<< HEAD
 <script src="/fancybox/jquery.fancybox.min.js"></script>
 
 
 
 
 <script src="/js/script.js"></script>
+=======
+>>>>>>> b8a71e02d0bd39ce9accff930f912ab1f95d241c
 
 
 
 
 
+<<<<<<< HEAD
   </div>
 </body>
 </html>
+=======
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+  
+    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
+
+  
+
+  
+
+</body>
+</html>
+>>>>>>> b8a71e02d0bd39ce9accff930f912ab1f95d241c
