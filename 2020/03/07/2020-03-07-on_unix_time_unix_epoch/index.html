@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Unix Time 的几个冷门知识点 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="intro1：一文搞懂unix time、unix epoch、utc时间、gmt时间intro2: 大部分人对unix time的误解  本计划对上一篇文章做点补充，不过今天来点简单的。 unix time许多人对 unix time有误解，只知其是相对世界时&#x2F;格林威治时1970年1月1号0点0分0秒整的时间差，有的人可能还记得是0时区。但这些认识是不对的。而一些文档如Java API">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unix Time 的几个冷门知识点">
+<meta property="og:url" content="http://thomaslau.github.io/2020/03/07/2020-03-07-on_unix_time_unix_epoch/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：一文搞懂unix time、unix epoch、utc时间、gmt时间intro2: 大部分人对unix time的误解  本计划对上一篇文章做点补充，不过今天来点简单的。 unix time许多人对 unix time有误解，只知其是相对世界时&#x2F;格林威治时1970年1月1号0点0分0秒整的时间差，有的人可能还记得是0时区。但这些认识是不对的。而一些文档如Java API">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-03-07T14:59:10.000Z">
+<meta property="article:modified_time" content="2020-03-08T10:16:03.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="unix Epoch">
+<meta property="article:tag" content="闰秒">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2020-03-07-on_unix_time_unix_epoch" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" class="article-date">
+  <time class="dt-published" datetime="2020-03-07T14:59:10.000Z" itemprop="datePublished">2020-03-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Unix Time 的几个冷门知识点
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：一文搞懂unix time、unix epoch、utc时间、gmt时间</i><br><i><strong>intro2</strong>: 大部分人对unix time的误解</i></p>
+</blockquote>
+<p>本计划对上一篇文章做点补充，不过今天来点简单的。</p>
+<h3 id="unix-time"><a href="#unix-time" class="headerlink" title="unix time"></a>unix time</h3><p>许多人对 unix time有误解，只知其是相对世界时&#x2F;格林威治时1970年1月1号0点0分0秒整的时间差，有的人可能还记得是0时区。<br>但这些认识是不对的。而一些文档如Java API Doc里写的并不全，或没有明确使阅读者明确理解。</p>
+<span id="more"></span>
+<p>笔者工作过程就曾经听到不同的人在做把unix timestamp 转化为格式化的时间时，会问时区是哪里的，或者认为其时区是本地或者0时区的是否+8。<br>排除这种误区实际上可以简单的记住一点即可：<strong>unix timestamp 是 相对于 UTC 时间的时间差，而 UTC 几乎是对等 GMT+0 的时间。</strong></p>
+<h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>先从Wikipedia介绍几个概念：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">世界时（Universal Time，简称UT）是一种以格林尼治子夜起算的平太阳时。</span><br><span class="line">世界时是以地球自转为基准得到的时间尺度，其精度受到地球自转不均匀变化和极移的影响，</span><br><span class="line">为了解决这种影响，1955年国际天文联合会定义了UT0、UT1和UT2</span><br><span class="line">1. UT0系统是由一个天文台的天文观测直接测定的世界时，没有考虑极移造成的天文台地理坐标变化。</span><br><span class="line">该系统曾长期被认为是稳定均匀的时间计量系统，得到过广泛应用。</span><br><span class="line">2. UT1系统是在UT0的基础上加入了极移改正 Δλ，修正地轴摆动的影响。UT1是目前使用的</span><br><span class="line">世界时标准。被作为目前世界民用时间标准UTC在增减闰秒时的参照标准。</span><br><span class="line">3. UT2系统是UT1的平滑处理版本，在UT1基础上加入了地球自转速率的季节性改正 ΔT。</span><br><span class="line"></span><br><span class="line">协调世界时（英语：Coordinated Universal Time，法语：Temps Universel Coordonné，</span><br><span class="line">简称UTC）是最主要的世界时间标准，其以原子时秒长为基础，在时刻上尽量接近于格林威治标准时间</span><br><span class="line"></span><br><span class="line">格林尼治平均时间（英语：Greenwich Mean Time，GMT）是指位于英国伦敦郊区的皇家格林尼治</span><br><span class="line">天文台当地的平太阳时，因为本初子午线被定义为通过那里的经线。</span><br><span class="line"></span><br><span class="line">Unix epoch：that is the time 00:00:00 UTC on 1 January 1970，</span><br><span class="line">即一般指特定的时间：1970-01-01 00:00:00 UTC。</span><br><span class="line"></span><br><span class="line">Unix time：also known as Epoch time, POSIX time,seconds since the Epoch,</span><br><span class="line">or UNIX Epoch time.It is the number of seconds that have elapsed since </span><br><span class="line">the Unix epoch, minus leap seconds. Leap seconds are ignored,with a leap</span><br><span class="line"> second having the same Unix time as the second before it, and every day </span><br><span class="line"> is treated as if it contains exactly 86400 seconds.[2] Due to this treatment, </span><br><span class="line"> Unix time is not a true representation of UTC.</span><br></pre></td></tr></table></figure>
+
+<p>上述，UTC是协调世界时，即Universal Time Coordinated，英法两国联合定制，名字取二者调和。</p>
+<p>上述，Unix time表示距离unix Epoch的秒数，但Unix time是不考虑闰秒的，这意味着如果你运行：</p>
+<ol>
+<li>JAVA的System.out.println(new SimpleDateFormat(“yyyy-MM-dd HH:mm:ss,SSS”).format(915148800750l));<br>系统输出的是 1999-01-01 08:00:00,750 </li>
+<li>或python的 datetime.datetime.fromtimestamp(915148800.750).strftime(“%Y-%m-%d %H:%M:%S.%f”)<br>系统输出的是：1999-01-01 08:00:00.750000<br><strong>但实际上 UTC时间 其实是 1998-12-31T23:59:60.75</strong>，而不是1999年1月1日。</li>
+</ol>
+<p>地球的轨道和运动速度都不是均匀的，天文学家计算地球非圆形轨迹与极轴倾斜对视太阳时的效应，修正以后的实际即平太阳时，在格林尼治子午线上的平太阳时称为世界时(UT0)，又叫格林尼治平时(GMT)，为了兼容人们对天亮&#x2F;天黑的常识（如正午12点表示太阳正当中），地球相应划分24个时区。<br>协调时是一个时间刻度标准，GMT是一个刻度，UTC即GMT+0，只是后来协调时的基准是原子钟，也就和GMT不相干了，虽然二者可能差距不过1秒。现在GMT时间已不再被科学界所使用，尽管GMT可转换为UTC。</p>
+<p>但协调世界时和相差不会超过0.9秒，有需要时便会在协调世界时内加上正或负闰秒。因此协调世界时与国际原子时(TAI)之间会出现若干整数秒的差别。位于巴黎的国际地球自转事务中央局(IERS)负责决定何时加入闰秒。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">在UTC系统的时间尺度中，秒和比秒小的单位（毫秒、微秒等）其长度是固定的，但是对于分钟和比分</span><br><span class="line">还大的单位（小时、天、周等），其长度是可变的。国际地球自转服务组织（IERS）做出插入闰秒的</span><br><span class="line">决定，并至少在加入前6个月发布在该组织的“公告C”中。闰秒是无法提前很早预知的，因为地球的</span><br><span class="line">自转速率是不可预测的。</span><br><span class="line">几乎所有的UTC天都包含 86,400 SI秒，即每分钟正好有60秒。然而，由于一个平太阳日比 86,400 </span><br><span class="line">SI秒稍微长一些，偶尔会有一个UTC天的最后一分钟被调整为61秒。多出的这一秒被称为闰秒，它体现了</span><br><span class="line">上一闰秒后比平太阳日多出来的全部时长（大约每天2毫秒）。一个UTC天的最后一分钟也可以是59秒，</span><br><span class="line">以此来适应地球自转得更快的情况，但是这样的可能性很小，至今还没有出现过。UTC天的长度不规则</span><br><span class="line">意味着带小数的儒略日和UTC时间不能很好的对应。</span><br><span class="line">为了保证协调世界时很接近世界时UT1，UTC从基于TAI的线性方程转变成另一方程时，偶尔会出现</span><br><span class="line">不连续点。这些不连续点以闰秒的形式体现出来，这些不连续点就是造成了UTC天的长度不规则的闰秒。</span><br><span class="line">IERS规定不连续点仅出现在6月或12月底，但也有规定将3月或者9月作为备选。</span><br><span class="line">国际地球自转服务组织(IERS)跟踪并公布UTC时间和世界时的差别，即DUT1 = UT1 - UTC，</span><br><span class="line">另外，IERS也负责引入不连续的闰秒来保证它们的时间差DUT1在±0.9秒之间</span><br></pre></td></tr></table></figure>
+<p>NTP就是基于世界协调时的，北京时间即是 UTC+8 的。</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>对了，<strong>计算机是怎么计算时间的，像Java的System.currenTimeMillis怎么获取Unix时间呢？</strong><br>一般商用&#x2F;办公&#x2F;家用计算机主板上有计时电路，核心是晶体振荡器，靠电池供电维持一定频率的震荡，转化为时钟信号，无电量或电量不足就会归零或慢，此外这个信号频率不够稳定，受环境压力&#x2F;温度影响，时间并不准确，所以通常会通过网络较时来修正。<br>但这个频率还不足以纳秒级别，<strong>像Java的System.nanoTime是需要高频的(1GHz)，其实就是CPU内部电路产生的脉冲频率</strong>。</p>
+<p>对于牛顿力学而言，摆钟的周期实际受重力影响，所以摆钟走时是不准的，而我们本身佩戴的机械手表同样受重力&#x2F;摩擦力&#x2F;气压&#x2F;游丝重心&#x2F;摆轮平衡等影响，据说世界上曾最精准的依赖石英震动的机械表每天误差千分之一秒，而如今大众佩戴的机械表如陀飞轮&#x2F;defy等也只能每天0.25秒差异。<br>说因为相对论影响，机械钟测量不准而采用本20世纪发现的原子钟实际上不正确。<br>科学家们发现原子的能级跃迁释放电磁波，这种电磁波的频率是恒定的，通过一系列放大效应，人们就可以将其作为时间脉冲的节拍器，只不过这种节拍器最小可以做到每秒钟10^15次方次计数，然后逐层放大到秒&#x2F;分钟等。原子钟不受气压&#x2F;温度等影响，但其实是受重力影响的，曾有试验做过，飞行原子钟来回后和地球原子钟存在差异(微秒级别)，这其实才是需要用相对论,而且是广义相对论解释了(时间膨胀)。<br>而现有的原子钟精确到 50亿年误差一秒，比地球年龄要大，可以认为是精度极高。</p>
+<h3 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%8E%9F%E5%AD%90%E9%92%9F/765460">原子钟</a>  <a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%8E%9F%E5%AD%90%E9%92%9F/765460">https://baike.baidu.com/item/%E5%8E%9F%E5%AD%90%E9%92%9F/765460</a></li>
+<li><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%99%82%E9%96%93%E8%86%A8%E8%84%B9">时间膨胀</a>  <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%99%82%E9%96%93%E8%86%A8%E8%84%B9">https://zh.wikipedia.org/wiki/%E6%99%82%E9%96%93%E8%86%A8%E8%84%B9</a><br><a target="_blank" rel="noopener" href="https://tech.qq.com/a/20141105/008961.htm">最精确原子钟问世：50亿年误差一秒</a>  <a target="_blank" rel="noopener" href="https://tech.qq.com/a/20141105/008961.htm">https://tech.qq.com/a/20141105/008961.htm</a></li>
+<li><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%97%B4">一些语言的时间范围</a>  <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%97%B4">https://zh.wikipedia.org/wiki/%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%97%B4</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Unix_time">Unix time</a>  <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Unix_time">https://en.wikipedia.org/wiki/Unix_time</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30582175">讲了这么多年的CPU频率，到底是什么？</a>  <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/30582175">https://zhuanlan.zhihu.com/p/30582175</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" data-id="cm7c72rpx000b2cxaeltg7hu0" data-title="Unix Time 的几个冷门知识点" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Spring Cloud RedisRateLimit限频存在的几个问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Elasticsearch 的几个冷门知识点</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

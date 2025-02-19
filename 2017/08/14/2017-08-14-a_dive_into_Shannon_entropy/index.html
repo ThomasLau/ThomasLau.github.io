@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>信息熵的理解 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="记录一下看书收获。  1. 什么是熵让我们先看一下维基百科对玻尔兹曼熵的来源描述和定义： 熵（Entropy），是一种测量在动力学方面不能做功的能量总数，熵的量度正是能量退化的指标。 熵亦被用于计算一个系统中的失序现象，也就是计算该系统混乱的程度。 1877年，玻尔兹曼发现单一系统中的熵跟构成热力学性质的微观状态数量相关。玻尔兹曼并假设： S&#x3D;k*lnΩ 公式中的k是玻尔兹曼常数，Ω则为该宏观状态">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信息熵的理解">
+<meta property="og:url" content="http://thomaslau.github.io/2017/08/14/2017-08-14-a_dive_into_Shannon_entropy/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="记录一下看书收获。  1. 什么是熵让我们先看一下维基百科对玻尔兹曼熵的来源描述和定义： 熵（Entropy），是一种测量在动力学方面不能做功的能量总数，熵的量度正是能量退化的指标。 熵亦被用于计算一个系统中的失序现象，也就是计算该系统混乱的程度。 1877年，玻尔兹曼发现单一系统中的熵跟构成热力学性质的微观状态数量相关。玻尔兹曼并假设： S&#x3D;k*lnΩ 公式中的k是玻尔兹曼常数，Ω则为该宏观状态">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://thomaslau.github.io/images/information_measures.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/Shannon-entropy_ex.png">
+<meta property="article:published_time" content="2017-08-14T13:59:07.000Z">
+<meta property="article:modified_time" content="2017-08-19T11:51:21.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="ML">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/information_measures.png">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2017-08-14-a_dive_into_Shannon_entropy" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2017/08/14/2017-08-14-a_dive_into_Shannon_entropy/" class="article-date">
+  <time class="dt-published" datetime="2017-08-14T13:59:07.000Z" itemprop="datePublished">2017-08-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      信息熵的理解
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <pre><code>记录一下看书收获。
+</code></pre>
+<h1 id="1-什么是熵"><a href="#1-什么是熵" class="headerlink" title="1. 什么是熵"></a>1. 什么是熵</h1><p>让我们先看一下维基百科对玻尔兹曼熵的来源描述和定义：</p>
+<pre><code>熵（Entropy），是一种测量在动力学方面不能做功的能量总数，熵的量度正是能量退化的指标。
+熵亦被用于计算一个系统中的失序现象，也就是计算该系统混乱的程度。
+1877年，玻尔兹曼发现单一系统中的熵跟构成热力学性质的微观状态数量相关。玻尔兹曼并假设：
+S=k*lnΩ
+公式中的k是玻尔兹曼常数，Ω则为该宏观状态中所包含之微观状态数量。这个被称为玻尔兹曼原理的假定是统计力学的基础。
+统计力学则以构成部分的统计行为来描述热力学系统.
+</code></pre>
+<p>这就是玻尔兹曼的Entropy的来源了，而当普朗克来中国讲学时用到entropy这个词时，还没有对应名称，胡刚复教授偷懒地根据公式（dS&#x3D;dQ&#x2F;T），把“商”字加火旁来意译“entropy”这个字，创造了“熵”字（胡刚复与叶企孙同样是我国近代物理奠基人）。<br>不过上面是物理学衍生的玻尔兹曼熵，在1948年，克劳德·艾尔伍德·香农将热力学的熵引入到信息论，定义了信息熵的概念，因此它又被称为香农熵。</p>
+<pre><code>在信息论中，熵是接收的每条消息中包含的信息的平均量，又被称为信息熵、信源熵、平均自信息量。
+这里，“消息”代表来自分布或数据流中的事件、样本或特征。
+</code></pre>
+<p>这即是熵的定义了，这里隐含的想法是，比较不可能发生的事情，当它发生了，意味着更多的信息。<br>所以熵也可理解为不确定性的量度[Measure of Uncertainty]，即越随机的信源的熵越大。</p>
+<span id="more"></span>
+<p>从玻尔兹曼熵到信息熵，后者是前者泛化(下文熵的表示)，那么Shannon当初是受玻尔兹曼的启发吗？<br>应该很难考证，毕竟不像欧拉一样会留下思考过程的手稿，不过有个故事或许可以说明：</p>
+<pre><code>“My greatest concern was what to call it. I thought of calling it ‘information’, 
+but the word was overly used, so I decided to call it ‘uncertainty’. When 
+I discussed it with John von Neumann, he had a better idea. Von Neumann 
+told me, ‘You should call it entropy, for two reasons: In the first place 
+your uncertainty function has been used in statistical mechanics under 
+that name, so it already has a name. In the second place, and more 
+important, nobody knows what entropy really is, so in a debate you will 
+always have the advantage.”
+</code></pre>
+<p>上面是香农自述纠结于命名，而正是冯・诺伊曼考虑到类似统计力学，建议命名“熵(entropy)”，而且辩论中香农还有解释权的优势。如果理解不透也不必烦恼，因为香农还不认同《控制论》作者维纳对信息熵的定义呢，所以我们按照Shannon的理解。</p>
+<h1 id="2-熵的表示"><a href="#2-熵的表示" class="headerlink" title="2. 熵的表示"></a>2. 熵的表示</h1><p>熵的表示是<br>$$ H(X) &#x3D; E[I(X)] &#x3D; E[-\ln(P(X))]$$<br>其中，P为X的概率质量函数（probability mass function），E为期望函数，而I(X)是X的信息量（又称为自信息）。I(X)本身是个随机变数。<br>当取自有限的样本时，熵的公式可以表示为：<br>$$ H(X) &#x3D; - \sum_{i&#x3D;1}^{m} p(x_i) \cdot \log p(x_i) $$<br>当p(x_i) &#x3D; 1&#x2F;m 是不是非常像玻尔兹曼的假设？不过玻尔兹曼其实是一个定义，而在Shannon，不禁会问，这个式子是怎么来的？</p>
+<h1 id="3-信息熵的来源"><a href="#3-信息熵的来源" class="headerlink" title="3. 信息熵的来源"></a>3. 信息熵的来源</h1><p>知乎上<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/30828247">为什么信息熵要定义成-Σp*log(p)</a>，最高赞给出了答案，“假设两个随机变量x和y是相互独立的，那么分别观测两个变量得到的信息量应该和同时观测两个变量的信息量是相同的，即h(x+y)&#x3D;h(x)+h(y)”, 然后通过这个特性使用柯西函数方程就可以推出Σp*log(p)的定义。</p>
+<pre><code>柯西函数方程是以下的函数方程：
+    f(x+y)=f(x)+f(y)
+此方程的解被称为加性函数。在有理数的范围中，可以用简单的代数得到唯一一类的解，
+表示为f(x)=cx ，其中c任意给定的有理数。在实数中，这个方程仍然有这一类解。
+</code></pre>
+<p>知乎的答案几乎是正确的，但是有错。<br><strong>这里其实都没有提及对h(x+y) 的约束，比如：x+y其实也是一个函数，“+”代表什么操作或者有什么约束？对于一个代数系统不定义该操作是难理解的，在这里是概率，也就是分别发生x／y事件[的概率]和同时发生事件x／y事件[的概率]带来的信息量是相同的。</strong><br><strong>换句话说，x+y 我们通常认为这是一个“加性”的操作，这样，我们得到的答案只能是类似f(x)&#x3D;cx 的形式，而不是高赞答案里的</strong>Σp*log(p)。<br>事实上，看Bishop的《Pattern Recognition and Machine Learning》里，原文用的是H(x,y)而不是H(x+y).</p>
+<h2 id="3-1-信息量"><a href="#3-1-信息量" class="headerlink" title="3.1 信息量"></a>3.1 信息量</h2><p>让我们先定义一个函数 I, 他是事件概率为p(i)的事件i的信息量的度量(in terms of an event i with probability pi), 记作I(p), 并有如下属性(可参见<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Entropy_information_theory</a>)：</p>
+<pre><code>  a)  I(p)随p递增而递减
+  b)  I(p) ≥ 0
+  c)  I(1) = 0
+  d)  I(p1*p2) = I(p1) + I(p2), 即事件独立，具备可加性
+</code></pre>
+<p>令I 二次可导:</p>
+<p>$$ I(p_1p_2) &#x3D; I(p_1)+I(p_2) $$</p>
+<p>$$ p_2I’(p_1p_2) &#x3D; I’(p_1) $$</p>
+<p>$$ I’(p_1p_2)+p_1p_2I’’(p_1p_2) &#x3D; 0 $$</p>
+<p>$$ I’(u)+uI’’(u) &#x3D; 0 $$</p>
+<p>$$ (u\mapsto uI’(u))’ &#x3D; 0 $$</p>
+<p>这里其实是用的是f’(x) &#x3D; 0的特性推出f(x)&#x3D;C 从而得出$I(u)&#x3D;k\log u $ 对于$k\in \mathbb {R} $<br><strong>实际上根据高等数学里，柯西函数方程 f(x+y) &#x3D; f(x) + f(y) 这个函数方程的解是 f(x) &#x3D; f(1) * x [假设f 是连续函数],为了转化为上面那个形式，令g(x)&#x3D;f(e^x)就有</strong><br>$$ g(x+y)&#x3D;f(e^{x+y})&#x3D;f(e^xe^y)&#x3D;f(e^x)+f(e^y)&#x3D;g(x)+g(y).$$</p>
+<p>f(x*y)&#x3D;f(x)+f(y)特性见：<a target="_blank" rel="noopener" href="https://math.stackexchange.com/questions/423492/overview-of-basic-facts-about-cauchy-functional-equation">Overview of basic facts about Cauchy functional equation</a><br>上述得到 事件p(i)的信息量计算公式，这就是数学的魅力。不过美中不足是信息量的单位是什么？对数学而言，人为的定义，当对数以2为底，单位是比特（bit），对数以e为底，单位是纳特&#x2F;nats。<br>假设每个字母出现概率均等，英语26个字母，每个字母信息量是 I&#x3D;-log(1&#x2F;26)&#x3D;4.7, 常用汉字2500，则信息量为11.3，这大约可以解释为什么表达同一个意思，汉字数量一般小于英文的 <strong>字母</strong> 数量。</p>
+<h2 id="3-2-信息熵"><a href="#3-2-信息熵" class="headerlink" title="3.2 信息熵"></a>3.2 信息熵</h2><p>有了信息量，我们就可以定义 随机变量X的平均信息量（期望信息量），也就是熵：<br>如果有一个系统S内存在多个事件S &#x3D; {x1,…,xn}，每个事件的概率分布P &#x3D; {p1, …, pn}，则整个系统的平均消息量,即熵为：</p>
+<p>$$ H(X) &#x3D;  - \sum {p({x_i})} \log (p({x_i})) ~~~~ (i &#x3D; 1,2, \ldots ,n)$$</p>
+<h1 id="4-熵的特性"><a href="#4-熵的特性" class="headerlink" title="4 熵的特性"></a>4 熵的特性</h1><h2 id="4-1-定义"><a href="#4-1-定义" class="headerlink" title="4.1 定义"></a>4.1 定义</h2><p><strong>两点分布的熵</strong><br>在上面熵的定义中，我们假设 两点分布的情况，假设p(x&#x3D;1)&#x3D;q, 代入即可得<br>$${\rm{H(X) &#x3D; }} - \sum_{x \in X} {p(x)} \ln (p(x)) &#x3D;  - q\ln q - (1 - q)\ln (1 - q)$$</p>
+<p>可以通过求导得出 q&#x3D;1&#x2F;2，即分布均匀时候，系统熵最大为ln2，而退化为确定性分布分布时最小为0，<br>那么这是不是意味着当分布均匀时候系统熵最大？确实如此，当满足已知条件的前提下，最大熵原理指出均匀分布熵最大，下文会证明。让我们来先熟悉几个定义：<br><strong>联合熵 Jiont entropy</strong><br>对于两个随机变量X，Y，X的取值为x1,x2…,xm,Y的取值为 y1,y2,…yn，令其联合分布p(x,y), 则其联合熵定义为：<br>$$ H(X,Y) &#x3D;  - \sum_{x \in X,y \in Y} {p(x,y)} \ln (p(x,y)) &#x3D; - E(\log p(x,y)).$$<br><strong>条件熵 Conditional entropy</strong><br>同上述两个随机变量X，Y，则在X 已知的条件下Y的条件熵记做 H(Y|X) :</p>
+<p>\begin{equation}\begin{split} H(Y|X) &amp;&#x3D;\sum_{x \in X} {p(x)H(Y|X &#x3D; x)} \\<br>    &amp;&#x3D;-\sum_x {p(x)} \sum_y {p(y|x)\log p(y|x)} \\<br>    &amp;&#x3D;-\sum_x {\sum_y {p(x,y)\log p(y|x)} }<br>\end{split}\end{equation}<br>因某，式中x,y表示：$ x\in X,y \in Y$<br><strong>相对熵 Relative entropy</strong><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%9B%B8%E5%AF%B9%E7%86%B5">相对熵</a>，也被叫做KL距离，也即Kullback-Leibler散度（Kullback-Leibler Divergence），信息散度（information divergence），信息增益（information gain）。它主要用于衡量相同事件空间里的两个概率分布的差异。<br>典型情况下，对D(P||Q)P表示数据的真实分布，Q表示数据的理论分布，模型分布，或P的近似分布<br>同上述两个随机变量X，Y。假设p(x),p(y)是随机变量中取不同值时的两个概率分布，那么相对熵是：</p>
+<p>$$ D({p||q}) &#x3D; \sum_x {p(x) \log \frac {p(x)}{q(x)}}  &#x3D; E_p(x) \log \frac {p(x)}{q(x)} $$<br><strong>互信息 Mutual Information</strong><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E4%BA%92%E4%BF%A1%E6%81%AF">互信息</a>,或转移信息（transinformation）是变量间相互依赖性(如相交信息量)的量度。<br>同上述两个随机变量X，Y，它们的联合概率密度函数为p(x,y)，其边缘概率密度函数分别为p(x),p(y)，则互信息I(x,y)定义：<br>\begin{equation}\begin{split}<br>I(X,Y) &amp;&#x3D; \sum_x \sum_y p(x,y) \log \frac{p(x,y)}{p(x)p(y)} \\<br>    &amp;&#x3D; D(p(x,y)||(p(x)p(y))) \\<br>    &amp;&#x3D; E_p(x,y) \log \frac {p(X,Y)} {p(X)p(Y)}<br>\end{split}\end{equation}<br>如维基百科介绍 直观地说，如果把熵 H(Y) 看作一个随机变量不确定度的量度，那么 H(Y|X) 就是 X 没有涉及到的 Y 的部分的不确定度的量度。这就是“在 X 已知之后 Y 的剩余不确定度的量”，于是第一个等式的右边就可以读作“Y的不确定度，减去在 X 已知之后 Y 的剩余不确定度的量”，此式等价于“移除知道 X 后 Y 的不确定度的量”。这证实了互信息的直观意义为知道其中一个变量提供的另一个的信息量（即不确定度的减少量）。<br>上面也可以看到，互信息也可以表示为两个随机变量的边缘分布 X 和 Y 的乘积 p(x) × p(y) 相对于随机变量的联合熵 p(x,y) 的相对熵。并且可理解为相对熵 X 的单变量分布 p(x) 相对于给定 Y 时 X 的条件分布 p(x|y) ：分布 p(x|y) 和 p(x) 之间的平均差异越大，信息增益越大(下文涉及)。</p>
+<h2 id="4-2-关系"><a href="#4-2-关系" class="headerlink" title="4.2 关系"></a>4.2 关系</h2><ol>
+<li>H(X,Y)&#x3D;H(X)+H(Y|X)（链式法则）<br>即：随机变量X,Y的联合熵等于其中一个随机变量的熵加上另一个随机变量的条件熵。其证明见如下：<br>\begin{equation}\begin{split}<br>H(X,Y) &amp;&#x3D;  - \sum_x \sum_y {p(x,y)\log p(x,y)} \\<br> &amp;&#x3D;  - \sum_x \sum_y {p(x,y)\log p(x)p(y|x)}\\<br>&amp;&#x3D;  - \sum_x \sum_y {p(x,y)\log p(x)} - \sum_x \sum_y p(x,y)\log p(y|x)\\<br>&amp;&#x3D;  - \sum_x {p(x)\log p(x)} - \sum_x \sum_y p(x,y)\log p(y|x) \\<br>&amp;&#x3D; H(X) + H(Y|X)<br>\end{split}\end{equation}</li>
+<li>I(X,Y) &#x3D; I(Y,X) ,这通过上述定义表达式对称性，可见。</li>
+<li>I(X,Y) &#x3D; H(X) -H(Y|X)  &#x3D; H(Y) - H(X|Y), 如下证明：<br>\begin{equation}\begin{split}<br>I(X;Y) &amp;&#x3D; \sum_{x \in X,y \in Y} p(x,y) \log \frac{p(x,y)}{p(x)p(y)}\\<br>&amp;&#x3D; \sum p(x,y) \log \frac{p(x|y)}{p(x)} \\<br>&amp;&#x3D;  - \sum_x \sum_y p(x,y)\log p(x) + \sum_x \sum_y p(x,y)\log p(x|y) \\<br>&amp; &#x3D;  - \sum_x p(x)\log p(x)  - ( - \sum_x \sum_y p(x,y)\log p(x|y) )\\<br>&amp;&#x3D; H(X) - H(X|Y)<br>\end{split}\end{equation}</li>
+<li>D(P||Q) &gt;&#x3D;0 即：The relative entropy is non-negative<br>证明需要用到<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%90%89%E5%B8%83%E6%96%AF%E4%B8%8D%E7%AD%89%E5%BC%8F">吉布斯不等式</a>，具体见wikipedia关于这个重要的不等式的意义证明。<br>若$\sum_1^n p_i &#x3D;1$ 及 $\sum_1^n q_i &#x3D; 1$，且$p_i,q_i \in (0,1]$，则有：$ -\sum_1^n p_i \log p_i\leq  -\sum_1^n p_i\log q_i $，等号成立当且仅当 $p_i&#x3D;q_i \forall i$<br>则，上述吉布斯不等式等价于：<br>$$0\geq \sum_1^np_i\log q_i-\sum_1^n p_i\log p_i&#x3D;\sum_1^np_i\log(q_i&#x2F;p_i)&#x3D;-D(P||Q)$$<br>得证。</li>
+<li>I(X,Y) &#x3D; H(X) -H(Y|X)&#x3D;H(X)-(H(X,Y)−H(Y)) &#x3D; H(X)+H(Y)-H(X,Y)</li>
+<li>I(X,Y) &gt;&#x3D; 0;见上面I(X,Y)的相对熵表示，同理推出I(X,Y),即The mutual information is positive</li>
+<li>也可证 H(X,Y) ≤ H(X)+H(Y), 其实这条可推广至多个变量，即Less than or equal to the sum of individual entropies</li>
+<li>H(X,Y) ≥ 0, H(X)≥0 joint entropy非负性</li>
+<li>H(X|Y ) ≤ H(X).Additional information never increases entropy，由3可证，也可根据计算式得证，且仅独立于X,可等。</li>
+<li>H(X,Y,Z) &#x3D; H(X) + H(Y|X) + H(Z|XY) ≤ H(X) + H(Y) + H(Z)</li>
+<li>H(X,Y)≥ max[H(X),H(Y)]，即Greater than individual entropies</li>
+<li>还有许多特性，不一一列举。在《通信的数学原理》中香农列举许多特性，并得到许多有趣推论。<br>最后，引用wikipedia一张图来帮助记忆这几种熵,或参考<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Joint_entropy">Joint entropy</a>, <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Conditional_entropy">Conditional_entropy</a>。</li>
+</ol>
+<img alt="Venn diagram for various information measures associated with correlated variables X and Y." src="/images/information_measures.png" width="480" data-file-width="480" data-file-height="409">
+
+<h2 id="4-3-可加性-更好的理解信息熵"><a href="#4-3-可加性-更好的理解信息熵" class="headerlink" title="4.3 可加性 - 更好的理解信息熵"></a>4.3 可加性 - 更好的理解信息熵</h2><ol>
+<li>怎么去理解可加性？怎么理解 H(X,Y)&#x3D;H(X)+H(Y|X)链式法则？<br>其实香农在最初的著作里，用图形象的表达出来了，有助加深理解</li>
+</ol>
+<img alt="Shannon-entropy_ex" src="/images/Shannon-entropy_ex.png"/>
+信息熵的计算不依赖事件先后顺序，也即，假设三个事件P，有p1=1/2,p2=1/3,p3=1/6，我们既可以认为三个时间同时发生，如上图左，也可以是首先有两个事件p1=p2=1/2，然后在第二事件又分为p1=2/3,p2=1/3，所以信息熵H(1/2,1/3,1/6)=H(1/2,1/2)+1/2*H(2/3,1/3)。
+[一个推导](https://arxiv.org/pdf/quant-ph/0511171.pdf)
+2. 《数学之美》里，吴军也曾分别举了[猜球队冠军、骰子猜概率、王小波的例子形象化信息熵](https://china.googleblog.com/2006/04/4_1731.html)。
+3. 有个说法是思考如下问题：假设一共有N个球，扔到k个桶中。但这些桶大小是不同的。假设扔到第i个桶里的概率是pi，即第i个桶里有ni个球，那么一共有多少种不同分法（状态数）？
+得到结果后将其联想到玻尔兹曼的熵模型。（这个问题的解法其实可以关联到欧拉创造的神奇的伽马函数，这里不展开了）。
+4. 为什么要创造信息熵这个概念？其实对应物理／数学模型最大熵的概念
+
+<pre><code>The principle of maximum entropy states that, subject to precisely stated prior data 
+(such as a proposition that expresses testable information), the probability distribution 
+which best represents the current state of knowledge is the one with largest entropy.
+Another way of stating this: Take a precisely stated prior data or testable information 
+about a probability distribution function. Consider the set of all trial probability distributions 
+that would encode the prior data. Of those, one with maximal information entropy is the proper distribution, according to this principle
+</code></pre>
+<p>这很符合人们在解决某系问题时通用的模式，即在已知部分事实的前提下，对未知分布最合理的推断就是符合已知事实的最不确定或最随机的推断。<br>5. Shannon使用熵推导出<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem">压缩极限理论</a>, 指出了无损压缩文件的极限，也导致一些有损压缩算法的诞生，比如google的WebP支持有损和无损压缩。<br>6. 搜索引擎使用的文档相关性，TD-IDF算法，其实可以理解为相对熵的应用：词频在整个语料库的分布与词频在具体文档中分布之间的差异性。<br>7. 对于孤立理想气体，在麦克斯韦-玻尔兹曼分布下是稳定态，各相均等，此时是最小熵产生状态。同样的，信息系统有最小鉴别信息原理的说法，可以参考大名鼎鼎的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/H%E5%AE%9A%E7%90%86">H定理</a>，微观推导出热力学第二定律，也是信息熵公式的前身。<br>事实上，玻尔兹曼公式的另一种等价表述形式正是 $S&#x3D;-k \sum_1^n p_i \log p_i)$ ， 其中i标记所有可能的微观态，p(i)表示微观态i的出现几率.<br>统计熵揭示一个孤立系统的倾向于增加混乱程度，但”宇宙是一个孤立系统“严格来说只是个未被验证的假设。还有H公式等，二者简直是太相似了，甚至通信数学原理许多推论，以及最大熵原理最小鉴别信息原理等都是如此相似？这里物理和信息论如此和谐，这是一种自然现象的两种形式吗，还是二者其实是基于同一数学模型所致？要揭开这样的问题可能需要正态分布／泊松分布／二项分布等各种分布即gama函数等现代概率统计学基础去解释了。<br>8. 也有使用Shannon熵和热力学熵曲解释现代计算机在处理大量信息时，必须解决散热问题的，如Landauer法则。<br>9. 玻尔兹曼熵处理的是根据运动的热力学分子均衡状态下，熵增。<br>而香农观点来看，其实把我们看到的信息，比如一段文字，看成是气体分子，不同的是这里的“气体分子”是比玻尔兹曼的要规则，也即熵小一些。从数学角度去理解：熵就是系统各状态自信息量的数学期望<br>信息熵或者说熵，或者不论是维纳还是香农的信息论，可以说，比如许多熵减的系统／过程都可以用熵解释，当然这么讲可能不是很有用。<br>10. 最后，<strong>你想过信息论可以解释堆排序为何比快排慢吗？</strong><br><strong>heapsort和quicksort排序耗时都是O(n*logn), 但为什么quicksort表现会更好</strong>？非常建议看看MacKay的<a target="_blank" rel="noopener" href="http://users.aims.ac.za/~mackay/sorting/sorting.html">Heapsort, Quicksort, and Entropy</a>，【如果被墙，可以看<a href="/images/Heapsort_Quicksort_and_Entropy.pdf">这里</a>】不同于常见的思考问题角度，这篇文章里作者神奇的使用了信息论来解释，每次比较，quicksort获得有用信息的概率比heapsort均等。信息论还可以解释排序极限为何是O(nlogn)<br>不过这里应该用“阐释”比较好，公式化的论证见TAOCP。<br>思考下：Java 7偏后版本引入了里面性能被证明更好的<a target="_blank" rel="noopener" href="http://cr.openjdk.java.net/~martin/webrevs/openjdk7/timsort/raw_files/new/src/share/classes/java/util/TimSort.java">TimSort</a>的快速排序(不要再认为是课本里说的二分快排了)，是不是也可以用信息论解释？（<a target="_blank" rel="noopener" href="https://www.theverge.com/2012/4/19/2961128/google-chief-java-architect-likely-i-copied-sun-code-in-android">TimSort的争议</a>）</p>
+<h1 id="5-最大熵模型"><a href="#5-最大熵模型" class="headerlink" title="5 最大熵模型"></a>5 最大熵模型</h1><p>这一段简要介绍最大熵模型的由来。</p>
+<h2 id="5-1-交叉熵Cross-entropy"><a href="#5-1-交叉熵Cross-entropy" class="headerlink" title="5.1 交叉熵Cross entropy)"></a>5.1 交叉熵Cross entropy)</h2><p>先看一下交叉熵的定义：<br>对随机事件p，假设其真实概率分布为p(i)，观测得到其概率分布为q(i)[即实验分布]，则定义交叉熵为：<br>$$H(p,q) &#x3D; E_p[-\log q] &#x3D; -\sum_1^m p(x_i) \log{q(x_i)} $$</p>
+<p>如上，假设p代表一个样本的真实的信息分布，则其信息量为H(p)，q为模型预测分布，则用q来估计真实分布p的样本的信息量为H(p,q),则冗余信息量D(p#q)&#x3D;H(p,q)−H(p)由下面运算发现即是KL散度<br>\begin{equation}\begin{split}  H(p,q) &amp;&#x3D; -\sum_x p(x) \log q(x) \\<br>&amp;&#x3D; -\sum_x p(x) \log \frac{q(x)}{p(x)}p(x)\\<br>&amp;&#x3D; -\sum_x p(x) \log p(x) -\sum_x p(x) \log \frac{q(x)}{p(x)}\\<br>&amp;&#x3D; H(p)+ D(p||q)<br>\end{split}\end{equation}</p>
+<p>很容易发现：$H(p,q)&#x3D;H(p)+D_{KL}(p||q) $ ，即：相对熵&#x3D;交叉熵-信息熵, 信息熵H(p)是可视作不变，因此交叉熵也即损失函数。<br><strong>好了，介绍了这么多，那么你遇到过这样的问题吗</strong>：<br>设有离散随机变量 X，我们并不知道X的概率分布p(x)，但已知其与若干函数的期望满足如下:$ \sum_{x \in X} p(x)f_m(x)&#x3D;C_m ,x \in X, m&#x3D;1,2,…,M $，求p(x)最佳估计P̃ (x).<br>这可以追溯到过定／欠定问题，<strong>下面摘录李航的《统计学习方法》来描述</strong>：<br>对于分类问题，假设现有训练数据集 $T&#x3D;{(x1,y1),(x2,y2),….(xn,yn)}$<br>最大熵模型就是分别根据已有的输入X和输出Y集合去学习训练数据的条件概率分布P(y|x)，应用最大熵原理去学习分类能力最好的模型.<br>上面，我们定义(x,y)为 <strong>特征</strong>，(xn,yn)就是某特征的 <strong>样本</strong><br>对于给定的训练数据集，我们可以确定联合分布P(X,Y)的经验分布P̃ (X,Y),以及边缘分布P(X)的经验分布P̃ (X)P~(X)，即:</p>
+<p>$$ \tilde{P}(X&#x3D;x,Y&#x3D;y)&#x3D;\frac{count(X&#x3D;x,Y&#x3D;y)}{N} $$<br>$$ \tilde{P}(X&#x3D;x) &#x3D; \frac{count(X&#x3D;x)}{N}$$<br>其中count(⋅)表示满足条件在样本中的计数，N表示总的训练样本容量</p>
+<p>现在引入 <strong>特征函数</strong>f(x,y)，它是描述输入x与输出y之间满足的某一事实，f(x,y)则定义为二值函数:<br>$$<br>f(n) &#x3D; \begin{cases} 1, &amp; \text{if x,y满足某一事实} \\<br> 0, &amp; \text{else} \\<br>  \end{cases}<br>$$</p>
+<p>对于任意的特征函数f(x,y)，令 $ E_{\tilde{P}}(f)$表示特征函数f在训练数据集T上<br>关于$ \tilde{P}(x,y)$的数学期望，也即 <strong>样本特征函数期望值</strong>有:</p>
+<p>$$ E_{\tilde{P}}(f) &#x3D; \sum_{ x,y} \tilde{P}(x,y) f(x,y) $$<br>另记$E_{P}(f)$表示特征函数f在训练数据集T上关于P(x,y)的数学期望，有:<br>$$ E_P(f) &#x3D; \sum_{ x,y} {P(x,y) f(x,y)} $$</p>
+<p>为了计算P(y|x)，根据Bayes我们可以做如下转换$ P(x,y) &#x3D; P(y|x) \cdot p(x)$<br>, p(x)未知，但是我们此时可以使用$\tilde{P}(x)$进行近似,也就是最终有:<br>$$ E_P(f) &#x3D; \sum_{x,y} P(y|x) \tilde{P}(x) f(x,y)$$<br>我的期望是：$E_{\tilde{P}}(f) &#x3D; E_P(f)$,即：</p>
+<p>$$\sum_{x,y} \tilde{P}(x,y) f(x,y) &#x3D; \sum_{x,y} P(y|x) \tilde{P}(x) f(x,y)$$</p>
+<p>上述式子就可以作为模型的约束条件，假如有n个特征函数，则就会有n个约束条件(实际中一般特征的维度就是约束条件的个数)<br>用C来表示满足约束的模型集合:</p>
+<p>$$ C&#x3D; {P|E_{\tilde{P}}(f) &#x3D; E_{P}(f),I&#x3D;1,2,3..n} $$</p>
+<p>满足约束条件同时使用P(y|x)的熵最大的模型即为最大熵模型.<br>最后，为了获取条件概率的分布，还需要其相应的条件熵<br>$$H(P)&#x3D; - \sum_{x,y} \tilde{P}(x) P(y|x) log P(y|x)$$</p>
+<p>至此，最大熵模型的公式定义结束，再次总结一下，<br>给定数据集 $ {(x_i,y_i)}_1^N $，特征函数$f_i(x,y)，i&#x3D; 1,2…,n$，根据经验分布得到满足约束集的模型集合 C, 公式化的描述：：</p>
+<p>\begin{align}<br>\underset{P \in C}{max} &amp;\quad H(P) &#x3D; - \sum_{x,y}  \tilde{P}(x) P(y|x) \text{log} P(y|x) \\<br> st. &amp;\quad E_{P}(f) &#x3D; E_{\tilde{P}}(f),I&#x3D;1,2,3..n \\<br>  &amp;\quad \sum_y P(y|x)&#x3D;1<br>\end{align}</p>
+<p>至此为止，介绍了信息熵，基本的几种熵，熵的特性，以及最大熵的意义和定义。<br>对于最大熵，其求解方法，与似然函数关系等等还有许多可以介绍的，不过限于篇幅，需要另起一篇再探讨了。</p>
+<p><strong>参考</strong>：</p>
+<ol>
+<li>wikipedia<br> <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/History_of_entropy">History of entropy</a><br> <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Entropy_(information_theory)">Entropy_(information_theory)</a><br> <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E7%86%B5_(%E4%BF%A1%E6%81%AF%E8%AE%BA)">熵 (信息论)</a></li>
+<li>高等数学第六版 同济版</li>
+<li>《统计学习方法》.李航著</li>
+<li>The Mathematical Theory of Communication. by Claude E.Shannon and Warren Weaver</li>
+<li>Toplanguage <a target="_blank" rel="noopener" href="https://groups.google.com/forum/#!forum/pongba">https://groups.google.com/forum/#!forum/pongba</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2017/08/14/2017-08-14-a_dive_into_Shannon_entropy/" data-id="cm7c6vn35000xuexa295u95a1" data-title="信息熵的理解" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ML/" rel="tag">ML</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/08/20/2017-08-20-weekly_reading/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Weekly Reading 170820
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/08/04/2017-08-04-derivative-of-logistic-sigmoid-function/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">为什么 LR 模型要使用 sigmoid 函数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta property="og:type" content="website">
 <meta property="og:title" content="e+Thomas">
-<meta property="og:url" content="http://thomaslau.github.io/page/2/index.html">
+<meta property="og:url" content="http://thomaslau.github.io/index.html">
 <meta property="og:site_name" content="e+Thomas">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="Thomas Lau">
@@ -71,10 +71,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2020-04-22-spring_cloud_gateway_redisratelimit_issue" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2025-02-14-on_computor_time" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/" class="article-date">
-  <time class="dt-published" datetime="2020-04-22T14:59:10.000Z" itemprop="datePublished">2020-04-22</time>
+    <a href="/2025/02/14/2025-02-14-on_computor_time/" class="article-date">
+  <time class="dt-published" datetime="2025-02-14T12:59:10.000Z" itemprop="datePublished">2025-02-14</time>
 </a>
     
   </div>
@@ -85,7 +85,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/">Spring Cloud RedisRateLimit限频存在的几个问题</a>
+      <a class="p-name article-title" href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
     </h1>
   
 
@@ -93,22 +93,21 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i>本文主要讨论Spring Cloud Gateway的基于Redis分布式限频存在的失效&#x2F;不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件.</i></p>
-</blockquote>
-<p>阅读本文不需要了解Spring Cloud Gateway（下简称SCG）怎么使用或具体实现，本文只是基于限频角度讨论下常规的组件使用问题。<br>主要讨论SCG提供的基于Redis分布式限频存在的失效&#x2F;不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件，其次也讨论该方案其他不足。如果你对SCG RedisRateLimit有所了解或已知道其存在的几个问题或觉得TLDR;，可以直接跳到<a href="/#%E6%9C%80%E5%A4%A7%E7%9A%84%E9%97%AE%E9%A2%98">本文最后</a>。</p>
+        <h3 id="什么是时间"><a href="#什么是时间" class="headerlink" title="什么是时间"></a>什么是时间</h3><blockquote><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. 中国古代最小的计时单位是什么</span><br><span class="line">2. 你知道沙俄时的“十月革命”实际发生在11月么</span><br><span class="line">3. 农历一年最多385天，但西方为什么曾出现过一年445天</span><br><span class="line">4. 历史上为什么会出现2月30号？Gregorian calendar(格里历)、儒略历、公历，阳历、阴历、农历、佛历、伊斯兰历都分别是什么</span><br><span class="line">5. GregorianCalendar的1582年10月15日(对应epoch为-12219292800000)和1582年10月4日真的相差11*86400秒么</span><br><span class="line">6. UTC(协调世界时)、GMT(世界时/格林威治时)、Unix Epoch、TAI(国际原子时)区别是什么，原子时精度高，但为什么日常生活不直接用原子时？</span><br><span class="line">7. 闰秒是怎么产生的，Unix Epoch转为日期时间格式（UTC时间）时需要考虑闰秒么</span><br><span class="line">8. 上海一定比UTC+0或GMT或London早8小时么</span><br><span class="line">9. 南北极时区应该是多少</span><br></pre></td></tr></table></figure></blockquote>
+<p><strong>当我们谈论时间时候我们实际在谈论什么呢？</strong><br>时间是度量一切变化的尺子，但我们日常理解的时间并非真实的物理时间，而是客观时间的一种度量，也是宇宙时空的度量。<br>我们可以通过计时工具算出电影时长，可以通过帧数和帧率计算影片时长，这也是时间的度量。<br>人类珍惜时间是因为万事万物、生老病死都和时间正相关，并非是时间本身珍贵，时间对所有人平等的、均衡的流逝不复返， 这是时间的单向性，比如通过电影片头片尾或剧中人走路方式，我们可以判断是正着放还是倒着放；又比如看地球绕日运动的视频，我们可以通过向东或向西区分是否倒着放–热力学的Arrow of time，时间之矢的理论就关注这些，比如看杯子从地上碎片变为桌子上完整杯子视频，正常人很容易断言这是倒放的。<br>所以想象一下，如果没有对“时间”的测量，人类对生命及万物认知又是如何？“时间”和空间&#x2F;物质一样是客观存在的，但哲学上认为“时间”这个概念是人类独有的，爱因斯坦认为时间的本质是空间中物质的运动变化，常规时空观不过是大脑里的幻像，所以跟老妇人和跟年轻女郎相处时间感受快慢不一致的例子不仅仅是幽默。</p>
         
           <p class="article-more-link">
-            <a href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/#more">Read More</a>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/" data-id="cm7c72rpx000d2cxa9ked8h41" data-title="Spring Cloud RedisRateLimit限频存在的几个问题" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2025/02/14/2025-02-14-on_computor_time/" data-id="cm7c72rq2002q2cxaem425b1i" data-title="计算机时间捡拾" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
 
     </footer>
   </div>
@@ -118,10 +117,10 @@
 
 
   
-    <article id="post-2020-03-07-on_unix_time_unix_epoch" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2020-11-10-on_chain_of_trust" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" class="article-date">
-  <time class="dt-published" datetime="2020-03-07T14:59:10.000Z" itemprop="datePublished">2020-03-07</time>
+    <a href="/2020/11/10/2020-11-10-on_chain_of_trust/" class="article-date">
+  <time class="dt-published" datetime="2020-11-10T12:59:10.000Z" itemprop="datePublished">2020-11-10</time>
 </a>
     
   </div>
@@ -132,7 +131,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/">Unix Time 的几个冷门知识点</a>
+      <a class="p-name article-title" href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
     </h1>
   
 
@@ -140,218 +139,21 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i><strong>intro1</strong>：一文搞懂unix time、unix epoch、utc时间、gmt时间</i><br><i><strong>intro2</strong>: 大部分人对unix time的误解</i></p>
-</blockquote>
-<p>本计划对上一篇文章做点补充，不过今天来点简单的。</p>
-<h3 id="unix-time"><a href="#unix-time" class="headerlink" title="unix time"></a>unix time</h3><p>许多人对 unix time有误解，只知其是相对世界时&#x2F;格林威治时1970年1月1号0点0分0秒整的时间差，有的人可能还记得是0时区。<br>但这些认识是不对的。而一些文档如Java API Doc里写的并不全，或没有明确使阅读者明确理解。</p>
-        
-          <p class="article-more-link">
-            <a href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" data-id="cm7c72rpx000b2cxaeltg7hu0" data-title="Unix Time 的几个冷门知识点" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-2020-01-12-professional_knowledge_on_elasticsearch" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" class="article-date">
-  <time class="dt-published" datetime="2020-01-11T16:59:10.000Z" itemprop="datePublished">2020-01-12</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/">Elasticsearch 的几个冷门知识点</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote><p><i><strong>intro1</strong>：一个不太正常的elasticsaerch分片分布场景下的扩容</i><br><i><strong>intro2</strong>: elasticsaerch到底往Lucene中写了些什么数据</i><br><i><strong>intro3</strong>: Lucene的文件的压缩</i></p>
-</blockquote>
-<h3 id="前文问题解答"><a href="#前文问题解答" class="headerlink" title="前文问题解答"></a>前文问题解答</h3><p>前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。</p>
-        
-          <p class="article-more-link">
-            <a href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" data-id="cm7c72rpx000a2cxagz0u6bce" data-title="Elasticsearch 的几个冷门知识点" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-2020-01-02-new_decades_new_life" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2020/01/02/2020-01-02-new_decades_new_life/" class="article-date">
-  <time class="dt-published" datetime="2020-01-01T16:59:10.000Z" itemprop="datePublished">2020-01-02</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/01/02/2020-01-02-new_decades_new_life/">新一年的技术叨叨</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote><p><i><strong>intro1</strong>：kafk异常io图，kafka rebalance和reassigne区别</i><br><i><strong>intro2</strong>: kafka真的只能从leader partition读写吗</i><br><i><strong>intro3</strong>: 一个不太正常的elasticsaerch分片分布场景下的扩容</i></p>
-</blockquote>
-<h2 id="从一些系统监控图能看到些什么"><a href="#从一些系统监控图能看到些什么" class="headerlink" title="从一些系统监控图能看到些什么"></a>从一些系统监控图能看到些什么</h2><p>最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io&#x2F;cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前放大的图</p>
-        
-          <p class="article-more-link">
-            <a href="/2020/01/02/2020-01-02-new_decades_new_life/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/" data-id="cm7c72rpw00082cxahp4dc8cq" data-title="新一年的技术叨叨" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-2019-12-03-on_optimising_a_ip_find_function" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" class="article-date">
-  <time class="dt-published" datetime="2019-12-02T16:59:10.000Z" itemprop="datePublished">2019-12-03</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/">一段IP查找函数的优化及其它</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote><p><i><strong>intro1</strong>：对一段解析17monipdb&#x2F;ipip.net ip库 函数的 15倍-70倍-300倍 性能优化</i><br><i><strong>intro2</strong>: 一个sql count 语句的优化</i></p>
-</blockquote>
-<p>声明：</p>
-<ol>
-<li>本文代码均为本人所写或可在网上搜索的到的开源代码，遵循开源协议。</li>
-<li>文中引用代码不涉及所就职公司代码，即便有也是本人从开源代码获取，或做了混淆处理。</li>
-</ol>
-        
-          <p class="article-more-link">
-            <a href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" data-id="cm7c72rpw00072cxacdrp23kn" data-title="一段IP查找函数的优化及其它" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-2019-11-20-on_redis_hyperloglog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/11/20/2019-11-20-on_redis_hyperloglog/" class="article-date">
-  <time class="dt-published" datetime="2019-11-20T15:59:10.000Z" itemprop="datePublished">2019-11-20</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/11/20/2019-11-20-on_redis_hyperloglog/">海量数据计数的一个方法分析</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <blockquote><p><i><strong>intro1</strong>：如何存储以及计算一份资源的累积UV&#x2F;PV？</i><br><i><strong>intro2</strong>: 使用 hyperloglog 究竟有多节省内存呢？</i></p>
-</blockquote>
-<h4 id="现象和问题："><a href="#现象和问题：" class="headerlink" title="现象和问题："></a>现象和问题：</h4><p>接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。</p>
-<h4 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h4><p>自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。</p>
-<blockquote><p>Redis的HyperLogLog 每Key只需要12kB就可以统计大到 2^64个的用户，而保持0.81%的误差率。</p>
+        <blockquote><p>一篇不是技术的文章，记录下自己对软件研发中的信任链的思考。<br>也是最近看一篇监控哲学的文章和参加一场技术复盘讨论有感，这场复盘会笔者听下来觉得最大的问题就是软件研发中的信任链导致的。</p>
 </blockquote>
         
           <p class="article-more-link">
-            <a href="/2019/11/20/2019-11-20-on_redis_hyperloglog/#more">Read More</a>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/" data-id="cm7c72rpu00032cxaar20642w" data-title="海量数据计数的一个方法分析" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2020/11/10/2020-11-10-on_chain_of_trust/" data-id="cm7c72rq2002p2cxa8ox7cdey" data-title="软件研发中的信任链问题" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
 
     </footer>
   </div>
@@ -361,10 +163,10 @@
 
 
   
-    <article id="post-2019-11-13-on_maven_profiles" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2020-10-23-on_middle_platform" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/11/13/2019-11-13-on_maven_profiles/" class="article-date">
-  <time class="dt-published" datetime="2019-11-13T15:59:10.000Z" itemprop="datePublished">2019-11-13</time>
+    <a href="/2020/10/23/2020-10-23-on_middle_platform/" class="article-date">
+  <time class="dt-published" datetime="2020-10-23T12:59:10.000Z" itemprop="datePublished">2020-10-23</time>
 </a>
     
   </div>
@@ -375,7 +177,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/11/13/2019-11-13-on_maven_profiles/">Maven Profile的两个技巧和一个注意事项</a>
+      <a class="p-name article-title" href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
     </h1>
   
 
@@ -383,20 +185,21 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><strong>现象和问题：</strong><br>写了个 xx-service 的基于maven项目，借助spring配置文件可执行，现在有需求是希望将该项目以SDk方式打包到maven仓库以便使用其中某些service类(暂不论合理与否)，如何通过maven profile实现在编辑器里不同开发人员默认用不同的 active profile？<br>实现不同的 active profile是希望双方在开发的时候，一个可以直接package出来 不含配置文件的纯 SDK 包，而我这边使用eclipse时可以默认生成需要的配置文件(local profile)到classpath下，免于命令行切换,提高开发&#x2F;测试效率。</p>
+        <blockquote><p>一篇不是技术的文章，记录下自己对技术中台的思考和预言。<br>阐述下什么是中台，谁有资格定义中台。</p>
+</blockquote>
         
           <p class="article-more-link">
-            <a href="/2019/11/13/2019-11-13-on_maven_profiles/#more">Read More</a>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/11/13/2019-11-13-on_maven_profiles/" data-id="cm7c72rpt00012cxa2fizeg7b" data-title="Maven Profile的两个技巧和一个注意事项" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2020/10/23/2020-10-23-on_middle_platform/" data-id="cm7c72rpz000u2cxaaqj510q9" data-title="什么是中台" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li></ul>
 
     </footer>
   </div>
@@ -406,10 +209,10 @@
 
 
   
-    <article id="post-2019-10-28-nginx_springsecurity_cas_error" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2020-09-21-on_consistent_hash" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/" class="article-date">
-  <time class="dt-published" datetime="2019-10-28T15:59:10.000Z" itemprop="datePublished">2019-10-28</time>
+    <a href="/2020/09/21/2020-09-21-on_consistent_hash/" class="article-date">
+  <time class="dt-published" datetime="2020-09-21T12:59:10.000Z" itemprop="datePublished">2020-09-21</time>
 </a>
     
   </div>
@@ -420,7 +223,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/">Https模式下Nginx+SpringSecurity+SSO的一个交互问题</a>
+      <a class="p-name article-title" href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
     </h1>
   
 
@@ -428,20 +231,22 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><strong>现象和问题：</strong><br>有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。<br>问题来了：服务A本身运行正常，但是开启nginx前端代理时候，发现通过https进入系统A时，第一次(sso登录验证成功)通过url1总是跳转到 80端口(http)的服务，而不是443端口(https)的A应用，但是第二次再通过url1就能正常访问A应用。</p>
+        <blockquote><p><i><strong>intro1</strong>：正确地理解一致性哈希</i><br><i><strong>intro2</strong>: 介绍几种其他优质一致性哈希算法</i><br><i><strong>intro3</strong>: Redis Sentinel和Cluster</i></p>
+</blockquote>
+<p>之前写过几篇哈希函数的blog，本文继续对一致性哈希(Consistent Hashing，本文简称CoH)部分作进一步补充，讨论下CoH的作用，以及其他一致性哈希实现。<br>阅读本文前可先阅读下 <a target="_blank" rel="noopener" href="https://medium.com/@dgryski/consistent-hashing-algorithmic-tradeoffs-ef6b8e2fcae8">Consistent Hashing: Algorithmic Tradeoffs，需FQ</a>，原文概要介绍了Consistent Hashing、Jump Hash、Multi-Probe Consistent Hashing(MPCH)、Rendezvous Hashing、、Maglev Hashing等几种一致性哈希方式，本文主要从实用角度探讨下一致性哈希实现，同时讨论下不同于原文的几点思考。</p>
         
           <p class="article-more-link">
-            <a href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/#more">Read More</a>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/" data-id="cm7c72rpw00062cxa8nii57be" data-title="Https模式下Nginx+SpringSecurity+SSO的一个交互问题" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2020/09/21/2020-09-21-on_consistent_hash/" data-id="cm7c72rpy000o2cxa51d45ne0" data-title="正确理解一致性哈希" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li></ul>
 
     </footer>
   </div>
@@ -451,10 +256,10 @@
 
 
   
-    <article id="post-2019-09-20-many_links_0920" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2020-08-26-on_roaringbitmap_bf" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/09/20/2019-09-20-many_links_0920/" class="article-date">
-  <time class="dt-published" datetime="2019-09-19T17:09:07.000Z" itemprop="datePublished">2019-09-20</time>
+    <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/" class="article-date">
+  <time class="dt-published" datetime="2020-08-26T12:59:10.000Z" itemprop="datePublished">2020-08-26</time>
 </a>
     
   </div>
@@ -465,7 +270,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/09/20/2019-09-20-many_links_0920/">Many Links 0920</a>
+      <a class="p-name article-title" href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
     </h1>
   
 
@@ -473,23 +278,22 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <ol>
-<li></li>
-</ol>
-<p><a target="_blank" rel="noopener" href="https://www.easyice.cn/archives/328">https://www.easyice.cn/archives/328</a><br>一次 JBD2进程导致磁盘 IO 高的分析解决过程<br>设计不合理，导致对 zk 执行大量写操作，导致io高。<br>临时措施：将 zk 的数据路径调整到系统盘，系统盘为 ssd<br>使用 sysdig+strace 工具<br>2.<br>软件架构被高估，清晰简单的设计被低估<br><a target="_blank" rel="noopener" href="https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV">https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV</a></p>
+        <blockquote><p><i><strong>intro1</strong>：如何设计一个百万QPS的基于用户uid唯一性检验的系统？</i><br><i><strong>intro2</strong>: bloomfilter和bitmap和roaringbitmap选型比较</i><br><i><strong>intro3</strong>: setbit注意事项</i></p>
+</blockquote>
+<h3 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h3><p>这个问题或许会被经常问到，比如抢红包或者秒杀等场景时，限制用户只能领取&#x2F;抢购一次，也是笔者可能会遇到类似问题，这里有两个关键点：</p>
         
           <p class="article-more-link">
-            <a href="/2019/09/20/2019-09-20-many_links_0920/#more">Read More</a>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/09/20/2019-09-20-many_links_0920/" data-id="cm7c72rpr00002cxacp9k4l4p" data-title="Many Links 0920" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2020/08/26/2020-08-26-on_roaringbitmap_bf/" data-id="cm7c72rpz000s2cxaer733rrg" data-title="如何设计高性能支持64位的去重服务" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li></ul>
 
     </footer>
   </div>
@@ -499,10 +303,10 @@
 
 
   
-    <article id="post-2019-09-13-how_to_group_twice_in_kafkastreams" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2020-06-20-on_hash_4" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/" class="article-date">
-  <time class="dt-published" datetime="2019-09-13T13:00:10.000Z" itemprop="datePublished">2019-09-13</time>
+    <a href="/2020/06/20/2020-06-20-on_hash_4/" class="article-date">
+  <time class="dt-published" datetime="2020-06-20T12:59:10.000Z" itemprop="datePublished">2020-06-20</time>
 </a>
     
   </div>
@@ -513,7 +317,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/">如何在kafka-streams实现两次group操作</a>
+      <a class="p-name article-title" href="/2020/06/20/2020-06-20-on_hash_4/">开发常见的Hash函数(四)-图片哈希</a>
     </h1>
   
 
@@ -521,20 +325,210 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><strong>如何通过kafka-streams实现去重后再groupBy统计频率？</strong><br>使用Kafka-Streams做流计算的大家想必知道，它本身提供了 groupBy 操作可以方便我们做一些聚合计算，比如统计每分钟内每个人发出的消息数量，这个时候就可以 groupBy 用户的uid去，统计用户间互动消息频率就可以使用groupBy 用户uid和他的互动用户uid即可。<br>但如果现在需求是：如何统计每分钟和任一用户互动消息超过某频率的用户？</p>
+        <blockquote><p><i><strong>intro1</strong>：JPG文件生成&#x2F;压缩原理</i><br><i><strong>intro2</strong>: 对离散余弦变换在图片压缩应用的思考</i><br><i><strong>intro3</strong>: JPG文件存储格式</i><br><i><strong>intro4</strong>: aHash&#x2F;dHash&#x2F;pHash原理及源码介绍</i><br><i><strong>intro5</strong>: 对aHash&#x2F;dHash&#x2F;pHash准确度、局限、场景等思考</i></p>
+</blockquote>
+<p>前一篇文章介绍Simhash&#x2F;Minhash等，下面来看下之前留下的图片的相似性度量算法：ahash、dHash、pHash，在笔者经历的图片&#x2F;PDf上传的经历中，上述方法效果不错。<br>本文主要以JPEG格式为例探索下图像几种哈希算法，不过图像的处理并非本文要介绍重点，只是为了方便下文理解，如果你只对怎么寻找近似图片感兴趣或看这里感到不适，可以跳过本节。</p>
         
           <p class="article-more-link">
-            <a href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/#more">Read More</a>
+            <a href="/2020/06/20/2020-06-20-on_hash_4/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/" data-id="cm7c6vn38002euexaa5kx4h1m" data-title="如何在kafka-streams实现两次group操作" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2020/06/20/2020-06-20-on_hash_4/" data-id="cm7c72rpy000n2cxa683d0983" data-title="开发常见的Hash函数(四)-图片哈希" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2020-06-13-on_hash_3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/06/13/2020-06-13-on_hash_3/" class="article-date">
+  <time class="dt-published" datetime="2020-06-13T12:59:10.000Z" itemprop="datePublished">2020-06-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/06/13/2020-06-13-on_hash_3/">开发常见的Hash函数(三)-Minhash_Simhash</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：文本相似相关的hash方法</i><br><i><strong>intro2</strong>: LSH、Minhash、Simhash</i><br><i><strong>intro3</strong>: 基于代码理解minhash&#x2F;simhash</i></p>
+</blockquote>
+<p>记录笔者的一些思考，在理解minhash、python minhash源码过程中有不理解或有些搜索不到的，或许在这里得到更多的理解。<br>前面文章介绍了常规hash，谈到了抗碰撞&#x2F;雪崩效应等特性，比如微小的改动能产生不同的hash结果。<br>不过有时候我们期望hash不那么敏感，可以忽略细微的不同，比如一段文字中忽略某些句子顺序，或者忽略几个词的不同，那么有哪些可用的hash方法呢？</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/06/13/2020-06-13-on_hash_3/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/06/13/2020-06-13-on_hash_3/" data-id="cm7c72rpz000p2cxaf18g5byj" data-title="开发常见的Hash函数(三)-Minhash_Simhash" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2020-05-25-on_hash_2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/25/2020-05-25-on_hash_2/" class="article-date">
+  <time class="dt-published" datetime="2020-05-25T12:59:10.000Z" itemprop="datePublished">2020-05-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/05/25/2020-05-25-on_hash_2/">开发常见的Hash函数（二）-Geohash</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：Geohash祛魅</i><br><i><strong>intro2</strong>: Geohash原理及常见运算</i><br><i><strong>intro3</strong>: Geohash与填充曲线&#x2F;二进制小数&#x2F;bitHacks</i><br><i><strong>intro4</strong>: Geohash在Lucene&#x2F;Elasticsearch&#x2F;Redis等应用</i></p>
+</blockquote>
+<p>前文介绍数据结构和密码学的哈希函数，本文介绍下带hash的Geohash，即如何把地理空间映射为字符编码。<br>写作本文的时候，笔者发现一篇比较清晰的Geohash&#x2F;S2之类的介绍，可以移步<a target="_blank" rel="noopener" href="https://halfrost.com/go_spatial_search/">高效的多维空间点索引算法 — Geohash 和 Google S2</a> ，本文会介绍一些前置知识，并结合示例以及其在Lucene&#x2F;Elasticearch等的应用。</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/05/25/2020-05-25-on_hash_2/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/05/25/2020-05-25-on_hash_2/" data-id="cm7c72rpy000k2cxagdfjdsdj" data-title="开发常见的Hash函数（二）-Geohash" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2020-05-20-on_hash_1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/20/2020-05-20-on_hash_1/" class="article-date">
+  <time class="dt-published" datetime="2020-05-20T12:59:10.000Z" itemprop="datePublished">2020-05-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/05/20/2020-05-20-on_hash_1/">开发中常见的一些Hash函数（一）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：常见hash函数及使用场景</i><br><i><strong>intro2</strong>: Java hashCode实现相关&#x2F;为何计算hash时选择31&#x2F;33相乘</i><br><i><strong>intro3</strong>: Redis哈希表装载因子为何大于1，而非Java的0.75</i><br><i><strong>intro4</strong>: 新hashmap实现为何要8个冲突才升级红黑树</i><br><i><strong>intro5</strong>: 一致性哈希是否真的有用</i></p>
+</blockquote>
+<p>在写前一篇博文时，发现Redis上的一个hash函数相关的commit：<a target="_blank" rel="noopener" href="https://github.com/antirez/redis/commit/adeed29a99dcd0efdbfe4dbd5da74e7b01966c67">Use SipHash</a>，于是笔者想到总结下开发中经常遇到的哈希函数，本篇为第一部分，介绍常见hash算法、java 的hash应用，以及hash对应的数据结构在Java&#x2F;Redis使用，后续介绍广义的hash，如GeoHash，LSH的Simhash&#x2F;minHash，以及笔者曾在比较相近图片时用到的hash，同GeoHash还会介绍下Google S2&#x2F;Uber H3编码。</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/05/20/2020-05-20-on_hash_1/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/05/20/2020-05-20-on_hash_1/" data-id="cm7c72rpy000i2cxa59x07frf" data-title="开发中常见的一些Hash函数（一）" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hash/" rel="tag">hash</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2020-05-10-on_ratelimiter" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/10/2020-05-10-on_ratelimiter/" class="article-date">
+  <time class="dt-published" datetime="2020-05-10T02:59:10.000Z" itemprop="datePublished">2020-05-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/05/10/2020-05-10-on_ratelimiter/">对限频限流的思考</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：限流的常见实现方式及常见开源限流组件有注意点</i><br><i><strong>intro2</strong>: 你真的理解了漏桶和令牌桶限流算法吗，划分&#x2F;区分二者科学吗</i><br><i><strong>intro2</strong>: 你知道限流保障服务可用时也可能导致其他服务不可用吗</i></p>
+</blockquote>
+<p>早先看到朋友圈分享限频限流的文章，从中有些收获，不过笔者不打算赘述，想进一步探讨下限频限流，以及限频限流使用时可能遇到的问题，同时也是对前一篇博文的回应，或许看完本文你会对Guava令牌桶算法有不一样的理解。</p>
+        
+          <p class="article-more-link">
+            <a href="/2020/05/10/2020-05-10-on_ratelimiter/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/05/10/2020-05-10-on_ratelimiter/" data-id="cm7c72rpx000f2cxafkvlhpb7" data-title="对限频限流的思考" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li></ul>
 
     </footer>
   </div>
@@ -548,7 +542,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
   </nav>
 
 </section>

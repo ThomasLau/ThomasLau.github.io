@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta property="og:type" content="website">
 <meta property="og:title" content="e+Thomas">
-<meta property="og:url" content="http://thomaslau.github.io/page/2/index.html">
+<meta property="og:url" content="http://thomaslau.github.io/page/3/index.html">
 <meta property="og:site_name" content="e+Thomas">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="Thomas Lau">
@@ -71,10 +71,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-2020-04-22-spring_cloud_gateway_redisratelimit_issue" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-09-07-on_carmac_and_java_jit" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/" class="article-date">
-  <time class="dt-published" datetime="2020-04-22T14:59:10.000Z" itemprop="datePublished">2020-04-22</time>
+    <a href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/" class="article-date">
+  <time class="dt-published" datetime="2019-09-07T13:00:10.000Z" itemprop="datePublished">2019-09-07</time>
 </a>
     
   </div>
@@ -85,7 +85,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/">Spring Cloud RedisRateLimit限频存在的几个问题</a>
+      <a class="p-name article-title" href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/">卡马克是最快的开根号方法吗</a>
     </h1>
   
 
@@ -93,22 +93,22 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i>本文主要讨论Spring Cloud Gateway的基于Redis分布式限频存在的失效&#x2F;不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件.</i></p>
+        <blockquote><p><i><strong>intro1</strong>：卡马克算法时最快的开根号方式吗？C&#x2F;Java语言本身是怎么实现开根号的？</i><br><i><strong>intro2</strong>: java的内置sqrt和c的内置sqrt哪个更快？Java的编译&#x2F;JIT优化和GCC的编译优化是否有不足之处？</i><br><i><strong>intro3</strong>: java的C2优化效果一定比C1效果好吗(对性能而言)？</i></p>
 </blockquote>
-<p>阅读本文不需要了解Spring Cloud Gateway（下简称SCG）怎么使用或具体实现，本文只是基于限频角度讨论下常规的组件使用问题。<br>主要讨论SCG提供的基于Redis分布式限频存在的失效&#x2F;不准确的可能性及解决方法，同时适用于所有参考request_rate_limiter.lua实现的基于redis限频组件，其次也讨论该方案其他不足。如果你对SCG RedisRateLimit有所了解或已知道其存在的几个问题或觉得TLDR;，可以直接跳到<a href="/#%E6%9C%80%E5%A4%A7%E7%9A%84%E9%97%AE%E9%A2%98">本文最后</a>。</p>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>这是最近看一位博主解Leet Code题想到的，原题简化一下是：给一个正整数(32位int)开根号后得到x，再对x取整返回。<br>博文的解法是使用二分查找，Java代码实现，不过这里想对该题再讨论几点<br>1）二分查找也可以优化下，建立一个简单的范围表，再二分查找，某几个国产IP库查询也是该做法(因为比BTree省太多内存)。<br>2）其实还可以用 牛顿切线法 ，每个ACMer入门练手时都会碰到的算法。<br>3）因为本题目只是要求返回正整数，那么如果我在 牛顿切分法阈值判断的时候，再加一个条件，判断本轮的整数部分和上一轮的整数部分是否相等，会不会更快？<br>4）开根号怎能少了卡马克算法，要知道在关于开根号方法中祭出卡马克算法，也就基本意味着本次交谈该结束了，但是卡马克是最快的方法吗？</p>
         
           <p class="article-more-link">
-            <a href="/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/#more">Read More</a>
+            <a href="/2019/09/07/2019-09-07-on_carmac_and_java_jit/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/04/22/2020-04-22-spring_cloud_gateway_redisratelimit_issue/" data-id="cm7c72rpx000d2cxa9ked8h41" data-title="Spring Cloud RedisRateLimit限频存在的几个问题" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/09/07/2019-09-07-on_carmac_and_java_jit/" data-id="cm7c6vn38002cuexa88fkhef9" data-title="卡马克是最快的开根号方法吗" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li></ul>
 
     </footer>
   </div>
@@ -118,10 +118,10 @@
 
 
   
-    <article id="post-2020-03-07-on_unix_time_unix_epoch" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-08-17-on_elasticsearch_boolean_field" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" class="article-date">
-  <time class="dt-published" datetime="2020-03-07T14:59:10.000Z" itemprop="datePublished">2020-03-07</time>
+    <a href="/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/" class="article-date">
+  <time class="dt-published" datetime="2019-08-17T05:29:10.000Z" itemprop="datePublished">2019-08-17</time>
 </a>
     
   </div>
@@ -132,7 +132,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/">Unix Time 的几个冷门知识点</a>
+      <a class="p-name article-title" href="/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/">Elasticsearch[曾]在布尔类型字段设计上犯的错</a>
     </h1>
   
 
@@ -140,23 +140,22 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i><strong>intro1</strong>：一文搞懂unix time、unix epoch、utc时间、gmt时间</i><br><i><strong>intro2</strong>: 大部分人对unix time的误解</i></p>
+        <blockquote><p><i><strong>intro</strong>: 对于布尔类型字段的处理，Elasticsearch 曾犯了一个错，直到数年后 发布6.0版本才修正过来，这个设计或多或少会遇到，只是没留意，但是查询的时候结果还是让人困惑的。</i></p>
 </blockquote>
-<p>本计划对上一篇文章做点补充，不过今天来点简单的。</p>
-<h3 id="unix-time"><a href="#unix-time" class="headerlink" title="unix time"></a>unix time</h3><p>许多人对 unix time有误解，只知其是相对世界时&#x2F;格林威治时1970年1月1号0点0分0秒整的时间差，有的人可能还记得是0时区。<br>但这些认识是不对的。而一些文档如Java API Doc里写的并不全，或没有明确使阅读者明确理解。</p>
+<h2 id="问题或现象"><a href="#问题或现象" class="headerlink" title="问题或现象"></a>问题或现象</h2><p>前几天刚到公司，同事抛出一个问题，就是发现前一天某个搜索查询条件没有结果，但是第二天却出来结果，不过这个出来的结果是不对的，即搜索result&#x3D;90时，出现了result&#x3D;91的结果。<br>于是给我发了链接，我点过去就是下图这样子：</p>
         
           <p class="article-more-link">
-            <a href="/2020/03/07/2020-03-07-on_unix_time_unix_epoch/#more">Read More</a>
+            <a href="/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/03/07/2020-03-07-on_unix_time_unix_epoch/" data-id="cm7c72rpx000b2cxaeltg7hu0" data-title="Unix Time 的几个冷门知识点" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/08/17/2019-08-17-on_elasticsearch_boolean_field/" data-id="cm7c6vn38002auexa11ef8yv9" data-title="Elasticsearch[曾]在布尔类型字段设计上犯的错" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li></ul>
 
     </footer>
   </div>
@@ -166,10 +165,10 @@
 
 
   
-    <article id="post-2020-01-12-professional_knowledge_on_elasticsearch" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-08-14-on_logstash_quiz1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" class="article-date">
-  <time class="dt-published" datetime="2020-01-11T16:59:10.000Z" itemprop="datePublished">2020-01-12</time>
+    <a href="/2019/08/14/2019-08-14-on_logstash_quiz1/" class="article-date">
+  <time class="dt-published" datetime="2019-08-14T15:15:07.000Z" itemprop="datePublished">2019-08-14</time>
 </a>
     
   </div>
@@ -180,7 +179,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/">Elasticsearch 的几个冷门知识点</a>
+      <a class="p-name article-title" href="/2019/08/14/2019-08-14-on_logstash_quiz1/">日志传输工具Logstash使用中遇到的几个问题(1)</a>
     </h1>
   
 
@@ -188,22 +187,24 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i><strong>intro1</strong>：一个不太正常的elasticsaerch分片分布场景下的扩容</i><br><i><strong>intro2</strong>: elasticsaerch到底往Lucene中写了些什么数据</i><br><i><strong>intro3</strong>: Lucene的文件的压缩</i></p>
+        <blockquote><p><i><strong>intro</strong>：去年记录的logstash几个问题，因为涉及较多且杂乱，主题并不是那么清晰，今天整理时候发现写起来太长了，所以打算分成2-4篇文章，几个小块逐个讨论。</i></p>
 </blockquote>
-<h3 id="前文问题解答"><a href="#前文问题解答" class="headerlink" title="前文问题解答"></a>前文问题解答</h3><p>前一篇文章，留了个Elasticsearch（以下简称ES） cpu load图猜问题，不难猜，这里贴一张磁盘图看的就更明显了。</p>
+
+<p><strong>系统概况</strong>：<br>1）各服务产生事件(日志)另有一套Event机制支持，本文讨论的是如何跨数据中心(机房)传输。<br>2）普适性的，适合各语言实现的设计，故基于文件传输，即服务在本地产生滚动的日志，组件去 <strong>tail</strong> 文件的方式，将这些数据 <strong>即时</strong> 传输至另一个机房的Kafka。<br>3）logstash是5.6.4版本，kafka版本 0.10.0.1版本问题（再高版本的logstash 就不支持该版本的Kafka了）<br>4）logstash的input是滚动的日志文件，即tail_mode，output为kafka，无解析，插件开启了metric，queue 为 persistent，即文件模式，硬件为磁盘。<br>5）文件系统为ext4，系统inode是重用的。<br>6）本文贴出配置或数据已做脱敏处理，如有疑问请忽略。</p>
+<p><strong>本文先讨论遇到的两个问题</strong><br>1）即便是 kill -15， logstash重启后会丢失数据<br>2）性能问题，可能消息大小会有影响，但观察下来logstash上传速率上限在 1.2万条&#x2F;秒.</p>
         
           <p class="article-more-link">
-            <a href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/#more">Read More</a>
+            <a href="/2019/08/14/2019-08-14-on_logstash_quiz1/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" data-id="cm7c72rpx000a2cxagz0u6bce" data-title="Elasticsearch 的几个冷门知识点" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/08/14/2019-08-14-on_logstash_quiz1/" data-id="cm7c6vn380027uexa345ygiqb" data-title="日志传输工具Logstash使用中遇到的几个问题(1)" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li></ul>
 
     </footer>
   </div>
@@ -213,10 +214,10 @@
 
 
   
-    <article id="post-2020-01-02-new_decades_new_life" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-08-11-on_hammerspoon" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2020/01/02/2020-01-02-new_decades_new_life/" class="article-date">
-  <time class="dt-published" datetime="2020-01-01T16:59:10.000Z" itemprop="datePublished">2020-01-02</time>
+    <a href="/2019/08/11/2019-08-11-on_hammerspoon/" class="article-date">
+  <time class="dt-published" datetime="2019-08-10T17:09:07.000Z" itemprop="datePublished">2019-08-11</time>
 </a>
     
   </div>
@@ -227,7 +228,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/01/02/2020-01-02-new_decades_new_life/">新一年的技术叨叨</a>
+      <a class="p-name article-title" href="/2019/08/11/2019-08-11-on_hammerspoon/">Mac电脑效能神器 Hammerspoon 入门和几个改善</a>
     </h1>
   
 
@@ -235,22 +236,22 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i><strong>intro1</strong>：kafk异常io图，kafka rebalance和reassigne区别</i><br><i><strong>intro2</strong>: kafka真的只能从leader partition读写吗</i><br><i><strong>intro3</strong>: 一个不太正常的elasticsaerch分片分布场景下的扩容</i></p>
+        <blockquote><p><i><strong>intro1</strong>: 你是否为在Mac电脑上切换不同的应用时也需要切换输入法而觉得恼怒？比如刚在微信中文下聊天，这时转向命令行工具，打了一半才发现是中文，不得不再重新输入？</i><br><i><strong>intro2</strong>: 如果你恰巧还是一名 hacker，是否苦于为了某些系统改进而搜索一堆 Applescript最后发现实现不了你要的功能。</i><br><i><strong>intro3</strong>: 这是去年写的短文，一直没时间(懒)再深入完善，今天修改了些，但也只做了简单的入门和介绍</i></p>
 </blockquote>
-<h2 id="从一些系统监控图能看到些什么"><a href="#从一些系统监控图能看到些什么" class="headerlink" title="从一些系统监控图能看到些什么"></a>从一些系统监控图能看到些什么</h2><p>最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io&#x2F;cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前放大的图</p>
+<h2 id="Hammerspoon"><a href="#Hammerspoon" class="headerlink" title="Hammerspoon"></a>Hammerspoon</h2><p>最近升级了Mac系统，发现之前的hammerspoon有个脚本耗电偏高，该脚本就是实现打开 Terminal&#x2F;iTerm2(命令行)&#x2F;Spotlight等可以将输入法自动切换到拼音输入法，打开Chrome&#x2F;Firefox等可以自动切换中文输入法。</p>
         
           <p class="article-more-link">
-            <a href="/2020/01/02/2020-01-02-new_decades_new_life/#more">Read More</a>
+            <a href="/2019/08/11/2019-08-11-on_hammerspoon/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/" data-id="cm7c72rpw00082cxahp4dc8cq" data-title="新一年的技术叨叨" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/08/11/2019-08-11-on_hammerspoon/" data-id="cm7c6vn380025uexa45fpgqhm" data-title="Mac电脑效能神器 Hammerspoon 入门和几个改善" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li></ul>
 
     </footer>
   </div>
@@ -260,10 +261,10 @@
 
 
   
-    <article id="post-2019-12-03-on_optimising_a_ip_find_function" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-08-07-Deleting_ElasticSearch_unicode" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" class="article-date">
-  <time class="dt-published" datetime="2019-12-02T16:59:10.000Z" itemprop="datePublished">2019-12-03</time>
+    <a href="/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/" class="article-date">
+  <time class="dt-published" datetime="2019-08-06T17:09:07.000Z" itemprop="datePublished">2019-08-07</time>
 </a>
     
   </div>
@@ -274,7 +275,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/">一段IP查找函数的优化及其它</a>
+      <a class="p-name article-title" href="/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/">Elasticsearch删除特殊字符索引</a>
     </h1>
   
 
@@ -282,26 +283,23 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i><strong>intro1</strong>：对一段解析17monipdb&#x2F;ipip.net ip库 函数的 15倍-70倍-300倍 性能优化</i><br><i><strong>intro2</strong>: 一个sql count 语句的优化</i></p>
-</blockquote>
-<p>声明：</p>
-<ol>
-<li>本文代码均为本人所写或可在网上搜索的到的开源代码，遵循开源协议。</li>
-<li>文中引用代码不涉及所就职公司代码，即便有也是本人从开源代码获取，或做了混淆处理。</li>
-</ol>
+        <p>长话短说，查看生产环境Elasticsearch (5.6版本) 时，发现一些如下有着非ascii码的索引</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">red zhangxin-xxx-༠༠༣༡.༠༣.༢༢</span><br><span class="line">red zhangxin-xxx-༠༠༣༡.༠༣.༢༣</span><br><span class="line">red zhangxin-xxx-༠༠༣༡.༠༣.༢༤</span><br><span class="line">red zhangxin-xxx-༠༠༣༡.༠༤.༡༢</span><br><span class="line">red zhangxin-xxx-༠༠༣༡.༠༤.༡༧</span><br><span class="line">red zh날炷gxꆀ鍀ᒶ⒐ጆ䬯ꀳ20₨炠.021</span><br></pre></td></tr></table></figure>
+
+<p>上面是某系统因为历史缘故，使用用户的数据创建索引了，因暂时无法推动其做修改，于是需要考虑用脚本定时删除。</p>
         
           <p class="article-more-link">
-            <a href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/#more">Read More</a>
+            <a href="/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" data-id="cm7c72rpw00072cxacdrp23kn" data-title="一段IP查找函数的优化及其它" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/08/07/2019-08-07-Deleting_ElasticSearch_unicode/" data-id="cm7c6vn380022uexaheub5az6" data-title="Elasticsearch删除特殊字符索引" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li></ul>
 
     </footer>
   </div>
@@ -311,10 +309,10 @@
 
 
   
-    <article id="post-2019-11-20-on_redis_hyperloglog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-05-30-python 2.6.6 SimpleHTTPServer耗时的bug" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/11/20/2019-11-20-on_redis_hyperloglog/" class="article-date">
-  <time class="dt-published" datetime="2019-11-20T15:59:10.000Z" itemprop="datePublished">2019-11-20</time>
+    <a href="/2019/05/30/2019-05-30-python%202.6.6%20SimpleHTTPServer%E8%80%97%E6%97%B6%E7%9A%84bug/" class="article-date">
+  <time class="dt-published" datetime="2019-05-29T17:09:07.000Z" itemprop="datePublished">2019-05-30</time>
 </a>
     
   </div>
@@ -325,7 +323,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/11/20/2019-11-20-on_redis_hyperloglog/">海量数据计数的一个方法分析</a>
+      <a class="p-name article-title" href="/2019/05/30/2019-05-30-python%202.6.6%20SimpleHTTPServer%E8%80%97%E6%97%B6%E7%9A%84bug/">python 2.6.6 SimpleHTTPServer耗时的bug</a>
     </h1>
   
 
@@ -333,25 +331,22 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <blockquote><p><i><strong>intro1</strong>：如何存储以及计算一份资源的累积UV&#x2F;PV？</i><br><i><strong>intro2</strong>: 使用 hyperloglog 究竟有多节省内存呢？</i></p>
-</blockquote>
-<h4 id="现象和问题："><a href="#现象和问题：" class="headerlink" title="现象和问题："></a>现象和问题：</h4><p>接一需求，一顿抽丝剥茧去干扰取核心后才弄清楚原始的需求：即时的计算资源累积UV，即对uid去重后进行计数，超阈值则上报。</p>
-<h4 id="方案"><a href="#方案" class="headerlink" title="方案"></a>方案</h4><p>自然想到了Redis的 Hyperloglog[以下简称HLL] 数据结构计数。</p>
-<blockquote><p>Redis的HyperLogLog 每Key只需要12kB就可以统计大到 2^64个的用户，而保持0.81%的误差率。</p>
-</blockquote>
+        <p>之前因为时间紧迫的缘故，在公司的CentOS 7 机器上部署一个快速实现的数据收集工具，考虑到避免其他语言发布和变更起来麻烦，于是就用 python+bash 实现。</p>
+<p>服务端就是最简单不引入任何python包的SimpleHTTPServer+Handler实现的。</p>
+<p>偶然一次看日志发现本来应该在三分钟内完成的一个同步&#x2F;上报循环结果未能如期完成，每个请求看起来相隔十秒左右，最后定位下来是python2.6.6的问题。</p>
         
           <p class="article-more-link">
-            <a href="/2019/11/20/2019-11-20-on_redis_hyperloglog/#more">Read More</a>
+            <a href="/2019/05/30/2019-05-30-python%202.6.6%20SimpleHTTPServer%E8%80%97%E6%97%B6%E7%9A%84bug/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/11/20/2019-11-20-on_redis_hyperloglog/" data-id="cm7c72rpu00032cxaar20642w" data-title="海量数据计数的一个方法分析" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/05/30/2019-05-30-python%202.6.6%20SimpleHTTPServer%E8%80%97%E6%97%B6%E7%9A%84bug/" data-id="cm7c6vn380020uexa7ymc12o5" data-title="python 2.6.6 SimpleHTTPServer耗时的bug" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li></ul>
 
     </footer>
   </div>
@@ -361,10 +356,10 @@
 
 
   
-    <article id="post-2019-11-13-on_maven_profiles" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2019-01-30-many_links_0130" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/11/13/2019-11-13-on_maven_profiles/" class="article-date">
-  <time class="dt-published" datetime="2019-11-13T15:59:10.000Z" itemprop="datePublished">2019-11-13</time>
+    <a href="/2019/01/30/2019-01-30-many_links_0130/" class="article-date">
+  <time class="dt-published" datetime="2019-01-29T17:09:07.000Z" itemprop="datePublished">2019-01-30</time>
 </a>
     
   </div>
@@ -375,97 +370,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/11/13/2019-11-13-on_maven_profiles/">Maven Profile的两个技巧和一个注意事项</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p><strong>现象和问题：</strong><br>写了个 xx-service 的基于maven项目，借助spring配置文件可执行，现在有需求是希望将该项目以SDk方式打包到maven仓库以便使用其中某些service类(暂不论合理与否)，如何通过maven profile实现在编辑器里不同开发人员默认用不同的 active profile？<br>实现不同的 active profile是希望双方在开发的时候，一个可以直接package出来 不含配置文件的纯 SDK 包，而我这边使用eclipse时可以默认生成需要的配置文件(local profile)到classpath下，免于命令行切换,提高开发&#x2F;测试效率。</p>
-        
-          <p class="article-more-link">
-            <a href="/2019/11/13/2019-11-13-on_maven_profiles/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/11/13/2019-11-13-on_maven_profiles/" data-id="cm7c72rpt00012cxa2fizeg7b" data-title="Maven Profile的两个技巧和一个注意事项" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-2019-10-28-nginx_springsecurity_cas_error" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/" class="article-date">
-  <time class="dt-published" datetime="2019-10-28T15:59:10.000Z" itemprop="datePublished">2019-10-28</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/">Https模式下Nginx+SpringSecurity+SSO的一个交互问题</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p><strong>现象和问题：</strong><br>有一个基于SpringBoot+Spring Security和CAS SSO的应用A，端口是8080，前端为Nginx，Nginx对外为https，即443端口，nginx内部反向代理到A就是常规的http协议了，应用A配置了正确的SSO login url和service url，历史原因，Nginx混乱的逻辑，没有配置80(http)强转443(https)。<br>问题来了：服务A本身运行正常，但是开启nginx前端代理时候，发现通过https进入系统A时，第一次(sso登录验证成功)通过url1总是跳转到 80端口(http)的服务，而不是443端口(https)的A应用，但是第二次再通过url1就能正常访问A应用。</p>
-        
-          <p class="article-more-link">
-            <a href="/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/10/28/2019-10-28-nginx_springsecurity_cas_error/" data-id="cm7c72rpw00062cxa8nii57be" data-title="Https模式下Nginx+SpringSecurity+SSO的一个交互问题" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-2019-09-20-many_links_0920" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2019/09/20/2019-09-20-many_links_0920/" class="article-date">
-  <time class="dt-published" datetime="2019-09-19T17:09:07.000Z" itemprop="datePublished">2019-09-20</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/09/20/2019-09-20-many_links_0920/">Many Links 0920</a>
+      <a class="p-name article-title" href="/2019/01/30/2019-01-30-many_links_0130/">Many Links 0130</a>
     </h1>
   
 
@@ -476,16 +381,20 @@
         <ol>
 <li></li>
 </ol>
-<p><a target="_blank" rel="noopener" href="https://www.easyice.cn/archives/328">https://www.easyice.cn/archives/328</a><br>一次 JBD2进程导致磁盘 IO 高的分析解决过程<br>设计不合理，导致对 zk 执行大量写操作，导致io高。<br>临时措施：将 zk 的数据路径调整到系统盘，系统盘为 ssd<br>使用 sysdig+strace 工具<br>2.<br>软件架构被高估，清晰简单的设计被低估<br><a target="_blank" rel="noopener" href="https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV">https://www.infoq.cn/article/NKLNc0HHtZNaviOX2VdV</a></p>
+<p>Running Envoy as an Edge Proxy at eBay: Replacing Hardware Load Balancers with a Software Solution<br><a target="_blank" rel="noopener" href="https://www.infoq.com/news/2018/12/envoycon-ebay-edge">https://www.infoq.com/news/2018/12/envoycon-ebay-edge</a><br>eBay的Envoy实践。</p>
+<ol start="2">
+<li></li>
+</ol>
+<p>Spring源码探究：容器<br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/4a82770fd188">https://www.jianshu.com/p/4a82770fd188</a><br>你遇到过定义了一个拦截器&#x2F;bean，在controller层的代码生效，而service层没生效？<br>这篇文章做了解读。虽然问题是适合Spring初学者，但是作者解释的还是清晰的，而且不过分深入，适合初步了解Spring。</p>
         
           <p class="article-more-link">
-            <a href="/2019/09/20/2019-09-20-many_links_0920/#more">Read More</a>
+            <a href="/2019/01/30/2019-01-30-many_links_0130/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/09/20/2019-09-20-many_links_0920/" data-id="cm7c72rpr00002cxacp9k4l4p" data-title="Many Links 0920" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2019/01/30/2019-01-30-many_links_0130/" data-id="cm7c6vn38001yuexa9fe78clp" data-title="Many Links 0130" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -499,10 +408,10 @@
 
 
   
-    <article id="post-2019-09-13-how_to_group_twice_in_kafkastreams" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+    <article id="post-2018-11-19-many_links_1119 copy" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
-    <a href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/" class="article-date">
-  <time class="dt-published" datetime="2019-09-13T13:00:10.000Z" itemprop="datePublished">2019-09-13</time>
+    <a href="/2018/11/19/2018-11-19-many_links_1119%20copy/" class="article-date">
+  <time class="dt-published" datetime="2018-11-18T17:09:07.000Z" itemprop="datePublished">2018-11-19</time>
 </a>
     
   </div>
@@ -513,7 +422,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/">如何在kafka-streams实现两次group操作</a>
+      <a class="p-name article-title" href="/2018/11/19/2018-11-19-many_links_1119%20copy/">Many Links 1119</a>
     </h1>
   
 
@@ -521,20 +430,133 @@
     
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p><strong>如何通过kafka-streams实现去重后再groupBy统计频率？</strong><br>使用Kafka-Streams做流计算的大家想必知道，它本身提供了 groupBy 操作可以方便我们做一些聚合计算，比如统计每分钟内每个人发出的消息数量，这个时候就可以 groupBy 用户的uid去，统计用户间互动消息频率就可以使用groupBy 用户uid和他的互动用户uid即可。<br>但如果现在需求是：如何统计每分钟和任一用户互动消息超过某频率的用户？</p>
+        <ol>
+<li></li>
+</ol>
+<p>NIPS不更名，我就撤资：赞助商加入联合抗议行列<br><a target="_blank" rel="noopener" href="https://www.jiqizhixin.com/articles/2018-11-02-12">https://www.jiqizhixin.com/articles/2018-11-02-12</a><br>不过后来还是改名字了 <a target="_blank" rel="noopener" href="https://www.jiqizhixin.com/articles/2018-11-17">NeurIPS</a><br>以后看文章要找对地方啊。<br>2.<br>GitHub Incident Analysis Shows How to Improve Service Reliability<br><a target="_blank" rel="noopener" href="https://www.infoq.com/news/2018/11/github-incident-analysis">https://www.infoq.com/news/2018/11/github-incident-analysis</a><br>GitHub服务中断24小时11分钟事故分析报告<br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/fFv1ASElHsVNEPPkP53qAQ">https://mp.weixin.qq.com/s/fFv1ASElHsVNEPPkP53qAQ</a><br>了解下：</p>
+<blockquote><p>GitHub 拥有多个 MySQL 集群，大小从几百 GB 到 5TB 不等，每个集群最多有几十个只读副本来存储非 Git 元数据，因此我们的应用程序可以提供拉取请求和问题管理、身份验证管理、后台处理协调等原始 Git 对象存储之外的其他功能。应用程序不同部分的数据通过功能分片存储在各种集群中。<br>为了大规模提高性能，应用程序将数据直接写入每个集群的主数据库，但在绝大多数情况下将读取请求委派给副本服务器。我们使用 Orchestrator 来管理 MySQL 集群拓扑和处理自动故障转移。Orchestrator 以 Raft 的共识算法为基础，可以实现应用程序无法支持的拓扑，因此必须十分小心让 Orchestrator 配置与应用程序的期望保持一致。</p>
+</blockquote>
+<ol start="3">
+<li></li>
+</ol>
+<p>Java应用性能调优之调优准备<br><a target="_blank" rel="noopener" href="http://www.rowkey.me/blog/2018/10/31/profile-ready/">http://www.rowkey.me/blog/2018/10/31/profile-ready/</a><br>基本涵盖常见注意点，可以保存文章随时查阅。<br>总结简单记住几个命令：</p>
         
           <p class="article-more-link">
-            <a href="/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/#more">Read More</a>
+            <a href="/2018/11/19/2018-11-19-many_links_1119%20copy/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://thomaslau.github.io/2019/09/13/2019-09-13-how_to_group_twice_in_kafkastreams/" data-id="cm7c6vn38002euexaa5kx4h1m" data-title="如何在kafka-streams实现两次group操作" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://thomaslau.github.io/2018/11/19/2018-11-19-many_links_1119%20copy/" data-id="cm7c6vn37001xuexa65qw0wxb" data-title="Many Links 1119" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2018-10-25-many_links_1025" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/10/25/2018-10-25-many_links_1025/" class="article-date">
+  <time class="dt-published" datetime="2018-10-24T17:09:07.000Z" itemprop="datePublished">2018-10-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/10/25/2018-10-25-many_links_1025/">Many Links 1025</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <ol>
+<li></li>
+</ol>
+<p>stop using infinite scroll<br><a target="_blank" rel="noopener" href="https://logrocket.com/blog/infinite-scroll/">https://logrocket.com/blog/infinite-scroll/</a><br>对无限滚动屏的吐槽，说起来可多了。</p>
+<ol start="2">
+<li></li>
+</ol>
+<p>微软加入开放创新网络，旨在保护Linux和开源<br><a target="_blank" rel="noopener" href="http://www.infoq.com/cn/news/2018/10/microsoft-oin">http://www.infoq.com/cn/news/2018/10/microsoft-oin</a><br>微软是专利大企业，曾经用专利起诉著名企业，这次“拥抱Linux”，甚至打出了恶心的“ heart Linux”标语，至于未来如何，拭目以待。</p>
+<ol start="3">
+<li></li>
+</ol>
+<p>An HTTP proxy for Elasticsearch, Solr (etc.) to prevent a 100% full disk situation.<br><a target="_blank" rel="noopener" href="https://github.com/flaxsearch/harahachibu">https://github.com/flaxsearch/harahachibu</a></p>
+        
+          <p class="article-more-link">
+            <a href="/2018/10/25/2018-10-25-many_links_1025/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2018/10/25/2018-10-25-many_links_1025/" data-id="cm7c6vn37001vuexa83ke0719" data-title="Many Links 1025" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-2018-08-03-many_links_0803" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/08/03/2018-08-03-many_links_0803/" class="article-date">
+  <time class="dt-published" datetime="2018-08-02T17:09:07.000Z" itemprop="datePublished">2018-08-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2018/08/03/2018-08-03-many_links_0803/">Many Links 0803</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <ol>
+<li></li>
+</ol>
+<p>继续 SCALA TIMES 上的分享<br><a target="_blank" rel="noopener" href="https://mailchi.mp/softwaremill/scala-times-issue-2607957">https://mailchi.mp/softwaremill/scala-times-issue-2607957</a><br><a target="_blank" rel="noopener" href="https://manuel.bernhardt.io/2018/07/20/akka-anti-patterns-java-serialization/">Akka anti-patterns: Java serialization</a><br><a target="_blank" rel="noopener" href="https://mostafa-asg.github.io/post/practical-scala-cats-applicative-functor/">Practical Cats: Functor and Applicative</a><br><a target="_blank" rel="noopener" href="https://kubuszok.com/2018/implicits-type-classes-and-extension-methods-part-4/">Implicits, type classes, and extension methods, part 4: understanding implicits</a><br><a target="_blank" rel="noopener" href="http://lampwww.epfl.ch/~doeraene/thesis/">Cross-Platform Language Design</a><br>2.<br>Be Nice And Write Stable Code<br><a target="_blank" rel="noopener" href="http://technosophos.com/2018/07/04/be-nice-and-write-stable-code.html">http://technosophos.com/2018/07/04/be-nice-and-write-stable-code.html</a></p>
+        
+          <p class="article-more-link">
+            <a href="/2018/08/03/2018-08-03-many_links_0803/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2018/08/03/2018-08-03-many_links_0803/" data-id="cm7c6vn37001tuexa7wmdhr4q" data-title="Many Links 0803" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li></ul>
 
     </footer>
   </div>
@@ -548,7 +570,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+    <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
   </nav>
 
 </section>

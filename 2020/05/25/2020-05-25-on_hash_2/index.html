@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>开发常见的Hash函数（二）-Geohash | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="intro1：Geohash祛魅intro2: Geohash原理及常见运算intro3: Geohash与填充曲线&#x2F;二进制小数&#x2F;bitHacksintro4: Geohash在Lucene&#x2F;Elasticsearch&#x2F;Redis等应用  前文介绍数据结构和密码学的哈希函数，本文介绍下带hash的Geohash，即如何把地理空间映射为字符编码。写作本文的时候">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开发常见的Hash函数（二）-Geohash">
+<meta property="og:url" content="http://thomaslau.github.io/2020/05/25/2020-05-25-on_hash_2/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：Geohash祛魅intro2: Geohash原理及常见运算intro3: Geohash与填充曲线&#x2F;二进制小数&#x2F;bitHacksintro4: Geohash在Lucene&#x2F;Elasticsearch&#x2F;Redis等应用  前文介绍数据结构和密码学的哈希函数，本文介绍下带hash的Geohash，即如何把地理空间映射为字符编码。写作本文的时候">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://thomaslau.github.io/images/cantor_rec.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/z-order-1.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/z-order-2.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/geohash_err.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/geohash-world.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/geohash-china.png">
+<meta property="article:published_time" content="2020-05-25T12:59:10.000Z">
+<meta property="article:modified_time" content="2020-06-21T23:37:24.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="Elasticsearch">
+<meta property="article:tag" content="Lucene">
+<meta property="article:tag" content="geohash">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/cantor_rec.png">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2020-05-25-on_hash_2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/05/25/2020-05-25-on_hash_2/" class="article-date">
+  <time class="dt-published" datetime="2020-05-25T12:59:10.000Z" itemprop="datePublished">2020-05-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      开发常见的Hash函数（二）-Geohash
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：Geohash祛魅</i><br><i><strong>intro2</strong>: Geohash原理及常见运算</i><br><i><strong>intro3</strong>: Geohash与填充曲线&#x2F;二进制小数&#x2F;bitHacks</i><br><i><strong>intro4</strong>: Geohash在Lucene&#x2F;Elasticsearch&#x2F;Redis等应用</i></p>
+</blockquote>
+<p>前文介绍数据结构和密码学的哈希函数，本文介绍下带hash的Geohash，即如何把地理空间映射为字符编码。<br>写作本文的时候，笔者发现一篇比较清晰的Geohash&#x2F;S2之类的介绍，可以移步<a target="_blank" rel="noopener" href="https://halfrost.com/go_spatial_search/">高效的多维空间点索引算法 — Geohash 和 Google S2</a> ，本文会介绍一些前置知识，并结合示例以及其在Lucene&#x2F;Elasticearch等的应用。</p>
+<span id="more"></span>
+<h1 id="距离计算公式"><a href="#距离计算公式" class="headerlink" title="距离计算公式"></a>距离计算公式</h1><p>在了解geohash之前最好先了解通常计算球面距离通常几种方法：<br><strong>1） 欧氏距离</strong><br>即两点直线距离，一般是把球面作欧氏平面坐标两点距离，也可以是空间两点距离，后者计算量会多些。两种做法两点经纬度差距太大的话误差也会很大，高纬度地区有cos校正所以误差也会影响。<br><strong>2）Great-Circle，球面余弦距离公式</strong><br>即球面的一点A出发到达球面上另一点B，所经过的最短路径的长度，也就是大圆劣弧。运用简单的向量空间即可推导球面三角形的余弦公式：cos(c) &#x3D; cos(a)*cos(b)+sin(a)*sin(b)*cos(C)，或者也可参考美团的 <a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/09/05/lucene-distance.html">地理空间距离计算优化</a>这篇文章，推导较简单明了，这里不再贴图表示。<br>该结果返回的是最精确弧形长，但复杂三角函数导致较慢。<br><strong>3）Haversine公式，球面半正矢公式</strong><br>Haversine公式用到的就是半正矢定理，曾经在航海测距上被使用过，wikipedia上给出了从余弦定理推到变换方法，不过中文版描述有误，如 theta和varphi混淆了，而且描述的让人误以为 Haversine 是近似距离<br>这里是另外一个证明：<a target="_blank" rel="noopener" href="https://mathforum.org/library/drmath/view/51879.html">Deriving the Haversine Formula</a>，<br>如果你熟悉球面三角学，可以通过<a target="_blank" rel="noopener" href="https://dothinking.github.io/blog/2017/03/08/%E7%90%83%E9%9D%A2%E8%B7%9D%E7%A6%BB%E4%B8%8E%E6%96%B9%E4%BD%8D%E8%A7%92%E5%85%AC%E5%BC%8F%E7%9A%84%E6%8E%A8%E5%AF%BC-%E8%A7%A3%E4%B8%89%E8%A7%92%E5%BD%A2%E6%B3%95.html">球面三角基本式得出结论</a>， 这里是纯粹基于<a target="_blank" rel="noopener" href="https://dothinking.github.io/blog/2017/03/09/%E7%90%83%E9%9D%A2%E8%B7%9D%E7%A6%BB%E4%B8%8E%E6%96%B9%E4%BD%8D%E8%A7%92%E5%85%AC%E5%BC%8F%E7%9A%84%E6%8E%A8%E5%AF%BC-%E5%90%91%E9%87%8F%E4%BB%A3%E6%95%B0%E6%B3%95.html">代数向量空间</a>的证明。<br>这里推荐美团的一篇文章 <a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/09/05/lucene-distance.html">地理空间距离计算优化</a>。<br><strong>4）其他</strong><br>参考这篇文章，<a target="_blank" rel="noopener" href="https://www.movable-type.co.uk/scripts/latlong.html">Calculate distance, bearing and more between Latitude&#x2F;Longitude points</a>，笔者用js实现了几种球面距离计算公式，如Haversine可以达到50万&#x2F;秒次数。<br><strong>5）简单补充下：</strong><br>1） 上述前三种类型，在Lucene和Spatial4j均有实现，分别对应distVincentyRAD、distLawOfCosinesRAD、distHaversineRAD，在Elasticsearch早期可以指定参数选择距离计算使用 arc(Great-Circle) 、plane(平面距离)、sloppy_arc(Haversine距离)其一，不过最新版arc已经替换为Haversine并作为默认实现，且删除了sloppy_arc这个distance type。<br>redis中使用的是 geohashGetDistance也是Haversine距离距离。<br>2） 上述 <a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/09/05/lucene-distance.html">美团文章里</a>，<b>作者还提到了基于Haversine性能优化，以及如何通过曲线拟合消除掉cos函数的</b>，代价是精度降低和开销增加。很值得学习 的一个地方是， <b>作者使用org.apache.commons.math3.PolynomialCurveFitter，即多项式拟合来拟合cos这个三角函数，消除了cos函数计算</b> commons.math3本身提供了simple&#x2F;高斯拟合&#x2F;多项式拟合，看泰勒级数猜测可能仅3&#x2F;5次足够。早期cpu fsin之类三角函数指令周期远比乘法大，软件实现由于精度高可能会较为耗时。<br>不过笔者发现Lucene&#x2F;Elaticsearch都有计算haversine的优化，sin&#x2F;cos&#x2F;arcsin等底层都是用SloppyMath的优化策略，误差在0.01毫米，SloppyMath即是参考fdlibm实现的快速三角函数计算，不过同0.7版本已经直接用java math库了。<br>spatial4j源于lucene开发，后来独立出来，但代码还是和lucene同步，不过已经几年没更新了，Lucene还在剥离中更新，故下文主要指Lucene。<br>3）上述计算提到了误差，其实即便Haversine本身计算也是存在误差的，或者说球面余弦计算也会误差，因为地球毕竟不是一个规则的球体，甚至笔者个人觉得距离足够近的话，该结果不如平面距离计算结果精确也可能。所以真实测距可能会借助一些物理手段测量。</p>
+<h1 id="Geohash"><a href="#Geohash" class="headerlink" title="Geohash"></a>Geohash</h1><h2 id="geohash起源-省市区县作为编码"><a href="#geohash起源-省市区县作为编码" class="headerlink" title="geohash起源-省市区县作为编码"></a>geohash起源-省市区县作为编码</h2><p>上面几种方法距离计算其实足够快，如果只是几十万的地理位置进行距离计算，可以看到美团给出的性能数据在毫秒级，感觉搜索附近的人时，直接计算距离也是可以的。<br>但<strong>全量计算毕竟浪费巨大，计算东方明珠附近1km景点没有必要拿全国的景点坐标跑一遍，是否存在一种方案避免呢</strong>？<br>显然存在的，比如最简单的我们可以赋予省市属性，这样可以排除上海之外的其他省市。<br>上面这种方法真的不如Geohash吗，或许许多都会提及z阶曲线&#x2F;皮亚诺曲线等空间填充曲线，但笔者认为单是geohash甚至可以无关这些，因为康托理论&#x2F;z阶曲线&#x2F;皮亚诺曲线侧重不仅是一一对应更是可数这个关系，不过考虑到大多文章提及，这里先介绍下前置知识，之后再继续上文思路。</p>
+<h2 id="康托集合论及康托其人"><a href="#康托集合论及康托其人" class="headerlink" title="康托集合论及康托其人"></a>康托集合论及康托其人</h2><p>上文二维映射到一维的数学起源于康托集合论，最简单的例子就是集合的元素个数等于子集的元素个数，比如自然数的数量和偶数(&gt;0)的数量是一样多的，虽然大于零的偶数是自然数的子集，二者可以用y&#x3D;2*x建立映射关系，更神奇的是有理数的数量和自然数的数量也是一样多，康托提供了一种建立对有理数可数的方式，即自然数和有理数映射关系，这里贴一个经典的图：<br><img src="/images/cantor_rec.png" width = "100%" /><br>按上图用自然数顺序的一直数下去，同时也遍历了所有的有理数。<br><i>康托尔提出，提出了基数(cardinal number)，也叫势(cardinality)的概念，来标记无穷集合的“大小”。两个无穷集合之间如果能够建立一个一一对应关系，就说这两个集合有“相同数目的元素”&#x2F;有相同的势&#x2F;有相同的基数。</i><br><strong>借助康托集合论，我们可以推出许多和常识相悖的令人不可思议的结论：<br>比如所有的奇数&#x2F;偶数&#x2F;自然数&#x2F;整数&#x2F;有理数他们的数量一样多即基数相同；<br>所有的实数和[0,1]区间内的实数有相同的基数；<br>面的数量等同一条边，比如三角形和它的一条边有相同基数。</strong><br>数学经历过无理数&#x2F;微积分&#x2F;集合论三大危机，在康托&#x2F;罗素等之后公理化集合系统得以建立，1900年后步入新世纪，基于康托的集合论更是将当时数学一分为三，形成逻辑主义、形式主义和直觉主义三大学派。<br>笔者认为康托的理论对数学基础的影响不亚于根号2，不说康托集合论是现代数学的基础，但可以说是现代数学正确性的基础，他对无穷的研究不仅是开拓性而且是颠覆性的，现代科学最能与之相比较的就是相对论。<br>或许是数学理论不如物理理论那样可以通过科学的试验证明，康托没有爱因斯坦那样幸运，早期其理论和个人的观点得到许多批判，不乏顶尖的数学家，如当时法国数学届翘楚&#x2F;庞加莱猜想的提出者&#x2F;最有可能比爱因斯坦早提出相对论的庞加莱，以及克莱因瓶提出者克莱因。来自导师的攻击和家庭的不和终导致其一度精神崩溃而入院，恢复后，继续工作，但晚年终在病魔交缠中去世。<br>希尔伯特&#x2F;罗素曾评价他是 <strong>“是数学天才最优秀的作品”，“是人类纯粹智力活动的最高成就之一”，“是这个时代所能夸耀的最巨大的工作”,”19世纪最伟大的智者之一”。</strong><br>康托集合论启发了哥德尔的不完备定理，图灵的停机问题，而这些都是现代编程语言的根基。</p>
+<h2 id="那么需要Geohash的理由是什么？"><a href="#那么需要Geohash的理由是什么？" class="headerlink" title="那么需要Geohash的理由是什么？"></a>那么需要Geohash的理由是什么？</h2><p>接上文，上述地标的方案问题在于需要不存地标信息而且存在边界点问题，所以换种思路，是否可以根据经纬度来呢？<br>比如画一个正方形，即根据距离和中央点经纬度，我们计算这个正方形的左上角和右下角，即满足条件的点的 经度和纬度的范围(组成一个正方形)，筛选出点之后再计算距离。<br>这样不需要地标信息，比如在数据库可以通过 WHERE (经度 BETWEEN a AND b) AND (维度 BETWEEN m AND n))筛选即可。<br>那么有办法通过一种编码快速做到类似功能吗？该功能非常有用，因为早期Lucene&#x2F;Elasticsearch对于数字尤其是double其实非常不适合做区间查询（下文会介绍下）。</p>
+<h2 id="Geohash-1"><a href="#Geohash-1" class="headerlink" title="Geohash"></a>Geohash</h2><p>看Wikipedia介绍<a target="_blank" rel="noopener" href="https://wikimili.com/en/Geohash">Geohash</a>:<br><em>Geohash is a public domain geocode system invented in 2008 by Gustavo Niemeyer and (similar work in 1966) G.M. Morton</em>。<br>Geohash 2008年为Gustavo发明，但1966年<strong>Morton提出了<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Z-order_curve">Z-order</a>编码后来以他的名字命名</strong>，Geohash即是Morton码的一个现实应用，而莫顿码(Morton code)最初则是为了将二维(或者多维)坐标转换为一维，如两个坐标数的各个位交叉的产生一个新数就是莫顿码，这样的数据不仅适合存储压缩，而且使用一维数据的各种(tree&#x2F;list)等查找方法。 比如一些<a target="_blank" rel="noopener" href="https://malagis.com/encoded-raster-data-storage.html">删格数据就是用moton码</a>，如地理位置&#x2F;图像等。<br>这类编码涉及到空间填充的问题，<strong>早在1890年，皮亚诺(Giuseppe Peano)就描述了一种填满一个正方形的曲线的方法，对应曲线叫皮亚诺曲线</strong>，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Peano_curve">Peano curve</a>，<a target="_blank" rel="noopener" href="https://onlinemathtools.com/generate-z-order-curve">这里链接在线看皮亚诺曲线生成</a>。<br>希尔伯特提出了皮亚诺曲线的变种，希尔伯特曲线，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Hilbert_curve">Hilbert curve</a>。Peano变种许多，而后者以简单明了流传，有意思的是Peano特长在发展布尔的符号逻辑系统，奠定现代符号逻辑学。<br><strong>Z-order 曲线</strong>，在Wikipedia上称之为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Z-order_curve">Z-order curve</a>，以此来区分基因分析里的<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Z_curve">Z curve</a>，中文z阶曲线、z填充曲线等，这篇文章有介绍 Z-Order&#x2F;皮亚诺&#x2F;希尔伯特等曲线：<a target="_blank" rel="noopener" href="https://halfrost.com/go_spatial_search/">高效的多维空间点索引算法 — Geohash 和 Google S2</a> 。<br>像上述的空间曲线，分形几何相关研究出了许多有趣的结论，如对皮亚诺曲线科赫曲线的研究就有数学家写出“英国的海岸线有多长”的论文，在代数系统里他们属于实分析的分支测度论，比如除了皮亚诺迭代方法可以构造皮亚诺曲线之外，Z-order&#x2F;希尔伯特等曲线都可找到对应构造方法。<br>真实的皮亚诺&#x2F;希尔伯特曲线其实是一套符号系统描述的，非常抽象，但是得益于数学家天才想法，我们还是能通过图形感知这类曲线，这里感受下 Z-order填线：<br><img src="/images/z-order-1.png" width = "100%" /><br>我们也可以从上文观察到Z-order曲线编码的突变性。<br>GeoHash vs Z-order curve<br><img src="/images/z-order-2.png" width = "100%" /></p>
+<h2 id="GeoHash的运算"><a href="#GeoHash的运算" class="headerlink" title="GeoHash的运算"></a>GeoHash的运算</h2><h3 id="二进制小数"><a href="#二进制小数" class="headerlink" title="二进制小数"></a>二进制小数</h3><img src="/images/geohash_err.png" width = "100%" />
+大多数文章介绍geohash编码方法时都会用类似上面图举例Geohash如何编码的，实际上Lucene依赖的Spatial4j组件现在却是还是通过一个while循环这么计算的，不过有其他简单的理解，**因为这个过程其实就是像一个十进制小数转化为二进制表示**，比如 123.41555/180=0.6856419444，而0.6856419444小数二进制表示正是 (0.1010111110000110001110110000001)2，即类似[二进制小数编码并移位](https://en.wikipedia.org/wiki/Moser%E2%80%93de_Bruijn_sequence)，因为Z阶曲线或许就采用了康托常用的二进制小数手段。
+新版的Lucene的GeoEncodingUtils和Elasticsearch的Geohash就是这个原理去编码的
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">encodeLatitude</span><span class="params">(<span class="type">double</span> latitude)</span> &#123;</span><br><span class="line">  checkLatitude(latitude);</span><br><span class="line">  <span class="comment">// the maximum possible value cannot be encoded without overflow</span></span><br><span class="line">  <span class="keyword">if</span> (latitude == <span class="number">90.0D</span>) &#123;</span><br><span class="line">    latitude = Math.nextDown(latitude);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (<span class="type">int</span>) Math.floor(latitude / LAT_DECODE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+上式中：LAT_DECODE = 1/((0x1L<<32)/180.0D)。
+因为long是64位，所以经纬度各分32位，上面式子其实可化为 return (int) Math.floor(Math.pow(2, 31)\*(latitude/180.0D))，纬度因为是在 (-90,90) 之间，所以是除以180，经度除以90。
+Redis中的geohashEncode也是用这个方法把经纬度编码成32/64位int的。
+那么这里你是否也理解了下图中geohash位数带来的误差呢？
+**Digits and precision in km**
+
+<table>
+<thead>
+<tr>
+<th align="center">geohash length</th>
+<th align="center">lat bits</th>
+<th align="center">lng bits</th>
+<th align="center">lat error</th>
+<th align="center">lng error</th>
+<th align="center">km error</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">3</td>
+<td align="center">±23</td>
+<td align="center">±23</td>
+<td align="center">±2500</td>
+</tr>
+<tr>
+<td align="center">2</td>
+<td align="center">5</td>
+<td align="center">5</td>
+<td align="center">±2.8</td>
+<td align="center">±5.6</td>
+<td align="center">±630</td>
+</tr>
+<tr>
+<td align="center">3</td>
+<td align="center">7</td>
+<td align="center">8</td>
+<td align="center">±0.70</td>
+<td align="center">±0.70</td>
+<td align="center">±78</td>
+</tr>
+<tr>
+<td align="center">4</td>
+<td align="center">10</td>
+<td align="center">10</td>
+<td align="center">±0.087</td>
+<td align="center">±0.18</td>
+<td align="center">±20</td>
+</tr>
+<tr>
+<td align="center">5</td>
+<td align="center">12</td>
+<td align="center">13</td>
+<td align="center">±0.022</td>
+<td align="center">±0.022</td>
+<td align="center">±2.4</td>
+</tr>
+<tr>
+<td align="center">6</td>
+<td align="center">15</td>
+<td align="center">15</td>
+<td align="center">±0.0027</td>
+<td align="center">±0.0055</td>
+<td align="center">±0.61</td>
+</tr>
+<tr>
+<td align="center">7</td>
+<td align="center">17</td>
+<td align="center">18</td>
+<td align="center">±0.00068</td>
+<td align="center">±0.00068</td>
+<td align="center">±0.076</td>
+</tr>
+<tr>
+<td align="center">8</td>
+<td align="center">20</td>
+<td align="center">20</td>
+<td align="center">±0.000085</td>
+<td align="center">±0.00017</td>
+<td align="center">±0.019</td>
+</tr>
+<tr>
+<td align="center">“纬度每相差一度是111.2公里,经度则不同,赤道上经度每相差一度则相距111.2公里,北纬30度则是111.2乘以2分之根号3,北纬45度则是111.2乘以2分之根号2”，geohash长度为1时，纬度占两位，也就是 90&#x2F;pow(2,2)*111&#x3D;2500 公里，经度是 也就是 180&#x2F;pow(2,3)*111&#x3D;2500 公里，这点和上面度数差类似。</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">同时我们也可以看到这个图没有说明的是经度差其实并不准确，因为没有考虑高低纬度时各自的1经度距离差是不一样的。</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">另外，如果你看过上文链接的文章，即<a target="_blank" rel="noopener" href="https://tech.meituan.com/2014/09/02/solr-spatial-search.html">Solr空间搜索原理分析与实践</a>，这里提一下，<strong>该文章里41.79452,123.41555，对应的geohash是wxrvb2kqexu，这是一个错误，应该是 wxrvb2kqwz0</strong>。</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<h3 id="Geohash的Base32编码"><a href="#Geohash的Base32编码" class="headerlink" title="Geohash的Base32编码"></a>Geohash的Base32编码</h3><p>正如你在wikiedia或文章开头文章看到的Geohash是base32编码的，但是却不能用标准的RFC定义的标准Base32解码，最简单一点是GeoHash 基准字符和顺序是“0123456789bcdefghjkmnpqrstuvwxyz”，去掉了容易混淆的 a&#x2F;i&#x2F;l&#x2F;o四个字符，可以看<a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch/blob/7.8/libs/geo/src/main/java/org/elasticsearch/geometry/utils/Geohash.java">ES里的编码</a>，而<a target="_blank" rel="noopener" href="https://de.wikipedia.org/wiki/Base32">标准base 32</a> 的基准字符和顺序是”ABCDEFGHIJKLMNOPQRSTUVWXYZ234567&#x3D;”，其中后者的&#x3D;是填充字符，base32还可以共用base64的码表，标准base32基于<a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc4648#page-8">RFC 3548&#x2F;RFC 4648</a>。<br>所以标准base32 是不能解码geohash的base32的。</p>
+<h3 id="Morton编码的技巧"><a href="#Morton编码的技巧" class="headerlink" title="Morton编码的技巧"></a>Morton编码的技巧</h3><p>将经纬度化为二进制后怎么进行morton编码呢？正如上文把经纬度转换成两个32位int后如何将他们合并分散到奇偶位上成为一个morton码？<br>在Redis和Elasticsearch的代码里均可以找到类似代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> MAGIC[] = &#123;</span><br><span class="line">        <span class="number">0x5555555555555555L</span>, <span class="number">0x3333333333333333L</span>,</span><br><span class="line">        <span class="number">0x0F0F0F0F0F0F0F0FL</span>, <span class="number">0x00FF00FF00FF00FFL</span>,</span><br><span class="line">        <span class="number">0x0000FFFF0000FFFFL</span>, <span class="number">0x00000000FFFFFFFFL</span>,</span><br><span class="line">        <span class="number">0xAAAAAAAAAAAAAAAAL</span></span><br><span class="line">    &#125;;</span><br><span class="line"><span class="comment">// shift values for bit interleaving</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">short</span> SHIFT[] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">4</span>, <span class="number">8</span>, <span class="number">16</span>&#125;;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">long</span> <span class="title function_">interleave</span><span class="params">(<span class="type">int</span> even, <span class="type">int</span> odd)</span> &#123;</span><br><span class="line">    <span class="type">long</span> <span class="variable">v1</span> <span class="operator">=</span> <span class="number">0x00000000FFFFFFFFL</span> &amp; even;</span><br><span class="line">    <span class="type">long</span> <span class="variable">v2</span> <span class="operator">=</span> <span class="number">0x00000000FFFFFFFFL</span> &amp; odd;</span><br><span class="line">    v1 = (v1 | (v1 &lt;&lt; SHIFT[<span class="number">4</span>])) &amp; MAGIC[<span class="number">4</span>];</span><br><span class="line">    v1 = (v1 | (v1 &lt;&lt; SHIFT[<span class="number">3</span>])) &amp; MAGIC[<span class="number">3</span>];</span><br><span class="line">    v1 = (v1 | (v1 &lt;&lt; SHIFT[<span class="number">2</span>])) &amp; MAGIC[<span class="number">2</span>];</span><br><span class="line">    v1 = (v1 | (v1 &lt;&lt; SHIFT[<span class="number">1</span>])) &amp; MAGIC[<span class="number">1</span>];</span><br><span class="line">    v1 = (v1 | (v1 &lt;&lt; SHIFT[<span class="number">0</span>])) &amp; MAGIC[<span class="number">0</span>];</span><br><span class="line">    v2 = (v2 | (v2 &lt;&lt; SHIFT[<span class="number">4</span>])) &amp; MAGIC[<span class="number">4</span>];</span><br><span class="line">    v2 = (v2 | (v2 &lt;&lt; SHIFT[<span class="number">3</span>])) &amp; MAGIC[<span class="number">3</span>];</span><br><span class="line">    v2 = (v2 | (v2 &lt;&lt; SHIFT[<span class="number">2</span>])) &amp; MAGIC[<span class="number">2</span>];</span><br><span class="line">    v2 = (v2 | (v2 &lt;&lt; SHIFT[<span class="number">1</span>])) &amp; MAGIC[<span class="number">1</span>];</span><br><span class="line">    v2 = (v2 | (v2 &lt;&lt; SHIFT[<span class="number">0</span>])) &amp; MAGIC[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (v2&lt;&lt;<span class="number">1</span>) | v1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里通过简单的移位且或操作把两个32位的int按奇偶打散成一个64位的long，还是慢神奇的。<br>这里的hack技巧来自于 <strong><a target="_blank" rel="noopener" href="https://graphics.stanford.edu/~seander/bithacks.html#InterleaveBMN">Bit Twiddling Hacks
+</a>这个神奇的网站</strong>，正如题所述关于bit操作技巧大全，从最简单的奇偶判定、n位置1、最右的1置0、1数量等，可以说非常的全了，笔者大学时在读完由微软亚洲研究院的程序员集体创作出的《编程之美》这本书曾惊叹其中的位操作技巧，但看到这个网站还是大开眼界的。</p>
+<h3 id="Geohash的neighbor"><a href="#Geohash的neighbor" class="headerlink" title="Geohash的neighbor"></a>Geohash的neighbor</h3><p>需要说明的是，Lucene在使用BKDTree之后，这部分功能其实已经没有用了，因为早期采用prefix tree方式，如GeohashprefixTree，而且可能其他系统实现依旧是前缀树，所以这里简介下。<br>Elasticearch还是可以找到的，geohash模式可能还可以用，<a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch/blob/7.8/libs/geo/src/main/java/org/elasticsearch/geometry/utils/Geohash.java#L140">代码</a>。<br>如上文Z-order曲线突变性，以及九宫格解决边界问题，所以需要正确的找到某geohash的邻居，或者说，怎么根据 距离差选择合适的geohash进行搜索？<br>这里可以看到redis通过经纬度获取周围8个neighbors后再通过矩形经纬度筛选，<a target="_blank" rel="noopener" href="https://github.com/antirez/redis/blob/6.0/src/geo.c#L326">membersOfAllNeighbors</a>，在该过程后还会再排序。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">membersOfAllNeighbors</span><span class="params">(robj *zobj, GeoHashRadius n, <span class="type">double</span> lon, <span class="type">double</span> lat, <span class="type">double</span> radius, geoArray *ga)</span> &#123;</span><br><span class="line">    GeoHashBits neighbors[<span class="number">9</span>];</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">int</span> i, count = <span class="number">0</span>, last_processed = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> debugmsg = <span class="number">0</span>;</span><br><span class="line">    neighbors[<span class="number">0</span>] = n.hash;</span><br><span class="line">    neighbors[<span class="number">1</span>] = n.neighbors.north;</span><br><span class="line">    neighbors[<span class="number">2</span>] = n.neighbors.south;</span><br><span class="line">    neighbors[<span class="number">3</span>] = n.neighbors.east;</span><br><span class="line">    neighbors[<span class="number">4</span>] = n.neighbors.west;</span><br><span class="line">    neighbors[<span class="number">5</span>] = n.neighbors.north_east;</span><br><span class="line">    neighbors[<span class="number">6</span>] = n.neighbors.north_west;</span><br><span class="line">    neighbors[<span class="number">7</span>] = n.neighbors.south_east;</span><br><span class="line">    neighbors[<span class="number">8</span>] = n.neighbors.south_west;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* For each neighbor (*and* our own hashbox), get all the matching</span></span><br><span class="line"><span class="comment">     * members and add them to the potential result list. */</span></span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; <span class="keyword">sizeof</span>(neighbors) / <span class="keyword">sizeof</span>(*neighbors); i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (HASHISZERO(neighbors[i])) &#123;</span><br><span class="line">            <span class="keyword">if</span> (debugmsg) D(<span class="string">&quot;neighbors[%d] is zero&quot;</span>,i);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* Debugging info. */</span></span><br><span class="line">        <span class="keyword">if</span> (debugmsg) &#123;</span><br><span class="line">            ....</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (last_processed &amp;&amp;</span><br><span class="line">            neighbors[i].bits == neighbors[last_processed].bits &amp;&amp;</span><br><span class="line">            neighbors[i].step == neighbors[last_processed].step)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (debugmsg)</span><br><span class="line">                D(<span class="string">&quot;Skipping processing of %d, same as previous\n&quot;</span>,i);</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        count += membersOfGeoHashBox(zobj, neighbors[i], ga, lon, lat, radius);</span><br><span class="line">        last_processed = i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>ES的获取neighbor方法笔者尚未看，似乎用的是尾递归遍历筛选，但如果利用前文所述二进制应该会简单些，redis就是类似的做法。<br>同样，也可以看到其实geohash前缀&#x2F;neighbor方法还是比较粗糙的，比如误差其实还可以考虑乘以cos角，但也可能复杂了，不过上述已经比前文计算全部的距离可以大大缩减了。<br>像geohashprefixtree就是利用 通常geohash字符串的公共前缀的长度越长，这两个点距离越近（除了突变），反之未必。但其实并不那么适合二维，geohash最好仅用作编码，数据结构可以独立，像lucene提供的quadtree或者bkdtree之类。<br>所以个人认为，美团技术那几篇文章需要更新了，或者基于solr的实现可以更新了。</p>
+<h1 id="Geoash常见系统的实现"><a href="#Geoash常见系统的实现" class="headerlink" title="Geoash常见系统的实现"></a>Geoash常见系统的实现</h1><p>上面列出了geohash转换相关知识，那么geohash时怎么被使用呢？</p>
+<h2 id="Redis-geo"><a href="#Redis-geo" class="headerlink" title="Redis geo"></a>Redis geo</h2><p>Redis geo提供了几个命令，支持根据位置计算距离，根据某地标或者经纬度计算附近的地标，如详细参考<a target="_blank" rel="noopener" href="https://redis.io/commands/georadius">georadius</a>。<br>使用redis的问题显而易见，一个完全的单热点，地理坐标信息全部放在一个zset 集合中，而且redis又是单线程，不适合大量的地标数据和大量访问。<br>所以通常不推荐redis做地理位置geohash查询的原因，但是如果你的数十几万以内完全可以使用，不过作为选择也可以试试下面的Mysql方案。</p>
+<h2 id="Mysql"><a href="#Mysql" class="headerlink" title="Mysql"></a>Mysql</h2><p>最简单的是在mysql中用经纬度直接计算出球面&#x2F;平面距离作为一列并排序，这个计算可以复杂如三角函数&#x2F;开根号或优化近似，但大量计算或扫描&#x2F;加载是不可避免的，量大时性能远不如上文矩形块经纬度作between查询。<br>不过Mysql有官方实现版本，叫MySQL Spatial Extensions，<a target="_blank" rel="noopener" href="https://www.mysqlzh.com/doc/174.html">Mysql的空间扩展</a>，他是一个OpenGIS的实现，可以用来进行实体、空间、位置的计算，对于从事GIS行业的很有用，比如Mysql的<a target="_blank" rel="noopener" href="https://www.mysqlzh.com/doc/175/141.html">geometry定义&#x2F;geo函数&#x2F;WKT&#x2F;WKB</a>值得一看。<br>其中（如下是基于mysql 5.7之后）：<br>1）对于两点的距离计算，即两点间的欧氏直线距离(非球面)，Mysql的空间扩展提供了 ST_Length 函数。<br>2）对于经纬度作between的方法，即矩形包含关系的，Mysql的空间扩展提供了一个MBRContains(g1, g2)函数，用于测试g1和的两个几何的<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/spatial-relation-functions-mbr.html">最小边界矩形（MBR）之间的关系g2</a>。<br>如下，表示loc_point这一列的点数据是否包含在 (lat,lng)这个点附近r公里的矩形内，其中address_point列是SPATIAL&#x2F;POINT类型，即Geometry，它包含了Point、Curve、LineString、Surface和GeometryCollection几类空间图形，111.12是地球每1纬度的距离是111.12千米，r单位是千米，Polygon即是逆时针点描述的矩形。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WHERE</span> MBRContains(</span><br><span class="line">    ST_GeomFromText(<span class="string">&#x27;Polygon((</span></span><br><span class="line"><span class="string">        lat-r/(111.12/COS(RADIANS(lng))) lng-r/111.12,</span></span><br><span class="line"><span class="string">        lat-r/(111.12/COS(RADIANS(lng))) lng+r/111.12,</span></span><br><span class="line"><span class="string">        lat+r/(111.12/COS(RADIANS(lng))) lng+r/111.12,</span></span><br><span class="line"><span class="string">        lat+r/(111.12/COS(RADIANS(lng))) lng-r/111.12,</span></span><br><span class="line"><span class="string">        lat-r/(111.12/COS(RADIANS(lng))) lng-r/111.12  </span></span><br><span class="line"><span class="string">    ))&#x27;</span>)</span><br><span class="line">    loc_point</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>函数MBRContains的性能显然比distnce快速，而且和前文的geohash前缀查询可比，因为其使用了R树索引，但显然也受Mysql本身性能限制。<br><strong><a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/5.7/en/spatial-function-reference.html">mysql还提供其他丰富的gis&#x2F;图形位置关系的函数</a>。</strong></p>
+<h2 id="Lucene和Elasticsearch里的Geohash"><a href="#Lucene和Elasticsearch里的Geohash" class="headerlink" title="Lucene和Elasticsearch里的Geohash"></a>Lucene和Elasticsearch里的Geohash</h2><h3 id="被放弃的PrefixTree"><a href="#被放弃的PrefixTree" class="headerlink" title="被放弃的PrefixTree"></a>被放弃的PrefixTree</h3><p>上文大多基于Lucene和Elasticsarch分析geohash，所以这里不再具体展开geohash，不过需要指出的是：<strong>Lucene已经计划删除GeohashPrefixTree了</strong><br>Elasticsarch早期使用的就Lucene提供的PrefixTree（GeohashPrefixTree&#x2F;QuadPrefixTree），可以通过 tree：geohash&#x2F;quadtree来指定，但是不仅操作复杂而且容易带来<a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch/issues/22087">性能问题</a>，<br>所以prefix tree 6.6就已经全面停止支持了 <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/geo-shape.html">并预计移除</a> ，因为后面引入了新的地理图形索引：<a target="_blank" rel="noopener" href="https://www.elastic.co/cn/blog/bkd-backed-geo-shapes-in-elasticsearch-precision-efficiency-speed">BKD Tree</a>，其对于LatLonPoint类型索引，经纬度还是按照Z-order编码，只是会转换成一个可比较的8字节数组 intToSortableBytes作为这个document的fieldsData，构造LatLonPointDistanceQuery查询的时候，根据距离计算出一个矩形，即整个过程不再有morton编码了。</p>
+<h3 id="prefix-tree-存在的问题"><a href="#prefix-tree-存在的问题" class="headerlink" title="prefix tree 存在的问题"></a>prefix tree 存在的问题</h3><p>在Elasticsearch 2.2之前，geo-point查询是无法直接对应倒排索引的，geo-point本身是作为string或number保存下来，不管是geohashprefixtree还是quadprefixtree，一次典型的geo-point会分为两步(two-phase)，通过geohash前缀或numer范围查询到相关区域(大概像geohash邻居)，然后通过这些区域(token)去倒排索引中再次查询，quad只是比geohash精确些。<br>Lucene在随着FST后，<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/LUCENE-3030">Block tree逐渐改进</a>，到了<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/LUCENE-6477">Lucene 5.6 KD Tree</a><a target="_blank" rel="noopener" href="https://www.elastic.co/cn/blog/supercharging-geopoint">正式推广</a>，</p>
+<h3 id="Lucene早期数字范围搜索问题"><a href="#Lucene早期数字范围搜索问题" class="headerlink" title="Lucene早期数字范围搜索问题"></a>Lucene早期数字范围搜索问题</h3><p>Lucene早期对数字类型字段(Numberic)检索时本质上是作为字符，数字被转化为适合排序和适合trie的结构建立索引，范围查询时从trie得可以得到适合前缀的term再进行查询，该方式可以避免补位或者遍历区间所有数的方式查询，但这些float&#x2F;double转换后的int&#x2F;long不是没有问题，虽然或许能保持有序但足够大的时候相差为的两个float可能会被转化为相等的int。<br>数字类型直到<a target="_blank" rel="noopener" href="https://issues.apache.org/jira/browse/LUCENE-6477">Lucene 6.0的BKD tree(elasticsarch似乎5.x即2.4后)</a>才得到进一步优化，<a target="_blank" rel="noopener" href="https://www.elastic.co/cn/blog/lucene-points-6.0">大幅性能提升</a>。</p>
+<h3 id="Lucene改进-FST-vs-BKD-tree"><a href="#Lucene改进-FST-vs-BKD-tree" class="headerlink" title="Lucene改进 FST vs BKD-tree"></a>Lucene改进 FST vs BKD-tree</h3><p>trie树可以实现前缀树和后缀树，前缀树较常见，常用与分词和字符串查询，像Lucene中DoubleArrayXX的也是，像Lucene实现的FST（Finite State Transducer）理论上像是一种前缀trie（官方自称<a target="_blank" rel="noopener" href="http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.18.3499">burst trie</a>），<br>这或许也是为什么FST不能直接查询子串(不含分词)或通配符不能用于第一个，子串查询需要使用通配符或正则式模式查询。<br>但FST类似FSM（FSA&#x2F;FSM有穷状态自动机，其他如DFA&#x2F;NFA）， 作者自述其实是基于<a target="_blank" rel="noopener" href="http://www.cs.nyu.edu/~mohri/pub/fla.pdf">Weighted Finite-State Transducer</a>，比较深奥，我们比较常见的实现状态机使用的是trie图，如国内某款分词器在用的大名鼎鼎的AC自动机算法（用于字符多模式匹配的）即是trie的实现（基于trie图进行KMP匹配），这种trie图对树前缀或后缀压缩，可以较少的内存保留较多的字典信息同时，查询次数可以保持在O(1)即字符串长度。</p>
+<p><strong>所以FST具备速度快&#x2F;压缩了空间，FST使得加载到内存完全可以没有索引的词，尤其是英文，所以4.0开始，FST成为重要的数据结构</strong>，影响后续功能的实现，如正排文件存储部分改动面向FST，(BlockTreeTerms类实现)加入了FST的信息和格式，term聚合到block不再是随即而是按前缀聚合…所以阅读源码最好在4.x之后，比如最主要的Term Dictionary的tim&#x2F;tix&#x2F;tip等文件。<br>但如果你看到 ”xx版本后倒排索引实现为FST tree“或者“xx开始大量使用的数据结构是FST”，笔者认为是较模棱两可的。倒排索引是Lucene的核心之一(basic data structure)，是一种设计思想，Lucene后来引入了BKD tree新的方式进行geo_shape查询，<a target="_blank" rel="noopener" href="https://www.elastic.co/cn/blog/bkd-backed-geo-shapes-in-elasticsearch-precision-efficiency-speed">在此之前倒排索引是唯一</a>，的skip list也算一种算法&#x2F;数据结构，早期Lucene可能用了DefaultSkipListWriter的实现，4.0之后抛弃该类并加入FST同时后续版本也逐渐设计&#x2F;改进新的skiplist实现，像各个版本产生了各种postings的(writer&#x2F;reader)，我们常看到Lucene40&#x2F;50&#x2F;60&#x2F;80之类版本好命名的包&#x2F;writer类&#x2F;reader类，一般对应索引读写格式的变化，但都存在扩展MultiLevelSkipListWriter&#x2F;Reader这个存在很久的抽象类的类。<br>比如7.4版本<strong>Lucene50PostingsFormat的BlockTreeTermsWriter在写词典&#x2F;词索引(Terms Dictionary&#x2F;index)到tim&#x2F;tip文件时，就用到了Lucene50PostingsWriter</strong>，其内部即是Lucene50SkipWriter，即MultiLevelSkipListWriter 负责根据block的信息写入skiplist，<a target="_blank" rel="noopener" href="https://lucene.apache.org/core/8_0_0//core/org/apache/lucene/codecs/blocktree/BlockTreeTermsWriter.html">BlockTreeTermsWriter</a>本身会写 .tim(Term Dictionary)和.tip(Term Index)文件，后者用来构建FST，前者用来将FST和postings倒排信息关联，FST拿到的 BlockTermState 信息通过reader的postings定位document，当Disjunction的时候BlockDocsEnum的skip就可能是Lucene50SkipReader实现(doc&#x2F;pos&#x2F;payload)，也可以看到其他不同的skiplist实现或相关基于skiplist提供功能的，如ParallelPostingsArray，lucene近20年历史，个人觉得看起来可能会比较跳跃。<br>elasticsearch的suggest就是基于Lucene的suggest(基于FST)，<a target="_blank" rel="noopener" href="https://www.elastic.co/cn/blog/you-complete-me">只不过elasticsearch不是在查询而是在建立索引时就基于segment建立</a>。<br>不过虽然是一个FSA，FST应该还不能用来实现RegexQuery&#x2F;Fuzzyquery查询，一个简单的例子是“.*abc+”这样的regex查询，不过<strong>Lucene正则查询的确使用到了FST</strong>，其添加了自动机（Automaton，FSA&#x2F;DFA）相关实现，blocktree匹配的时候会分SegmentTermsEnum、IntersectTermsEnum等，后者用于fuzzy&#x2F;regex查找，AutomatonTermsEnum用于遍历，虽然如IntersectTermsEnum代码所示，正则查询也是依赖FST实现，而且据说速度提高百倍<a target="_blank" rel="noopener" href="http://blog.mikemccandless.com/2011/03/lucenes-fuzzyquery-is-100-times-faster.html">Lucene’s FuzzyQuery is 100 times faster in 4.0</a>。<br>另外，Lucene的term index，term dictionary等大多数都是pos&#x2F;docid&#x2F;skip这种int&#x2F;long类型数据建立关联，这也是为什么lucene比较青睐对int&#x2F;long进行压缩。</p>
+<h2 id="其他："><a href="#其他：" class="headerlink" title="其他："></a>其他：</h2><p>1）elasticsearch支持基于 geo_point&#x2F;geo_shape 的查询，官方文档好懂，DSL使用起来非常容易。<br>其地理操作目前支持gis主要常见图形和操作，如geo_bounding_box、geo_distance、geo_distance_range、geo_polygon，但语法似乎和geojson有点差别。<br>2）对于geo_point&#x2F;geo_shape，提醒一个注意点，Lucene&#x2F;Elasticsearch接受point定义的多边形时，要求point不交叉，否则构成图形会有问题，这一点要注意。除此外，Lucene似乎未定义多边形点的输入顺序，像其他系统可能要求point的输入必须是逆时针顺序，笔者之前不明白原因，现在想到了，因为在球面上点围成的图形其实是两个，内和外，所以建议最好也逆时针输入。</p>
+<p><i>计划继续写Google S2和Uber以及Lucene的BKDtree，限于时间仅写到这，不过推荐一篇<a target="_blank" rel="noopener" href="https://github.com/halfrost/Halfrost-Field/blob/master/contents/Go/go_s2_regionCoverer.md">Google S2 是如何解决空间覆盖最优解问题的</a>。<br>最后，推荐网站在线看全球geohash编码的，因某地图需要翻墙，这里最后贴个图看下世界和中国的geohash效果：</i><br><img src="/images/geohash-world.png" width = "100%" /><br><img src="/images/geohash-china.png" width = "100%" /><br>** 遵循CC协议，转载请标注来源 **</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/05/25/2020-05-25-on_hash_2/" data-id="cm7c72rpy000k2cxagdfjdsdj" data-title="开发常见的Hash函数（二）-Geohash" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/06/13/2020-06-13-on_hash_3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          开发常见的Hash函数(三)-Minhash_Simhash
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/05/20/2020-05-20-on_hash_1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">开发中常见的一些Hash函数（一）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

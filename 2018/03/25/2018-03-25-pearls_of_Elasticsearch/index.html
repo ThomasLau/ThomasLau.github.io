@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Elasticsearch几点体会 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。 1，** 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 **考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&gt;128G内存），分配两个端口。比如9300&#x2F;19300.比如集群在 10.135.30.12:9200&#x2F;9300 是一个master节点，之后拷贝配置">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch几点体会">
+<meta property="og:url" content="http://thomaslau.github.io/2018/03/25/2018-03-25-pearls_of_Elasticsearch/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。 1，** 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 **考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&gt;128G内存），分配两个端口。比如9300&#x2F;19300.比如集群在 10.135.30.12:9200&#x2F;9300 是一个master节点，之后拷贝配置">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-03-25T07:12:07.000Z">
+<meta property="article:modified_time" content="2018-03-27T16:12:25.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="Tech">
+<meta property="article:tag" content="Elasticsearch">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2018-03-25-pearls_of_Elasticsearch" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/03/25/2018-03-25-pearls_of_Elasticsearch/" class="article-date">
+  <time class="dt-published" datetime="2018-03-25T07:12:07.000Z" itemprop="datePublished">2018-03-25</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Elasticsearch几点体会
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>很久没有写博客了，感觉快要生疏，今天简单写一点，记录发现的几个问题。</p>
+<p>1，<br>** 在集群增加一个节点后，不要只看是否启动成功，一定要验证下是否加入集群 **<br>考虑到32G内存的官方推荐，很多人会选择同一物理机部署两个以上节点（&gt;128G内存），分配两个端口。比如9300&#x2F;19300.<br>比如集群在 10.135.30.12:9200&#x2F;9300 是一个master节点，之后拷贝配置新增如下一个节点：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cluster.name: elasts</span><br><span class="line">node.master: false</span><br><span class="line">node.data: true</span><br><span class="line">transport.tcp.port: 19300</span><br><span class="line">discovery.zen.ping.unicast.hosts: [&quot;10.135.30.12&quot;]</span><br></pre></td></tr></table></figure>
+
+<p>会发现该节点启动成功，但是<em><strong>没有加入到elasts这个cluster里</strong></em>。 设置为debug级别再启动，不仔细看是发现不了问题的。</p>
+<span id="more"></span>
+<p>官方是这么解释：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Unicast discovery provides the following settings with the discovery.zen.ping.unicast.hosts:</span><br><span class="line">Either an array setting or a comma delimited setting. Each value should be <span class="keyword">in</span> the form of host:port or host (</span><br><span class="line"><span class="built_in">where</span> port defaults to the setting transport.profiles.default.port falling back to transport.tcp.port <span class="keyword">if</span> not <span class="built_in">set</span>). </span><br><span class="line">Note that IPv6 hosts must be bracketed. Defaults to 127.0.0.1, [::1]</span><br></pre></td></tr></table></figure>
+<p>简单来讲就是上述节点默认使用配置里的 transport.tcp.port 这个端口做discover，而不是 9300.<br>所以建议配置 discovery.zen.ping.unicast.hosts 的时候一定配置端口（使用2.x之后的单播即可）</p>
+<p>那么原文 “ort defaults to the setting transport.profiles.default.port falling back to transport.tcp.port if not set”是什么意思？<br>5.2.2代码为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br></pre></td><td class="code"><pre><span class="line">UnicastZenPing.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UnicastZenPing</span> <span class="keyword">extends</span> <span class="title class_">AbstractComponent</span> <span class="keyword">implements</span> <span class="title class_">ZenPing</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">ACTION_NAME</span> <span class="operator">=</span> <span class="string">&quot;internal:discovery/zen/unicast&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Setting&lt;List&lt;String&gt;&gt; DISCOVERY_ZEN_PING_UNICAST_HOSTS_SETTING =</span><br><span class="line">        Setting.listSetting(<span class="string">&quot;discovery.zen.ping.unicast.hosts&quot;</span>, emptyList(), Function.identity(),</span><br><span class="line">            Property.NodeScope);</span><br><span class="line">    ...</span><br><span class="line">        <span class="keyword">if</span> (DISCOVERY_ZEN_PING_UNICAST_HOSTS_SETTING.exists(settings)) &#123;</span><br><span class="line">            configuredHosts = DISCOVERY_ZEN_PING_UNICAST_HOSTS_SETTING.get(settings);</span><br><span class="line">            <span class="comment">// we only limit to 1 addresses, makes no sense to ping 100 ports</span></span><br><span class="line">            limitPortCounts = LIMIT_FOREIGN_PORTS_COUNT;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// if unicast hosts are not specified, fill with simple defaults on the local machine</span></span><br><span class="line">            configuredHosts = transportService.getLocalAddresses();</span><br><span class="line">            limitPortCounts = LIMIT_LOCAL_PORTS_COUNT;</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> List&lt;DiscoveryNode&gt; <span class="title function_">resolveHostsLists</span><span class="params">(</span></span><br><span class="line"><span class="params">        ...</span></span><br><span class="line"><span class="params">        <span class="keyword">final</span> List&lt;String&gt; hosts,</span></span><br><span class="line"><span class="params">        ...)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        ...</span><br><span class="line">        <span class="comment">// create tasks to submit to the executor service; we will wait up to resolveTimeout for these tasks to complete</span></span><br><span class="line">        <span class="keyword">final</span> List&lt;Callable&lt;TransportAddress[]&gt;&gt; callables =</span><br><span class="line">            hosts.stream()</span><br><span class="line">                .map(hn -&gt; (Callable&lt;TransportAddress[]&gt;) () -&gt; transportService.addressesFromString(hn, limitPortCounts))</span><br><span class="line">                .collect(Collectors.toList());</span><br><span class="line">        <span class="keyword">final</span> List&lt;Future&lt;TransportAddress[]&gt;&gt; futures =</span><br><span class="line">            executorService.invokeAll(callables, resolveTimeout.nanos(), TimeUnit.NANOSECONDS);</span><br><span class="line">        <span class="keyword">final</span> List&lt;DiscoveryNode&gt; discoveryNodes = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="comment">// ExecutorService#invokeAll guarantees that the futures are returned in the iteration order of the tasks so we can associate the</span></span><br><span class="line">        <span class="comment">// hostname with the corresponding task by iterating together</span></span><br><span class="line">        <span class="keyword">final</span> Iterator&lt;String&gt; it = hosts.iterator();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">final</span> Future&lt;TransportAddress[]&gt; future : futures) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">hostname</span> <span class="operator">=</span> it.next();</span><br><span class="line">            <span class="keyword">if</span> (!future.isCancelled()) &#123;</span><br><span class="line">                <span class="keyword">assert</span> future.isDone();</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">final</span> TransportAddress[] addresses = future.get();</span><br><span class="line">                    logger.trace(<span class="string">&quot;resolved host [&#123;&#125;] to &#123;&#125;&quot;</span>, hostname, addresses);</span><br><span class="line">                    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">addressId</span> <span class="operator">=</span> <span class="number">0</span>; addressId &lt; addresses.length; addressId++) &#123;</span><br><span class="line">                        discoveryNodes.add(</span><br><span class="line">                            <span class="keyword">new</span> <span class="title class_">DiscoveryNode</span>(</span><br><span class="line">                                nodeId_prefix + hostname + <span class="string">&quot;_&quot;</span> + addressId + <span class="string">&quot;#&quot;</span>,</span><br><span class="line">                                addresses[addressId],</span><br><span class="line">                                emptyMap(),</span><br><span class="line">                                emptySet(),</span><br><span class="line">                                Version.CURRENT.minimumCompatibilityVersion()));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (<span class="keyword">final</span> ExecutionException e) &#123;</span><br><span class="line">                    <span class="keyword">assert</span> e.getCause() != <span class="literal">null</span>;</span><br><span class="line">                    <span class="keyword">final</span> <span class="type">String</span> <span class="variable">message</span> <span class="operator">=</span> <span class="string">&quot;failed to resolve host [&quot;</span> + hostname + <span class="string">&quot;]&quot;</span>;</span><br><span class="line">                    logger.warn(message, e.getCause());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                logger.warn(<span class="string">&quot;timed out after [&#123;&#125;] resolving host [&#123;&#125;]&quot;</span>, resolveTimeout, hostname);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> discoveryNodes;</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">TransportService.java</span><br><span class="line">    <span class="keyword">public</span> TransportAddress[] addressesFromString(String address, <span class="type">int</span> perAddressLimit) <span class="keyword">throws</span> UnknownHostException &#123;</span><br><span class="line">        <span class="keyword">return</span> transport.addressesFromString(address, perAddressLimit);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">TcpTransport.java</span><br><span class="line">    <span class="keyword">public</span> TransportAddress[] addressesFromString(String address, <span class="type">int</span> perAddressLimit) <span class="keyword">throws</span> UnknownHostException &#123;</span><br><span class="line">        <span class="keyword">return</span> parse(address, settings.get(<span class="string">&quot;transport.profiles.default.port&quot;</span>, TransportSettings.PORT.get(settings)), perAddressLimit);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Pattern</span> <span class="variable">BRACKET_PATTERN</span> <span class="operator">=</span> Pattern.compile(<span class="string">&quot;^\\[(.*:.*)\\](?::([\\d\\-]*))?$&quot;</span>);</span><br><span class="line">    <span class="comment">/** parse a hostname+port range spec into its equivalent addresses */</span></span><br><span class="line">    <span class="keyword">static</span> TransportAddress[] parse(String hostPortString, String defaultPortRange, <span class="type">int</span> perAddressLimit) <span class="keyword">throws</span> UnknownHostException &#123;</span><br><span class="line">        Objects.requireNonNull(hostPortString);</span><br><span class="line">        String host;</span><br><span class="line">        <span class="type">String</span> <span class="variable">portString</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (hostPortString.startsWith(<span class="string">&quot;[&quot;</span>)) &#123;</span><br><span class="line">            <span class="comment">// Parse a bracketed host, typically an IPv6 literal.</span></span><br><span class="line">            <span class="type">Matcher</span> <span class="variable">matcher</span> <span class="operator">=</span> BRACKET_PATTERN.matcher(hostPortString);</span><br><span class="line">            <span class="keyword">if</span> (!matcher.matches()) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;Invalid bracketed host/port range: &quot;</span> + hostPortString);</span><br><span class="line">            &#125;</span><br><span class="line">            host = matcher.group(<span class="number">1</span>);</span><br><span class="line">            portString = matcher.group(<span class="number">2</span>);  <span class="comment">// could be null</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">colonPos</span> <span class="operator">=</span> hostPortString.indexOf(<span class="string">&#x27;:&#x27;</span>);</span><br><span class="line">            <span class="keyword">if</span> (colonPos &gt;= <span class="number">0</span> &amp;&amp; hostPortString.indexOf(<span class="string">&#x27;:&#x27;</span>, colonPos + <span class="number">1</span>) == -<span class="number">1</span>) &#123;</span><br><span class="line">                <span class="comment">// Exactly 1 colon.  Split into host:port.</span></span><br><span class="line">                host = hostPortString.substring(<span class="number">0</span>, colonPos);</span><br><span class="line">                portString = hostPortString.substring(colonPos + <span class="number">1</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// 0 or 2+ colons.  Bare hostname or IPv6 literal.</span></span><br><span class="line">                host = hostPortString;</span><br><span class="line">                <span class="comment">// 2+ colons and not bracketed: exception</span></span><br><span class="line">                <span class="keyword">if</span> (colonPos &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;IPv6 addresses must be bracketed: &quot;</span> + hostPortString);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// if port isn&#x27;t specified, fill with the default</span></span><br><span class="line">        <span class="keyword">if</span> (portString == <span class="literal">null</span> || portString.isEmpty()) &#123;</span><br><span class="line">            portString = defaultPortRange;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// generate address for each port in the range</span></span><br><span class="line">        Set&lt;InetAddress&gt; addresses = <span class="keyword">new</span> <span class="title class_">HashSet</span>&lt;&gt;(Arrays.asList(InetAddress.getAllByName(host)));</span><br><span class="line">        List&lt;TransportAddress&gt; transportAddresses = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="type">int</span>[] ports = <span class="keyword">new</span> <span class="title class_">PortsRange</span>(portString).ports();</span><br><span class="line">        <span class="type">int</span> <span class="variable">limit</span> <span class="operator">=</span> Math.min(ports.length, perAddressLimit);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; limit; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (InetAddress address : addresses) &#123;</span><br><span class="line">                transportAddresses.add(<span class="keyword">new</span> <span class="title class_">InetSocketTransportAddress</span>(address, ports[i]));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> transportAddresses.toArray(<span class="keyword">new</span> <span class="title class_">TransportAddress</span>[transportAddresses.size()]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">TransportSettings.java</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Setting&lt;String&gt; PORT =</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Setting</span>&lt;&gt;(<span class="string">&quot;transport.tcp.port&quot;</span>, <span class="string">&quot;9300-9400&quot;</span>, Function.identity(), Property.NodeScope);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>也可看到，es这块debug的日志有所欠缺，如果把UnicastZenPing这个操作时候的实际的端口log下来，方便快速定位问题。</p>
+<p>2,<br>** ES索引性能的优化 **<br>之前文章已推荐<a target="_blank" rel="noopener" href="https://www.paypal-engineering.com/2016/08/10/powering-transactions-search-with-elastic-learnings-from-the-field/">Ebay一篇文章</a>总结过将Elasticsearch优化到极致的技巧，这里就不再重复，来看点不一样的：<br>不过，这里也不会讨论，诸如 优化索引的 index.refresh_interval，优化segment的index.merge，甚至磁盘的索引均衡（扩分片&#x2F;reroute）&#x2F;replia数减少。更不会讨论诸如索引字段的分词&#x2F;exclude&#x2F;_all字段禁用&#x2F;优化_source字段等。</p>
+<p>来看下面三个参数：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">index.translog.durability: async</span><br><span class="line">index.translog.sync_interval: 90s</span><br><span class="line">index.translog.flush_threshold_size: 1024mb</span><br></pre></td></tr></table></figure>
+
+<p>主要是 index.translog.durability，看文档 <a target="_blank" rel="noopener" href="https://www.elastic.co/guide/en/elasticsearch/reference/5.2/index-modules-translog.html">Translog</a></p>
+<p> <em><strong>Translog settingsedit</strong></em><br>The data in the transaction log is only persisted to disk when the translog is fsynced and committed. In the event of hardware failure, any data written since the previous translog commit will be lost.</p>
+<p>By default, Elasticsearch fsyncs and commits the translog every 5 seconds if index.translog.durability is set to async or if set to request (default) at the end of every index, delete, update, or bulk request. In fact, Elasticsearch will only report success of an index, delete, update, or bulk request to the client after the transaction log has been successfully fsynced and committed on the primary and on every allocated replica.</p>
+<p>The following dynamically updatable per-index settings control the behaviour of the transaction log:</p>
+<ul>
+<li>** index.translog.sync_interval **<br>How often the translog is fsynced to disk and committed, regardless of write operations. Defaults to 5s. Values less than 100ms are not allowed.</li>
+<li>** index.translog.durability **<br>Whether or not to fsync and commit the translog after every index, delete, update, or bulk request. This setting accepts the following parameters:<ul>
+<li>request<br>(default) fsync and commit after every request. In the event of hardware failure, all acknowledged writes will already have been committed to disk.</li>
+<li>async<br>fsync and commit in the background every sync_interval. In the event of hardware failure, all acknowledged writes since the last automatic commit will be discarded.</li>
+</ul>
+</li>
+</ul>
+<p>即，为了保证数据不丢失，es translog默认的额持久化策略是 每次请求都会flush。这里暂不代码展开分析，如果应用允许少量的几率丢失数据，那么这里可以设置为异步，并且增加translog大小周期性的flush。</p>
+<p>需要注意的是，index.translog.durability 并不是一个dynamic property，即，如果修改索引的该配置，可以删除重建，不过也可以先close该索引，更新setting后再open打开索引。</p>
+<p>对于大量请求（每天索引数据量10+亿条，每日索引数据500+GB，1备份，保留5天数据，32CPU，128g内存，机械硬盘，四台实体机），上面的配置优化还是很明显的。</p>
+<p>3，<br>** 这里简单列个5.x相比2.x的改变 **:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST &#x27;localhost:9200/_cluster/reroute&#x27; -d &#x27;&#123; </span><br><span class="line">  &quot;commands&quot; : [ </span><br><span class="line">      &#123; &quot;allocate_empty_primary&quot; : </span><br><span class="line">          &#123; &quot;index&quot; : &quot;INDEX&quot;, &quot;shard&quot; : 0, &quot;node&quot;: &quot;&lt;NODE_NAME&gt;&quot;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;&#x27;</span><br><span class="line">curl -XPOST  localhost:9200/_cluster/reroute -d &#x27;&#123;</span><br><span class="line">  &quot;commands&quot; : [ </span><br><span class="line">    &#123;</span><br><span class="line">        &quot;move&quot; :&#123;</span><br><span class="line">            &quot;index&quot; : &quot;za-2018.03.23&quot;, &quot;shard&quot; : 0, &quot;from_node&quot; : &quot;node-20.50&quot;, &quot;to_node&quot; : &quot;node-20.39&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>上述node均可用名字代替，而不必查询id</li>
+<li>reroute的commands，相比细化了下，如 allocate_empty_primary，这在集群状态为red，分片数据确实并且不可恢复的时候还是有用的。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2018/03/25/2018-03-25-pearls_of_Elasticsearch/" data-id="cm7c6vn350013uexa7a84bxpe" data-title="Elasticsearch几点体会" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/03/28/2018-03-28-weekly_reading/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Weekly Reading 180328
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/09/10/2017-09-10-weekly_reading/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Weekly Reading 170910</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

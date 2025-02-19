@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Weekly Reading 170825 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weekly Reading 170825">
+<meta property="og:url" content="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="优雅停机dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：服务提供方· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。服务消费方· 停止时，不再发起新的调用">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41">
+<meta property="article:published_time" content="2017-08-26T02:29:07.000Z">
+<meta property="article:modified_time" content="2017-08-26T02:25:23.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="Tech">
+<meta property="article:tag" content="weeklyreading">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2017-08-26-weekly_reading" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2017/08/26/2017-08-26-weekly_reading/" class="article-date">
+  <time class="dt-published" datetime="2017-08-26T02:29:07.000Z" itemprop="datePublished">2017-08-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Weekly Reading 170825
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <ol>
+<li><a target="_blank" rel="noopener" href="http://gao-xianglong.iteye.com/blog/2390697?from=thomaslau.github.io">优雅停机</a><br>dubbo原生是支持优雅停机的，其实也就是采用JDK的ShudownHook来实现，当然仅限kill -15 PID。这里也顺带说一下dubbo优雅停机的原理，如下所示：<br>服务提供方<br>· 停止时，先标记为不接收新请求，新请求过来时直接报错，让客户端重试其它机器。<br>· 然后，检测线程池中的线程是否正在运行，如果有，等待所有线程执行完成，除非超时，则强制关闭。<br>服务消费方<br>· 停止时，不再发起新的调用请求，所有新的调用在客户端即报错。<br>· 然后，检测有没有请求的响应还没有返回，等待响应返回，除非超时，则强制关闭。</li>
+</ol>
+<span id="more"></span>
+<ol start="2">
+<li><a target="_blank" rel="noopener" href="https://blog.risingstack.com/designing-microservices-architecture-for-failure?from=thomaslau.github.io">Designing a Microservices Architecture for Failure</a>，这是译文版的<a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000010799109?from=thomaslau.github.io">设计一个容错的微服务架构</a>， infoq好像有类似，这里再推荐下。<br>注意点: Graceful Service Degradation, Change management, Health-check and Load Balancing, Self-healing, Failover Caching, Retry Logic, Rate Limiters and Load Shedders, Fail Fast and Independently, Bulkheads, Circuit Breakers, Testing for Failures.<br>Key Takeways</li>
+</ol>
+<ol>
+<li>Dynamic environments and distributed systems - like microservices - lead to a higher chance of failures.</li>
+<li>Services should fail separately, achieve graceful degradation to improve user experience.</li>
+<li>70% of the outages are caused by changes, reverting code is not a bad thing.<br>Fail fast and independently. Teams have no control over their service dependencies.</li>
+<li>Architectural patterns and techniques like caching, bulkheads, circuit breakers and rate-limiters help to build reliable microservices.</li>
+</ol>
+<ol start="3">
+<li>grep递归查询<br>习惯用 find . -type f -exec grep -l ‘alvin’ {} ; 的可以试一试grep -rl alvin .<br>递归查询多个目录：grep -ril alvin &#x2F;home&#x2F;cato &#x2F;htdocs&#x2F;zenf</li>
+<li><a target="_blank" rel="noopener" href="https://peadarcoyle.wordpress.com/2017/08/16/why-zalandos-tech-radar-sucks-as-a-stack/">WHY  ZALANDO’S  TECH  RADAR  SUCKS  AS  A  STACK
+</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/30508773/answer/205831957">反欺诈(Fraud Detection)中所用到的机器学习模型有哪些？</a>, 有点乱，不过有点参考意义。其实答案里提到的解法，看上去不论可视化或者异常检测对比，从描述来看，这都很依赖人工验证。</li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/chdhust/article/details/77507453">基于SEDA的异步框架设计与实现</a>, SEDA技术是个存在了很久的概念。<br>目前，面对并发环境，主流互联网服务器编程模型有两种：多线程模型以及事件驱动模型。但是这两个模型都不足以解决这个问题。我们来首先看一下这两种编程模型。</li>
+<li>飒然Hang的<a target="_blank" rel="noopener" href="http://www.rowkey.me/blog/2017/08/24/arch/?from=thomaslau.github.io">谈谈架构</a></li>
+<li>API设计，DDD，REST，CQRS<br><a target="_blank" rel="noopener" href="http://blog.didispace.com/use-ddd-design-rest-api/">http://blog.didispace.com/use-ddd-design-rest-api/</a><br><a target="_blank" rel="noopener" href="http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/">http://blog.didispace.com/spring-boot-starter-swagger-1.2.0/</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.didispace.com/spring-cloud-starter-dalston-6-1/">Spring Cloud构建微服务架构：服务网关</a>, 算是初步了解下Spring Cloud.<br>文中因为权限带来状态，所以将权限认证放在API GateWay，其实这样gateway也会有状态的。<br>而且，权限，面向具体服务还是整个系统通用，比如内网限制／ip限制这里通用、用户只能更新自己数据这类business logic。</li>
+<li>最近看了Brew的时隔十多年的两篇CAP和Lynch的2002年的CAP证明，发觉他们其实描述的不是同一个东西，至少，他们对一种理论的约束条件定义不同，甚至对Patition tolerance定义也是不同。比如CAP在十多年里就引起许多争论，大多是对A／P理解不同，Brew两篇文章都没有清晰定义。<br>CAP存在的原因，其实就是工程师和理论派的差异的地方了，一个注重理解和实用，哪怕是靠记忆记住，即便是不完全的真理，另一个侧重证明。比如有专家发文为NoSQL没有实现一致性遗憾，比如有自称是CA的，但是后来经验证被认为是CA特性，但是极致情况下表现AP特性。<br>可以看看<a target="_blank" rel="noopener" href="https://aphyr.com/tags/jepsen">aphyr的jepson</a>系列，实用Jepson验证一些分布式系统。<br>后面会再写篇关于CAP的文章，先立个flag，天气原因，今天就先写到这里了。</li>
+<li>冯·诺伊曼关于拟合大象的比喻。<br><a target="_blank" rel="noopener" href="https://www.quora.com/What-exactly-does-John-Von-Neumanns-quote-with-four-parameters-I-can-fit-an-elephant-with-five-I-can-make-him-wiggle-his-trunk-mean">What exactly does John Von Neumann’s quote “with four parameters I can fit an elephant, with five I can make him wiggle his trunk” mean?</a>, <a target="_blank" rel="noopener" href="https://www.johndcook.com/blog/2011/06/21/how-to-fit-an-elephant/">How-to-fit-an-elephant&#x2F;</a><br>以下摘录网上：<br>1953年春天，26岁即是康奈尔大学教授的戴森和自己的学生利用赝标介子理论计算了介子与质子的散射截面，得到了与费米的实验观测值十分相符的结果。喜不自禁的长途跋涉去告之费米，费米扫了一眼说，“有两种方式做理论物理学的计算。一种是我喜欢的，就是要对你正在计算的过程拥有一个清晰的物理图象。另一种是得到精确而且自洽的数学形式体系。这两者都是你的计算不具备的。”<br>戴森当时有点懵了，但他还是斗胆问费米，为什么他在计算中所采用的赝标介子理论算不上是自洽的数学形式体系。得到了简洁的解答之后，绝望的戴森又问费米对理论计算与实验测量结果的相符做何感想。费米反问道：“你们在计算过程中引入了多少个任意参数？”戴森回答说四个。于是费米讲了一句日后很著名的话：“<strong>我记得我的朋友约翰·冯·诺依曼（John von Neumann）曾经说过，用四个参数我可以拟合出一头大象，而用五个参数我可以让它的鼻子摆动。</strong>”对话结束了，沮丧的戴森赶回康奈尔大学，向自己的学生告知了费米的意见。尽管他们决定还是把手头的计算做完并发表，但达成共识：这个工作之后就转换研究方向。</li>
+</ol>
+<p>  故事可能是搞笑成分居多，甚至2010年6月，Jurgen Mayer也发表了题为“<a target="_blank" rel="noopener" href="https://publications.mpi-cbg.de/Mayer_2010_4314.pdf">用四个复参数画出一头大象</a>”的有点戏谑的论文。<br>其实有些理论参数最多达二十几，但是太多参数限制了理论的自由度，不论是从理论分析还是实践，简洁是最好的选择。自爱因斯坦玻尔海森堡等黄金时代科学家那一代，费米／奥本海默等是少有的理论和实验均有造诣，他们都参与了原子弹的研发，此后估计物理学理论和实验<a target="_blank" rel="noopener" href="http://blog.sciencenet.cn/blog-3779-803730.html">似乎走上了不同的道路</a>。<br><a target="_blank" rel="noopener" href="http://blog.sciencenet.cn/blog-3779-1071332.html">http://blog.sciencenet.cn/blog-3779-1071332.html</a><br>这里也有一个<a target="_blank" rel="noopener" href="http://www.wolframalpha.com/input/?i=elephant+curve&lk=1&a=ClashPrefs_*PlaneCurve.ElephantCurve-">wolframalpha版本的大象拟合</a>, 有兴趣可以输入 heart curve看看，在马上到来的七夕之前. Matrix67也有文章描述怎么画一个breoken heart curve。<br><img alt="Elephant Curve" src="http://www5b.wolframalpha.com/Calculate/MSP/MSP131520778i9g08099ai40000587f1ig8cd9a32c4?MSPStoreType=image/gif&s=41" width="480" data-file-width="480" data-file-height="409"><br>来源：<a target="_blank" rel="noopener" href="https://en.wikiquote.org/wiki/John_von_Neumann">wikiquote John_von_Neumann</a><br>12. 摘自月光的blog：<br>布林和佩奇到了中国后，在访问百度公司时，李彦宏邀请他们吃Subway三明治，布林和佩奇拒绝了。<br>Google中文域名的前期准备活动正在有条不紊的进行之中，直到2005年5月7号，一份意料之外的电子邮件飞进了埃里克·施密特（Eric Schmidt）收件箱中。这份邮件来自微软一位名叫李开复的计算机专家兼高层。“我已经听说Google正准备进军中国市场。”他在邮件中写道：“我想告诉你的是，如果Google真有意在华大干一番，我会有兴趣跟你谈谈。”<br>。。。<br>2009年6月，新出现的问题牵涉到Google搜索建议（Google Suggest），用户在搜索框中输入一两个词字时，就立即显示完整的搜索关键词。Google搜索团队意识到中文用户因嫌打字麻烦通常只会在搜索框中输入一些短的关键词，这一创新功能最初就是针对此问题在中国开发出来的，最后才在全球范围应用开来。但中国官方发现令其不安的内容，搜索建议提供的一些内容与色情有关。<br>2010年3月，粉丝在中国总部门前的Google标志边上点亮蜡烛，留下鲜花和卡片，写下祝福话语。<br>对于Google中国的雇员，这天让人终身难忘。他们中没有人事先到消息。大卫在北京时间上午6点的时候发布了公告。北京和上海的不少Googler都是在同事叫醒他们后，才第一次听到这条消息的。员工涌入办公室，一脸地惊讶。那天下午，Google告诉所有雇员不用上班，给他们发电影片去看《阿凡达》。第二天，所有人都聚集在咖啡厅，与布林以及其他高管开电话会议，几位高管在会议上试图解释Google这样做的原因。这并非易事。Google的新任政府公关负责人朱莉·朱对员工和海外高层做了一次感性的陈词。山景城的高层犹如是战场上抛弃了自己士兵的将军。她争辩道，你们不应该放弃，你们应该继续战斗下。<br>李开复称，如果眼光放长点（20年或30年后）看中国，中国无疑会变得越来越开放。Google撤出大陆的决定只是这一进程的插曲，此次事件的导火索主要是由于中国领导人已经退到底线了。“不出两年的时间，下一代将走上舞台。”李开复说。“他们更年轻，更进步，许多受过美国的教育。许多在商界工作，掌管银行业——他们会变得更加开放。”</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2017/08/26/2017-08-26-weekly_reading/" data-id="cm7c6vn350010uexa55dgghhm" data-title="Weekly Reading 170825" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/10/2017-09-10-weekly_reading/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Weekly Reading 170910
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/08/20/2017-08-20-weekly_reading/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Weekly Reading 170820</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

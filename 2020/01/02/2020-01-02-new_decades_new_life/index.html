@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>新一年的技术叨叨 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="intro1：kafk异常io图，kafka rebalance和reassigne区别intro2: kafka真的只能从leader partition读写吗intro3: 一个不太正常的elasticsaerch分片分布场景下的扩容  从一些系统监控图能看到些什么最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io&#x2F;cpu监控，图一所示平稳读操作中夹杂一些尖峰，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="新一年的技术叨叨">
+<meta property="og:url" content="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：kafk异常io图，kafka rebalance和reassigne区别intro2: kafka真的只能从leader partition读写吗intro3: 一个不太正常的elasticsaerch分片分布场景下的扩容  从一些系统监控图能看到些什么最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io&#x2F;cpu监控，图一所示平稳读操作中夹杂一些尖峰，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://thomaslau.github.io/images/20_kafka_perfect_IO.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/20_kafka_bad_IO.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/20_elasticsearch_cpu_except.png">
+<meta property="article:published_time" content="2020-01-01T16:59:10.000Z">
+<meta property="article:modified_time" content="2020-01-02T23:51:08.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="kafka">
+<meta property="article:tag" content="yearly">
+<meta property="article:tag" content="elasticsearch">
+<meta property="article:tag" content="architecture">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/20_kafka_perfect_IO.png">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2020-01-02-new_decades_new_life" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/01/02/2020-01-02-new_decades_new_life/" class="article-date">
+  <time class="dt-published" datetime="2020-01-01T16:59:10.000Z" itemprop="datePublished">2020-01-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      新一年的技术叨叨
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：kafk异常io图，kafka rebalance和reassigne区别</i><br><i><strong>intro2</strong>: kafka真的只能从leader partition读写吗</i><br><i><strong>intro3</strong>: 一个不太正常的elasticsaerch分片分布场景下的扩容</i></p>
+</blockquote>
+<h2 id="从一些系统监控图能看到些什么"><a href="#从一些系统监控图能看到些什么" class="headerlink" title="从一些系统监控图能看到些什么"></a>从一些系统监控图能看到些什么</h2><p>最近在排查线上问题时，留意到几台Kafka机器的基础的zabbix io&#x2F;cpu监控，图一所示平稳读操作中夹杂一些尖峰，图二是之前放大的图</p>
+<span id="more"></span>
+<img src="/images/20_kafka_perfect_IO.png" width = "100%" />
+放大看，io持续还是明显的
+<img src="/images/20_kafka_bad_IO.png" width = "100%" />
+从上述图能够看出，Kafka非常少有大量读磁盘的操作，主要还是定期批量写磁盘操作，而且顺序写操作磁盘非常高效。但为什么上图最近读磁盘增加了许多呢？我们知道Kafka在写消息时，消息实际上时写入page cache(内存)中，然后由异步线程刷盘，消息从page cache落地磁盘。而读取消息时，是直接由page cache转入socket发送出去[也即大家说的零拷贝技术]。如果page cache没有命中相应数据(offset)，Kafka就会通过idx文件，即索引，定位到对应的数据文件，将整个文件从磁盘加载消息到page cache,然后再从socket发出去，此时就会发生不小的磁盘读操作。
+也就是说，**page cache常没有命中消费的数据，这通常是消费延迟导致**，查看消费监控，确实存在一些groupid的消费者存在严重的消费延迟情况，甚至还有程序经常从头开始消费。
+这些都应该是尽量避免的，因为 **使用page cahce当遇到问题脏页，内存回收等问题时，易造成消息读写的延迟，而且过多page cache也影响linux系统本身性能，如果未关闭swap问题可能更严重了**。 不过据说来自阿里的 RocketMQ 在这方面做了些优化。
+## Kafka rebalance vs Kafka reassigne
+还有一点的是，我们知道Kafka读写的都是partition，partition分为leader/follower角色，在过去对于Kafka的partition来说，只有leader才会进行读写操作，folower仅进行同步/复制/备份(当然，有些例外如测试等, 不过现在更例外了，请看下文)，follower对于consumer/producer等client来说是透明的，这也可以认为是kafka数据一致性的方法。
+同Mysql的实现不同，Mysql分为主从，通常会针对主从作读写分离操作，实现性能提升，而Kafka则分为多个partition，读写分离到多partition上，他们的负载均衡就是通过 broker(机器)+partition+角色(leader) 的均衡实现的。
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">We assume that there are many partitions in a cluster and try to </span><br><span class="line">spread the leaders evenly among brokers. That way, even for a </span><br><span class="line">particularpartition, all clients have to talk to a single broker, </span><br><span class="line">the overall workload is still balanced.</span><br></pre></td></tr></table></figure>
+
+<p>不过，是否读replica这个做法在多数据中心时是有一定益处的，<strong>为此Kafka就做了改进，允许消费者从最近的副本进行获取</strong>，<strong><a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/display/KAFKA/KIP-392%3A+Allow+consumers+to+fetch+from+closest+replica">KIP-392: Allow consumers to fetch from closest replica</a><br><a target="_blank" rel="noopener" href="https://github.com/apache/kafka/pull/6832">KAFKA-8443 Broker support for fetch from followers #6832</a>, <a target="_blank" rel="noopener" href="https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=125307901">Release Plan 2.4.0</a>，</strong> 这个改进可以说更上层楼，<strong>在目前最新的2.4.0版本发布</strong>，如果你通过百度查询，国内相关文章不多，所以需要自己阅读官方指导了。<br>其次，可以看到一些kafka server的监控软件，如Kafka Manager有个leader skew，用来衡量leader倾斜度，简单列举下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Brokers Spread：看作broker使用率，该topic分布的broker占集群broker总量百分比</span><br><span class="line">Brokers Skew：该topic偏离均值的broker占集群broker总量百分比</span><br><span class="line">Brokers Leader Skew：Percentage of brokers having more partitions as leader than the average，</span><br><span class="line">leader partition是否存在倾斜，即没有达到平均leader比重的broker数量占集群broker总量百分比</span><br></pre></td></tr></table></figure>
+<p>这是因为Kafka所有读写都在leader上进行， broker leader skew过高会导致读写负载不均衡，<br>Kafka有个参数 auto.leader.rebalance.enable，默认为true 可以使kafka自动定期做leader的rebalance，消除写不均衡的问题。</p>
+<h2 id="那么这个-rebalance-和reassign-有关系吗"><a href="#那么这个-rebalance-和reassign-有关系吗" class="headerlink" title="那么这个 rebalance 和reassign 有关系吗"></a>那么这个 rebalance 和reassign 有关系吗</h2><p>需要指出，这里的Kafka rebalance，不是指kafka consumer的rebalance，而是kafka partition的rebalance，也就是 kafka leader rebalance，即针对partition的 均衡，与此相关的还有一个 partition reassign，都是实现kafka server的各个broker之间的负载均衡的方式。<br>有的文章没有注意把二者混为一谈，认为partition rebalance 会引起partition重分配， 导致对于大吞吐量的应用在leader rebalance 时，可能导致partition不可用的，无法读写数据，在生产环境关闭该功能，或者 rebalance 可能短暂导致如partition不可写等，其实无此必要。<br><strong>partition reblance 和 partition reassign 是两个概念</strong>，reassign 是在监听ZK事件时触发的，比如我们通过ReassignPartitionsCommand命令操作分片迁移。<br>Kafka rebalance判断依据是 imbalanceRatio 因子的大小，而扩展节点(broker)不会引起imbalanceRatio的变化，因为 totalTopicPartitionsForBroker不变，totalTopicPartitionsNotLedByBroker 和新的broker无关，除非已经手动设置作修改。<br>rebalance是否会引起reasign呢？官方没有详细涉及，从笔者也正在阅读这块代码，尚未发现rebalance会导致resign的情况。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ControllerContext</span>.scala</span><br><span class="line">...</span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">checkAndTriggerPartitionRebalance</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">if</span> (isActive()) &#123;</span><br><span class="line">      trace(<span class="string">&quot;checking need to trigger partition rebalance&quot;</span>)</span><br><span class="line">      <span class="comment">// get all the active brokers</span></span><br><span class="line">      <span class="keyword">var</span> preferredReplicasForTopicsByBrokers: <span class="type">Map</span>[<span class="type">Int</span>, <span class="type">Map</span>[<span class="type">TopicAndPartition</span>, <span class="type">Seq</span>[<span class="type">Int</span>]]] = <span class="literal">null</span></span><br><span class="line">      inLock(controllerContext.controllerLock) &#123;</span><br><span class="line">        preferredReplicasForTopicsByBrokers =</span><br><span class="line">          controllerContext.partitionReplicaAssignment.filterNot(p =&gt; deleteTopicManager.isTopicQueuedUpForDeletion(p._1.topic)).groupBy &#123;</span><br><span class="line">            <span class="keyword">case</span>(topicAndPartition, assignedReplicas) =&gt; assignedReplicas.head</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      debug(<span class="string">&quot;preferred replicas by broker &quot;</span> + preferredReplicasForTopicsByBrokers)</span><br><span class="line">      <span class="comment">// for each broker, check if a preferred replica election needs to be triggered</span></span><br><span class="line">      preferredReplicasForTopicsByBrokers.foreach &#123;</span><br><span class="line">        <span class="keyword">case</span>(leaderBroker, topicAndPartitionsForBroker) =&gt; &#123;</span><br><span class="line">          <span class="keyword">var</span> imbalanceRatio: <span class="type">Double</span> = <span class="number">0</span></span><br><span class="line">          <span class="keyword">var</span> topicsNotInPreferredReplica: <span class="type">Map</span>[<span class="type">TopicAndPartition</span>, <span class="type">Seq</span>[<span class="type">Int</span>]] = <span class="literal">null</span></span><br><span class="line">          inLock(controllerContext.controllerLock) &#123;</span><br><span class="line">            topicsNotInPreferredReplica =</span><br><span class="line">              topicAndPartitionsForBroker.filter &#123;</span><br><span class="line">                <span class="keyword">case</span>(topicPartition, replicas) =&gt; &#123;</span><br><span class="line">                  controllerContext.partitionLeadershipInfo.contains(topicPartition) &amp;&amp;</span><br><span class="line">                  controllerContext.partitionLeadershipInfo(topicPartition).leaderAndIsr.leader != leaderBroker</span><br><span class="line">                &#125;</span><br><span class="line">              &#125;</span><br><span class="line">            debug(<span class="string">&quot;topics not in preferred replica &quot;</span> + topicsNotInPreferredReplica)</span><br><span class="line">            <span class="keyword">val</span> totalTopicPartitionsForBroker = topicAndPartitionsForBroker.size</span><br><span class="line">            <span class="keyword">val</span> totalTopicPartitionsNotLedByBroker = topicsNotInPreferredReplica.size</span><br><span class="line">            imbalanceRatio = totalTopicPartitionsNotLedByBroker.toDouble / totalTopicPartitionsForBroker</span><br><span class="line">            trace(<span class="string">&quot;leader imbalance ratio for broker %d is %f&quot;</span>.format(leaderBroker, imbalanceRatio))</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="comment">// check ratio and if greater than desired ratio, trigger a rebalance for the topic partitions</span></span><br><span class="line">          <span class="comment">// that need to be on this broker</span></span><br><span class="line">          <span class="keyword">if</span> (imbalanceRatio &gt; (config.leaderImbalancePerBrokerPercentage.toDouble / <span class="number">100</span>)) &#123;</span><br><span class="line">            topicsNotInPreferredReplica.foreach &#123;</span><br><span class="line">              <span class="keyword">case</span>(topicPartition, replicas) =&gt; &#123;</span><br><span class="line">                inLock(controllerContext.controllerLock) &#123;</span><br><span class="line">                  <span class="comment">// do this check only if the broker is live and there are no partitions being reassigned currently</span></span><br><span class="line">                  <span class="comment">// and preferred replica election is not in progress</span></span><br><span class="line">                  <span class="keyword">if</span> (controllerContext.liveBrokerIds.contains(leaderBroker) &amp;&amp;</span><br><span class="line">                      controllerContext.partitionsBeingReassigned.size == <span class="number">0</span> &amp;&amp;</span><br><span class="line">                      controllerContext.partitionsUndergoingPreferredReplicaElection.size == <span class="number">0</span> &amp;&amp;</span><br><span class="line">                      !deleteTopicManager.isTopicQueuedUpForDeletion(topicPartition.topic) &amp;&amp;</span><br><span class="line">                      controllerContext.allTopics.contains(topicPartition.topic)) &#123;</span><br><span class="line">                    onPreferredReplicaElection(<span class="type">Set</span>(topicPartition), <span class="literal">true</span>)</span><br><span class="line">                  &#125;</span><br><span class="line">                &#125;</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * This callback is invoked by the reassigned partitions listener. When an admin command initiates a partition</span></span><br><span class="line"><span class="comment">   * reassignment, it creates the /admin/reassign_partitions path that triggers the zookeeper listener.</span></span><br><span class="line"><span class="comment">   * Reassigning replicas for a partition goes through a few steps listed in the code.</span></span><br><span class="line"><span class="comment">   * RAR = Reassigned replicas</span></span><br><span class="line"><span class="comment">   * OAR = Original list of replicas for partition</span></span><br><span class="line"><span class="comment">   * AR = current assigned replicas</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * 1. Update AR in ZK with OAR + RAR.</span></span><br><span class="line"><span class="comment">   * 2. Send LeaderAndIsr request to every replica in OAR + RAR (with AR as OAR + RAR). We do this by forcing an update</span></span><br><span class="line"><span class="comment">   *    of the leader epoch in zookeeper.</span></span><br><span class="line"><span class="comment">   * 3. Start new replicas RAR - OAR by moving replicas in RAR - OAR to NewReplica state.</span></span><br><span class="line"><span class="comment">   * 4. Wait until all replicas in RAR are in sync with the leader.</span></span><br><span class="line"><span class="comment">   * 5  Move all replicas in RAR to OnlineReplica state.</span></span><br><span class="line"><span class="comment">   * 6. Set AR to RAR in memory.</span></span><br><span class="line"><span class="comment">   * 7. If the leader is not in RAR, elect a new leader from RAR. If new leader needs to be elected from RAR, a LeaderAndIsr</span></span><br><span class="line"><span class="comment">   *    will be sent. If not, then leader epoch will be incremented in zookeeper and a LeaderAndIsr request will be sent.</span></span><br><span class="line"><span class="comment">   *    In any case, the LeaderAndIsr request will have AR = RAR. This will prevent the leader from adding any replica in</span></span><br><span class="line"><span class="comment">   *    RAR - OAR back in the isr.</span></span><br><span class="line"><span class="comment">   * 8. Move all replicas in OAR - RAR to OfflineReplica state. As part of OfflineReplica state change, we shrink the</span></span><br><span class="line"><span class="comment">   *    isr to remove OAR - RAR in zookeeper and sent a LeaderAndIsr ONLY to the Leader to notify it of the shrunk isr.</span></span><br><span class="line"><span class="comment">   *    After that, we send a StopReplica (delete = false) to the replicas in OAR - RAR.</span></span><br><span class="line"><span class="comment">   * 9. Move all replicas in OAR - RAR to NonExistentReplica state. This will send a StopReplica (delete = false) to</span></span><br><span class="line"><span class="comment">   *    the replicas in OAR - RAR to physically delete the replicas on disk.</span></span><br><span class="line"><span class="comment">   * 10. Update AR in ZK with RAR.</span></span><br><span class="line"><span class="comment">   * 11. Update the /admin/reassign_partitions path in ZK to remove this partition.</span></span><br><span class="line"><span class="comment">   * 12. After electing leader, the replicas and isr information changes. So resend the update metadata request to every broker.</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * For example, if OAR = &#123;1, 2, 3&#125; and RAR = &#123;4,5,6&#125;, the values in the assigned replica (AR) and leader/isr path in ZK</span></span><br><span class="line"><span class="comment">   * may go through the following transition.</span></span><br><span class="line"><span class="comment">   * AR                 leader/isr</span></span><br><span class="line"><span class="comment">   * &#123;1,2,3&#125;            1/&#123;1,2,3&#125;           (initial state)</span></span><br><span class="line"><span class="comment">   * &#123;1,2,3,4,5,6&#125;      1/&#123;1,2,3&#125;           (step 2)</span></span><br><span class="line"><span class="comment">   * &#123;1,2,3,4,5,6&#125;      1/&#123;1,2,3,4,5,6&#125;     (step 4)</span></span><br><span class="line"><span class="comment">   * &#123;1,2,3,4,5,6&#125;      4/&#123;1,2,3,4,5,6&#125;     (step 7)</span></span><br><span class="line"><span class="comment">   * &#123;1,2,3,4,5,6&#125;      4/&#123;4,5,6&#125;           (step 8)</span></span><br><span class="line"><span class="comment">   * &#123;4,5,6&#125;            4/&#123;4,5,6&#125;           (step 10)</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * Note that we have to update AR in ZK with RAR last since it&#x27;s the only place where we store OAR persistently.</span></span><br><span class="line"><span class="comment">   * This way, if the controller crashes before that step, we can still recover.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">onPartitionReassignment</span></span>(topicAndPartition: <span class="type">TopicAndPartition</span>, reassignedPartitionContext: <span class="type">ReassignedPartitionsContext</span>) &#123;</span><br><span class="line">    <span class="keyword">val</span> reassignedReplicas = reassignedPartitionContext.newReplicas</span><br><span class="line">    areReplicasInIsr(topicAndPartition.topic, topicAndPartition.partition, reassignedReplicas) <span class="keyword">match</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="literal">false</span> =&gt;</span><br><span class="line">        info(<span class="string">&quot;New replicas %s for partition %s being &quot;</span>.format(reassignedReplicas.mkString(<span class="string">&quot;,&quot;</span>), topicAndPartition) +</span><br><span class="line">          <span class="string">&quot;reassigned not yet caught up with the leader&quot;</span>)</span><br><span class="line">        <span class="keyword">val</span> newReplicasNotInOldReplicaList = reassignedReplicas.toSet -- controllerContext.partitionReplicaAssignment(topicAndPartition).toSet</span><br><span class="line">        <span class="keyword">val</span> newAndOldReplicas = (reassignedPartitionContext.newReplicas ++ controllerContext.partitionReplicaAssignment(topicAndPartition)).toSet</span><br><span class="line">        <span class="comment">//1. Update AR in ZK with OAR + RAR.</span></span><br><span class="line">        updateAssignedReplicasForPartition(topicAndPartition, newAndOldReplicas.toSeq)</span><br><span class="line">        <span class="comment">//2. Send LeaderAndIsr request to every replica in OAR + RAR (with AR as OAR + RAR).</span></span><br><span class="line">        updateLeaderEpochAndSendRequest(topicAndPartition, controllerContext.partitionReplicaAssignment(topicAndPartition),</span><br><span class="line">          newAndOldReplicas.toSeq)</span><br><span class="line">        <span class="comment">//3. replicas in RAR - OAR -&gt; NewReplica</span></span><br><span class="line">        startNewReplicasForReassignedPartition(topicAndPartition, reassignedPartitionContext, newReplicasNotInOldReplicaList)</span><br><span class="line">        info(<span class="string">&quot;Waiting for new replicas %s for partition %s being &quot;</span>.format(reassignedReplicas.mkString(<span class="string">&quot;,&quot;</span>), topicAndPartition) +</span><br><span class="line">          <span class="string">&quot;reassigned to catch up with the leader&quot;</span>)</span><br><span class="line">      <span class="keyword">case</span> <span class="literal">true</span> =&gt;</span><br><span class="line">        <span class="comment">//4. Wait until all replicas in RAR are in sync with the leader.</span></span><br><span class="line">        <span class="keyword">val</span> oldReplicas = controllerContext.partitionReplicaAssignment(topicAndPartition).toSet -- reassignedReplicas.toSet</span><br><span class="line">        <span class="comment">//5. replicas in RAR -&gt; OnlineReplica</span></span><br><span class="line">        reassignedReplicas.foreach &#123; replica =&gt;</span><br><span class="line">          replicaStateMachine.handleStateChanges(<span class="type">Set</span>(<span class="keyword">new</span> <span class="type">PartitionAndReplica</span>(topicAndPartition.topic, topicAndPartition.partition,</span><br><span class="line">            replica)), <span class="type">OnlineReplica</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//6. Set AR to RAR in memory.</span></span><br><span class="line">        <span class="comment">//7. Send LeaderAndIsr request with a potential new leader (if current leader not in RAR) and</span></span><br><span class="line">        <span class="comment">//   a new AR (using RAR) and same isr to every broker in RAR</span></span><br><span class="line">        moveReassignedPartitionLeaderIfRequired(topicAndPartition, reassignedPartitionContext)</span><br><span class="line">        <span class="comment">//8. replicas in OAR - RAR -&gt; Offline (force those replicas out of isr)</span></span><br><span class="line">        <span class="comment">//9. replicas in OAR - RAR -&gt; NonExistentReplica (force those replicas to be deleted)</span></span><br><span class="line">        stopOldReplicasOfReassignedPartition(topicAndPartition, reassignedPartitionContext, oldReplicas)</span><br><span class="line">        <span class="comment">//10. Update AR in ZK with RAR.</span></span><br><span class="line">        updateAssignedReplicasForPartition(topicAndPartition, reassignedReplicas)</span><br><span class="line">        <span class="comment">//11. Update the /admin/reassign_partitions path in ZK to remove this partition.</span></span><br><span class="line">        removePartitionFromReassignedPartitions(topicAndPartition)</span><br><span class="line">        info(<span class="string">&quot;Removed partition %s from the list of reassigned partitions in zookeeper&quot;</span>.format(topicAndPartition))</span><br><span class="line">        controllerContext.partitionsBeingReassigned.remove(topicAndPartition)</span><br><span class="line">        <span class="comment">//12. After electing leader, the replicas and isr information changes, so resend the update metadata request to every broker</span></span><br><span class="line">        sendUpdateMetadataRequest(controllerContext.liveOrShuttingDownBrokerIds.toSeq, <span class="type">Set</span>(topicAndPartition))</span><br><span class="line">        <span class="comment">// signal delete topic thread if reassignment for some partitions belonging to topics being deleted just completed</span></span><br><span class="line">        deleteTopicManager.resumeDeletionForTopics(<span class="type">Set</span>(topicAndPartition.topic))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>partition reassign又具体做了些什么</strong>，上文 onPartitionReassignment 部分可以看出大概，不必追踪代码具体细节，只通过上述代码里方法名字和注释，大概可以了解到，在controller接收到reassign指令，并updateLeaderEpochAndSendRequest后，会新分配一个副本，并努力追上 Leader 的位移，从而加入ISR(In Sync Replicas)，待全部的RAR副本(Reassigned replicas)都加入 ISR 之后，就会进行分区 Leader 选举，选举完删除原有的副本，在Kafka扩容broker时，kafka-reassign-partitions.sh脚本的–generate&#x2F;–execute 配合即可完成上述变更。</p>
+<h2 id="Elasticsearch-的扩容"><a href="#Elasticsearch-的扩容" class="headerlink" title="Elasticsearch 的扩容"></a>Elasticsearch 的扩容</h2><p>同Kafka partition reassign一样，Elasticseach在扩展节点时也会遇到shards的平衡问题，此时通过master节点手动&#x2F;自动指定shards之间的 rebalance，如通过控制集群的 cluster.routing.allocation.enable&#x2F;cluster.routing.rebalance.enable来决定哪类分片可被分配&#x2F;哪类分片可被再平衡，尽量做到不影响线上的读写。<br>这在主节点都具备至少一个从节点时，机制运行良好，但在些极端情况下，有些shards因不得已原因没有从shards，如何扩容而不影响线上读写呢？<br>下一篇文章里笔者会总结下，这里贴一张elasticsearch某个数据节点的cpu负载图，同时告知磁盘io&#x2F;网络io图走势都和该cpu走势类似，你能在图上指出正常、磁盘超85%、磁盘超95%、挂载MFS存储、卸载MFS存储、扩容所对应的时间点吗（假设索引是daily的，只需指出天级别的即可）<br><img src="/images/20_elasticsearch_cpu_except.png" width = "100%" /></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>最后是，例行夹带私货部分。<br>设计模式至今仍被国内许多编程人奉为圭臬，也成了面试青睐的问题，若你从事架构&#x2F;中间件，那可能必考题了。<br>十年前，笔者还是在校生的时候，是设计模式的拥趸，那一年笔者读完了从 HeadFirst的《设计模式》到一千多页《Java与模式》( <a target="_blank" rel="noopener" href="https://book.douban.com/subject/1214074/">https://book.douban.com/subject/1214074/</a> ,阎宏博士著 )，再到斥巨资买来GoF的《设计模式：可复用面向对象软件的基础》看完。<br>但经历越久，越觉得设计模式可以扩展一个人的编程世界，但亦有其局限性。<br><strong>为什么这么说？</strong><br>23个设计模式是Erich Gamma等四位博士(Gang of four), 从前人的经验中总结出来的，从面向对象的设计中精选出23种构建健壮&#x2F;灵活代码设计的技巧，正如其前言所述 <i><strong>本书假设你至少已经比较熟悉一种面向对象编程语言，并且有一定的面向对象设计经验。当我们提及“类型”和“多态”，或“接口”继承与“实现”继承的关系时，你应该对这些概念了然于胸”</strong></i>。<br>23种模式比如工厂模式里分简单工厂&#x2F;抽象工厂模式是否算设计模式，这也曾经是个争论点。<br>如今笔者认为设计模式是不存在的，如果类似主题的话，不如看《面向模式的软件架构》上下卷，后者更接近怎么去设计软件。<br>甚至，对于JAVA研发来说，背诵设计模式不如背诵阿里巴巴的《阿里巴巴Java规范》，尽管笔者对其评价是负面为主，但同意其在实际开发中的实用性。<br>不赞同上述观点的人可能会以JAVA的BIO就通过装饰者模式实现了各种便捷的reader&#x2F;stream或者dubbo里的策略模式反驳笔者，但请问下，读小文件或配置之类的文件时大家的选择是各种stream装饰读，还是IOUtils.tostrings或者java 7后提供的Files.listAsstring之类方法“一言以蔽之”略过这些stream？高性能拷贝文件时大家又会选择各种stream组装吗？<br><strong>今人有二十三种设计模式，古人也有三十六计</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/01/02/2020-01-02-new_decades_new_life/" data-id="cm7c72rpw00082cxahp4dc8cq" data-title="新一年的技术叨叨" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/01/12/2020-01-12-professional_knowledge_on_elasticsearch/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Elasticsearch 的几个冷门知识点
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/12/03/2019-12-03-on_optimising_a_ip_find_function/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">一段IP查找函数的优化及其它</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
