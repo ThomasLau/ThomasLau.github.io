@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>如何设计高性能支持64位的去重服务 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="intro1：如何设计一个百万QPS的基于用户uid唯一性检验的系统？intro2: bloomfilter和bitmap和roaringbitmap选型比较intro3: setbit注意事项  设计要点这个问题或许会被经常问到，比如抢红包或者秒杀等场景时，限制用户只能领取&#x2F;抢购一次，也是笔者可能会遇到类似问题，这里有两个关键点：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何设计高性能支持64位的去重服务">
+<meta property="og:url" content="http://thomaslau.github.io/2020/08/26/2020-08-26-on_roaringbitmap_bf/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="intro1：如何设计一个百万QPS的基于用户uid唯一性检验的系统？intro2: bloomfilter和bitmap和roaringbitmap选型比较intro3: setbit注意事项  设计要点这个问题或许会被经常问到，比如抢红包或者秒杀等场景时，限制用户只能领取&#x2F;抢购一次，也是笔者可能会遇到类似问题，这里有两个关键点：">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://thomaslau.github.io/images/bf_size.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/roaring_bitmap_container.png">
+<meta property="og:image" content="http://thomaslau.github.io/images/snowflake-id.png">
+<meta property="article:published_time" content="2020-08-26T12:59:10.000Z">
+<meta property="article:modified_time" content="2020-09-02T05:07:23.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="bloomfilter">
+<meta property="article:tag" content="roaringbitmap">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://thomaslau.github.io/images/bf_size.png">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2020-08-26-on_roaringbitmap_bf" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/" class="article-date">
+  <time class="dt-published" datetime="2020-08-26T12:59:10.000Z" itemprop="datePublished">2020-08-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      如何设计高性能支持64位的去重服务
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote><p><i><strong>intro1</strong>：如何设计一个百万QPS的基于用户uid唯一性检验的系统？</i><br><i><strong>intro2</strong>: bloomfilter和bitmap和roaringbitmap选型比较</i><br><i><strong>intro3</strong>: setbit注意事项</i></p>
+</blockquote>
+<h3 id="设计要点"><a href="#设计要点" class="headerlink" title="设计要点"></a>设计要点</h3><p>这个问题或许会被经常问到，比如抢红包或者秒杀等场景时，限制用户只能领取&#x2F;抢购一次，也是笔者可能会遇到类似问题，这里有两个关键点：</p>
+<span id="more"></span>
+<p><strong>1，支持64位long型</strong><br>大部分人可能想到使用Java或Redis提供的bitmap操作，即一个大的bit数组，对应下标标记1来表示用户已经操作过，这样对于32位int来说，需要2^32&#x2F;8&#x3D;512MB的内存空间就很容易实现唯一性检查了，但实际上相信大部分系统已经不会使用32位整数表示用户uid了，更多可能使用基于Twitter开源的分布式ID生成算法-Snowflake(当然了，也可能是美团leaf、百度UidGenerator等snowflake的参考时限)，这类算法结果是一个long型的数，即这类64bit的数是无法直接用bitmap实现的（512MB*2^31）。<br>针对该情况bitmap是否依旧可用？<br>要看具体情况，实际上基于snowflake生成的分布式id虽然在1-2^64之间，但用bitmap存储时却可能是非常稀疏的，我们自然想到去压缩bitmap，本文会介绍下压缩的bitmap即 RoaringBitmap，同时也提供另外一种BloomFilter（下文简称BF）的方案，如果你对二者都熟悉可掠过。<br><strong>2，支持百万QPS</strong><br>显然前置条件是需要一种存储，该存储能记录已满足条件的uid，同时支持百万QPS。<br>如果是纯粹基于同实例(机器)内存，完全是可以做到的，比如对于Java应用来说，不论基于堆内或堆外内存来说如Ehcache、Guava Cache、MapDB以及Spring 5之后采用的Caffeine他们都可轻易做到百万QPS，最简单的内置bitmap单机就能百万QPS，但通常不会只用一份单机数据，否则系统的容错性太差了，分布式存储是一种选择，比如基于Java的分布式内存&#x2F;存储实现如Hazelcast、Chronicle，不过前者无bitmap实现，Chronicle原生支持byte数组，但如果论成熟度&#x2F;可靠性，Redis或许是一个不错的选择，redis本身也支持bitmap。<br>不过Redis单机按十万QPS来算，我们至少需要十台Redis实例，所以下一步还要将存储分散存储(去除热点数据)，即不论是采用BloomFilter还是Bitmap实现，都应该将数据尽可能的分散在十台redis上，比如定义十个bitmap的数据结构，按uid对十取模分别存储在这十个bitmap里（BF亦然），这样我们读写均支持定位相应的bitmap。<br>视具体redis操作或为了预留足够算力，可能redis不止十台，比如选择十六台，那么取模操作也可做位运算提高一点性能。</p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><p>上文中笔者选择Redis作为数据存储，算法&#x2F;数据结构 则需要在bitmap和BF之间做个选择， 但不论何，二者均支持构造多个对象(比如16个)，按UID对16取模并分散存储到这16个对象里，这里不再详述，下面主要讨论下bitmap或BF的选择。</p>
+<h3 id="Bitmap"><a href="#Bitmap" class="headerlink" title="Bitmap"></a>Bitmap</h3><p>bitmap思想应用很广，《编程珠玑》里就有介绍：<br>“Bit-map就是用一个bit位来标记某个元素对应的Value， 而Key即是该元素。由于采用了Bit为单位来存储数据，因此在存储空间方面，可以大大节省。”<br>用于大量数据的排序&#x2F;查询&#x2F;去重，还是蛮简单的，比如常见的10亿int型数据排序&#x2F;去重都可用bitmp思想。<br>位图也是Linux内核在大量使用的基础数据结构，此外也常见于标签系统以及大数据系统做一些快速的集合操作。<br>在Java中使用BitSet实现位图，重要方法有set&#x2F;get(bit):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="type">long</span>[] words;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">get</span><span class="params">(<span class="type">int</span> bitIndex)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (bitIndex &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IndexOutOfBoundsException</span>(<span class="string">&quot;bitIndex &lt; 0: &quot;</span> + bitIndex);</span><br><span class="line">    checkInvariants();</span><br><span class="line">    <span class="type">int</span> <span class="variable">wordIndex</span> <span class="operator">=</span> wordIndex(bitIndex);</span><br><span class="line">    <span class="keyword">return</span> (wordIndex &lt; wordsInUse)</span><br><span class="line">        &amp;&amp; ((words[wordIndex] &amp; (<span class="number">1L</span> &lt;&lt; bitIndex)) != <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(<span class="type">int</span> bitIndex)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (bitIndex &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IndexOutOfBoundsException</span>(<span class="string">&quot;bitIndex &lt; 0: &quot;</span> + bitIndex);</span><br><span class="line">    <span class="type">int</span> <span class="variable">wordIndex</span> <span class="operator">=</span> wordIndex(bitIndex);</span><br><span class="line">    expandTo(wordIndex);</span><br><span class="line">    words[wordIndex] |= (<span class="number">1L</span> &lt;&lt; bitIndex); <span class="comment">// Restores invariants</span></span><br><span class="line">    checkInvariants();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Java bitset底层使用long型数组（long[] words）实现，所以set时需要计算wordIndex，wordIndex即是 bitIndex除以64即右移6位得到，同时我们也可以看到有个expandTo方法，即bitSet是可以自动扩展位数的（但最好一开始就规划好，否则频繁expandTo影响性能），wordIndex得到对应long，再和 1L &lt;&lt; bitIndex 异或从而设置对应bit位，注意这里1L本身即是long，所以可以直接 右移 bitIndex不需要在对64取模后异或了。<br>get就比较简单了，直接对该位做 且1判0操作。bitset怎么去将该位set为0呢？就是clear()方法，通过 words[wordIndex] &amp;&#x3D; ~(1L &lt;&lt; bitIndex); 即反码做且运算。此外其底层存储使用 long[] words思想还是蛮有技巧性的。<br>此外bitset计算位1的个数方法为 cardinality(), 遍历words并用Long.bitCount()累加 各words的位1数量。<br>这里的Long.bitCount()提供了一种高效的计算long型数据里1的数量的方法，值得一看， 即是大名鼎鼎的MIT Hakmem Counting算法。<br>同时也可以看到 java bitSet的set操作不是线程安全的(set&#x2F;expandTo)，需要调用者保证。<br>同样的Redis在2.2版本加入了 setbit,getbit,bitcount 命令也支持bitmap。</p>
+<h3 id="BloomFilter"><a href="#BloomFilter" class="headerlink" title="BloomFilter"></a>BloomFilter</h3><p>上述不论redis或java，实现bitmap都需要不小的空间，int型就已经512MB了，所以是否存在其他时间换空间方法呢？<br>Bloomfilter就提供了思路，笔者前面文章有介绍BF原理，这里不详述。<br>BF另外一个好处是不用再考虑其是32位或64位，只需要考虑数量，即使用BF无需考虑uid的可能范围，只要根据可能插入的uid的数量和误差率计算所需bit数量，即对于<a target="_blank" rel="noopener" href="https://hur.st/bloomfilter/?n=100000000&p=1.0E-6&m=&k=">1亿的用户量百万分之一的误判率所耗费的空间也不过343MB</a>。<br>当然Redis目前是不支持BF的，但是依赖redis的bitmap可以实现。<br>通常有：<br>1，Redis BF插件 Rebloom<br>Rebloom，现位于<a target="_blank" rel="noopener" href="https://github.com/RedisBloom/RedisBloom">RedisBloom</a> 是redis labs 实现的BF插件，从github下载源码编译后得到rebloom.so，<br>然后在redis.conf里面添加 loadmodule &#x2F;path&#x2F;to&#x2F;rebloom.so 或者直接命令行动态加载该module，即可将其加载到redis中。<br>推荐该做法，因为这是redislab官方C代码实现，理论上会比下面介绍的lua或调用bitmap更快，官方声称的“Highly optimized for performance”，这里有和lua实现的对比<a target="_blank" rel="noopener" href="https://redislabs.com/redis-enterprise/technology/integrated-modules/">Integrated Modules</a>，因为相对bitmap来说，BF就是一种时间换空间的做法，所以性能会差点，下面介绍的2、3方案视BF各参数性能在2-6万&#x2F;s间，小于Rebloom性能的。<br>其次该插件数据丰富，目前提供了Bloom filter, Cuckoo filter, Count-min sketch, top-k等，这几类都较实用。当然需要redis 4.0以上支持。<br>对于Java&#x2F;Go&#x2F;Python等 <a target="_blank" rel="noopener" href="https://oss.redislabs.com/redisbloom/">redisbloom</a>均有对应client实现，或者自己基于jedis扩展也可。<br>另外ReBloom是源码可用的，但和redis不同的是，其不再属于开源协议，几年前增加了Commons Clause(共用条款)约定，不支持二次销售，这可能对许多拿来主义的云供应商不友好。</p>
+<p>2，Redis client组件如Jedis&#x2F;Redisson等<br>这类组件也是基于redis的bitset实现，代码里初始化bit空间，然后计算出BF的每轮hash得到的index，根据index设置，这里有段redisson里的代码：<br>RedissonBloomFilter.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">add</span><span class="params">(T object)</span> &#123;</span><br><span class="line">    <span class="type">long</span>[] hashes = hash(object);</span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (size == <span class="number">0</span>) &#123;</span><br><span class="line">            readConfig();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> <span class="variable">hashIterations</span> <span class="operator">=</span> <span class="built_in">this</span>.hashIterations;</span><br><span class="line">        <span class="type">long</span> <span class="variable">size</span> <span class="operator">=</span> <span class="built_in">this</span>.size;</span><br><span class="line">        <span class="type">long</span>[] indexes = hash(hashes[<span class="number">0</span>], hashes[<span class="number">1</span>], hashIterations, size);</span><br><span class="line">        <span class="type">CommandBatchService</span> <span class="variable">executorService</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CommandBatchService</span>(commandExecutor.getConnectionManager());</span><br><span class="line">        addConfigCheck(hashIterations, size, executorService);</span><br><span class="line">        <span class="type">RBitSetAsync</span> <span class="variable">bs</span> <span class="operator">=</span> createBitSet(executorService);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; indexes.length; i++) &#123;</span><br><span class="line">            bs.setAsync(indexes[i]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            List&lt;Boolean&gt; result = (List&lt;Boolean&gt;) executorService.execute().getResponses();</span><br><span class="line">            <span class="keyword">for</span> (Boolean val : result.subList(<span class="number">1</span>, result.size()-<span class="number">1</span>)) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!val) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RedisException e) &#123;</span><br><span class="line">            <span class="keyword">if</span> (e.getMessage() == <span class="literal">null</span> || !e.getMessage().contains(<span class="string">&quot;Bloom filter config has been changed&quot;</span>)) &#123;</span><br><span class="line">                <span class="keyword">throw</span> e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中第一次hash：long[] hashes &#x3D; hash(object)是哈希得到128位(两个long)结果，第二个hash，即是其BF的哈希函数，用来一次性计算需设置1的位，hashIterations是所需哈希函数次数，size即是所需位空间。<br>关于Jedis&#x2F;Jedisson以及其他语言的BF实现，可在网上找到大多代码，这里不再详述。<br>不过还要指出的是，我们实现BF显然是针对同一redis instance，而了解BF原理的，大多知道BF时hash计算出需要设置的位一般不会只一个（几十到一百可能），这里完全可以使用pipeline提升性能（这里不讨论pipeline带来的其他影响），所以参考网上的BF的jedis实现时留意下这里的改进，上述Redisson实现用到了RBatch批量更新就是基于pipeline的，性能会好些。<br>但Redisson实现的BF不是没有问题，比如批量设置bit时未使用事务不能保证100%准确。<br>另：(jedis实现：restes-Bloomfilter)[<a target="_blank" rel="noopener" href="https://github.com/Baqend/Orestes-Bloomfilter]">https://github.com/Baqend/Orestes-Bloomfilter]</a></p>
+<p>3，Redis Lua实现的BF<br>基于lua脚本实现的BF，原理和上述1、2相似，这里有一个参考实现<a target="_blank" rel="noopener" href="https://github.com/erikdubbelboer/redis-lua-scaling-bloom-filter">redis-lua-scaling-bloom-filter</a>：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">local</span> found = <span class="literal">true</span></span><br><span class="line"><span class="keyword">for</span> i=<span class="number">1</span>, k <span class="keyword">do</span></span><br><span class="line">  <span class="keyword">if</span> redis.call(<span class="string">&#x27;SETBIT&#x27;</span>, key, (h[i % <span class="number">2</span>] + i * h[<span class="number">2</span> + (((i + (i % <span class="number">2</span>)) % <span class="number">4</span>) / <span class="number">2</span>)]) % bits, <span class="number">1</span>) == <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">    found = <span class="literal">false</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>setbit返回值是原始值，所以上述BF.add的返回值也可表示是否命中，found的逻辑是只要一个为0即false，这点和上述redisson是一样的。<br>另外这个脚本里，作者测试的add和check性能都在 2.5万&#x2F;s左右。<br><img src="/images/bf_size.png" width = "100%" /></p>
+<h3 id="bitmap存在的问题"><a href="#bitmap存在的问题" class="headerlink" title="bitmap存在的问题"></a>bitmap存在的问题</h3><p>上述BF的实现依赖redis的setbit命令，redis目前没有类似 msetbit这样设置多个bit位指令，所以上述实现都是多次setbit的,<br>不过3.2后支持<a target="_blank" rel="noopener" href="http://www.dodobook.net/api/redis/string/bitfield.html">bitfield</a>指令，可以批量设置bit位（至于在Bloomfilter场景下和pipeline+setbit性能比较笔者未测）。<br>其次BF最大的问题就是精确度问题，需要按 $ m&#x3D;-n*l(p)&#x2F;(l(2)^2) $ 评估假阳率。<br>除此以外，bitmap是比较耗空间的，比如这个简单的设置一个2^32长的bitmap就能让redis占用内存瞬间涨了512MB，虽然只保存两条信息：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setbit mybmp 0 1</span><br><span class="line">setbit mybmp 4294967295 1</span><br></pre></td></tr></table></figure>
+<p>在<a target="_blank" rel="noopener" href="https://redis.io/commands/SETBIT">官方文档</a>里 setbit 的offset是有大小限制的，在0到 2^32（最大使用512M内存）之间，即0~4294967296之前，超过这个数会自动将offset转化为0，因此使用的时候一定要注意。<br>其次setbit自身不是没有性能问题的，经测试, 初次分配或者扩展相应的bit空间也是耗时的，在2010 MacBook Pro上, </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">setting bit number 2^32 -1 (512MB allocation) takes ~300ms, </span><br><span class="line">setting bit number 2^30 -1 (128MB allocation) takes ~80ms, </span><br><span class="line">setting bit number 2^28 -1 (32MB allocation) takes ~30ms and </span><br><span class="line">setting bit number 2^26 -1 (8MB allocation) takes ~8ms. </span><br></pre></td></tr></table></figure>
+<p>可以看到setbit：</p>
+<ol>
+<li>耗费空间大，存在32位限制的，不支持64位</li>
+<li>应该避免频繁setbit带来的空间分配</li>
+</ol>
+<p><strong>这里也提醒我们使用redis原生bitmap是一定要规划好位数，保证足够长</strong>，否则频繁扩展空间带来会性能尖刺。</p>
+<h3 id="Roaring-Bitmap"><a href="#Roaring-Bitmap" class="headerlink" title="Roaring Bitmap"></a>Roaring Bitmap</h3><p>上述举了个只存储一条信息耗费512MB极端情况的例子，所以想当然做法就是压缩bitmap，bitmap本身可认为是一种信息的压缩，怎么进一步压缩？<br>我们知道，通常意义上的压缩分为有损压缩和无损压缩，<strong>BloomFilter就可以认为是有损压缩，无损压缩我们常见有Lz77、Zigzag等</strong>，甚至简单如类似Lucene等常见变长的vint也算，而像上述512MB极端情况，其实我们可参考这种想法，原始数据不需bitmap，像笔者之前文章里介绍的redis几个个数超过300可改用Hyperloglog，当超过一定数量再改用bitmap就是一种“压缩”方案，我们也可以采用对64bit分段方式压缩存储。<br>Roaring Bitmap即是接近上述的一种压缩方案，这里是官网：<a target="_blank" rel="noopener" href="https://roaringbitmap.org/">Roaring Bitmaps</a>，可以看到他的历史并不久，较知名的论文是2016年的 <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1402.6407">Better bitmap performance with Roaring bitmaps</a>，可以看到 Google、Lucene、Hive、InfluxDB、ClickHouse、Kylin都有使用，也可以看到2016年时候还是蛮活跃&#x2F;流行的,如<a target="_blank" rel="noopener" href="https://github.com/apache/spark/pull/15917">SPARK-18252</a>以及下文几处开源代码的链接，这里是官方列出的对各语言支持情况 <a target="_blank" rel="noopener" href="http://roaringbitmap.org/software/%E3%80%82">http://roaringbitmap.org/software/。</a><br>这里简介下32位的RoaringBitmap，部分文字引用自<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/818ac4e90daf">高效压缩位图RoaringBitmap的原理与应用</a>：</p>
+<p>RoaringBitmap将int数字的高16位作为索引，正好short是16位长度，因此索引采用short数组存储，而低16位则是作为数据，存储到其他容器，RoaringBitmap根据存储的大小，分为3个容器，ArrayContainer,BitmapContainer,RunContainer。BitmapContainer查找是O(1)，其他为O(lgn)。RoaringArray用于通过高位定位Container，RoaringBitmap本身是一系列上述三类Container集合。<br><strong>ArrayContainer</strong><br>当桶内数据的基数不大于4096时，会采用它来存储，其本质上是一个unsigned short类型的有序数组。数组初始长度为4，随着数据的增多会自动扩容（但最大长度就是4096）。另外还维护有一个计数器，用来实时记录基数，当ArrayContainer的容量超过4096后，会自动转成BitmapContainer存储。<br><strong>BitmapContainer</strong><br>当桶内数据的基数大于4096时，会采用它来存储，其本质就是上一节讲过的普通位图，用长度固定为1024的unsigned long型数组表示，亦即位图的大小固定为216位（8KB）。它同样有一个计数器。<br><strong>RunContainer</strong><br>RunContainer是后续加入折中方案，它使用可变长度的unsigned short数组存储，基于Run Length Encoding压缩算法的容器，其压缩原理是对于连续的数字只记录初始数字以及连续的长度，比如有一串数字 2,3,4,5,6 那么经过压缩后便只剩下2,5。从压缩原理我们也可以看出，这种算法对于数据的紧凑程度非常敏感，连续程度越高压缩率也越高。通过optimize从BitmapContainer转化RunContainer之前需要判断是否占用内存更小。</p>
+<p>这里贴一张图，便于理解RoaringBitmap，图来自<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1481855">TT</a>：<br><img src="/images/roaring_bitmap_container.png" width = "100%" /><br>需要指出的是，RoaringBitmap未必一定是起到压缩作用的，这是因为基于行程长度编码(RLE)的压缩比率依赖压缩内容，这也是为什么说RunContainer相对itmapContainer是一种折中。<br><strong>Redis roaring bitmap有个开源实现</strong> <a target="_blank" rel="noopener" href="https://github.com/aviggiano/redis-roaring">redis-roaring</a>，性能比原生bitmap有优有劣，主要的get&#x2F;setbit操作是几乎相等的（不过这个<strong>测试数据很可能不准确，或者作者只测试静态的数据</strong>，没有考虑增加数据过程中的压缩消耗）。不过可惜的是redis-roaring也只支持32位，显然我们不能通过将long拆成两个int并各自存储在roaring bitmap实现64位的bitmap。<br>如redis-roaring是基于<a target="_blank" rel="noopener" href="https://github.com/RoaringBitmap/CRoaring">CRoaring</a>的，理论上可以修改支持，不过 原讨论里提到CRoaring 64bit的性能似乎不够好。<br>这里 Daniel Lemire 提到了几个Java支持64bit的实现 <a target="_blank" rel="noopener" href="https://github.com/RoaringBitmap/RoaringBitmap/issues/109">Implement support for 64-bit integers</a>，分为两层或48-16bit实现，这里不再详述。<br>遗憾的是笔者没有搜索到基于redis lua的roaring bitmap(含64-bit支持)实现，所以这个方案未进行下去。<br><img src="/images/snowflake-id.png" width = "100%" /><br>不过上述压缩给了一种思路，但仅考虑snowflake算法，不具有64bit通用性：<br>我们知道全球用户数量一半假设40亿，32bit足够了，不过通常来说，比如压缩64bit到32bit会丢失信息，但考虑到uid生成算法本身具有规律性，而且我们前文讨论过将bitmap按uid取模分成16份(减少热点，保证redis分布式性能)，也就是说uid末四位bit可以不参与Roaring bitmap运算，其次似乎也能保证均衡分布，<strong>但实际上图示snowflake算法末12bit是自增序列，表示该毫秒增长数</strong>，对于用户id分配场景，我相信世界上大部分应用这12bit大部分时间是0，其次可能就是小于16或个位数了，<strong>所以按uid哈希很容易造成分布不均匀</strong>，对压缩贡献度也很低。所以这表示自增的12bit和workerid的10bit完全是可以合起来压缩的，表示时间戳的41bit（毫秒，约69年）其中末4位bit我们可以用来做模16的分库，保证均衡，如果我们只统计8年的用户，那么又可减少3个bit了(当然精确性降低了)，即时间戳部分实际上34bit有效，所以我们也可以参考64bit roaring bitmap分层的思路。<br>需要指出的是，时间戳如果不考虑好高位，可能会导致分布也不均匀，因为对于国内来说统一使用东八区，而我们的用户注册时间通常不会是夜间，如23-08这几个小时的数据量会较其他时间稀疏，通过redis lua实现时需要考虑这点是否有助压缩。</p>
+<h3 id="高可用-一致性"><a href="#高可用-一致性" class="headerlink" title="高可用&#x2F;一致性"></a>高可用&#x2F;一致性</h3><p>需要指出的是，<strong>不管redis如何高可用，主从异步的同步存在时间差的，比如min-slaves-max-lag等参数，当主节点挂掉时从节点数据可能是存在误差的，尤其是对于百万QPS来说</strong>，当然这是分布式系统的CAP问题了，任何非强一致性的存储必然存在的问题了，这里只是指出一下，设计或实现该系统时最好也留意下底层存储的一些参数，否则自信的脱口而出4个9&#x2F;5个9的保证不是明智的做法。</p>
+<p>其次，上面只是解决底层存储满足支持百万QPS的64位的uid唯一性检验的问题，在实际实现中还要考虑其他问题，如如何保证bitmap或者BF更新和你的业务一致性问题，即应用更新了bitmap操作之后业务更新操作失败或者反过来，这其实的确是一个分布式事务的问题，对于要求不强场景或许先更新业务成功再更新bitmap操作就能满足需求，或者对于响应要求不强场景有人使用分布式事务解决(BF实现不支持TCC，如果基于BF实现你可能需要改进的CBF)，但这其实也只是解决部分问题，以抢红包为例，除了更新bitmap后服务端可捕捉的异常(自身或其他以来系统)，还有返回给用户超时的情况，这加大了分布式事务的复杂性，有节制的使用分布式事务是一点，端到端的追踪&#x2F;审计&#x2F;对账也是一点，当然这些超出本文要讨论的内容了，如果你有好的方案也欢迎赐教。</p>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><p>1，Roaring bitmap可能会导致bit数组做 or&#x2F;and等操作较bitmap耗时，尤其RunContainer压缩的情况。<br>2，上述提供集中redis分布式BF的实现，值得参考。<br><strong>很多人知道回答“怎么实现防止缓存击穿”之类问题时可以用 bloom filter，但可能很多只认为这个BF实现是在应用程序内存自己维护BF</strong>，其实不是，可以参考这里实现一个基于redis的集中式 bloom filter对象。<br>当然，像Redis已经支持客户端缓存（client side cache），6.0开始使用的RESP3协议可以即时push方式更新，开启后可保证client和远程redis server之间数据一定程度的一致性，这个特性也可以提高上述场景下的性能。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/RedisBloom/RedisBloom">RedisBloom</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/erikdubbelboer/redis-lua-scaling-bloom-filter">redis-lua-scaling-bloom-filter</a></li>
+<li><a target="_blank" rel="noopener" href="https://roaringbitmap.org/">Roaring Bitmaps</a></li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1402.6407">Better bitmap performance with Roaring bitmaps</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/commands/SETBIT">redis setbit</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/818ac4e90daf">高效压缩位图RoaringBitmap的原理与应用</a></li>
+<li><a target="_blank" rel="noopener" href="https://richardstartin.github.io/posts/roaringbitmap-performance-tricks">RoaringBitmap Performance Tricks</a></li>
+</ul>
+<p>** 遵循CC协议，转载请标注来源 **</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2020/08/26/2020-08-26-on_roaringbitmap_bf/" data-id="cm7c72rpz000s2cxaer733rrg" data-title="如何设计高性能支持64位的去重服务" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/09/21/2020-09-21-on_consistent_hash/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          正确理解一致性哈希
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/06/20/2020-06-20-on_hash_4/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">开发常见的Hash函数(四)-图片哈希</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Many Links 0515 | e+Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="CTR预估中的贝叶斯平滑方法（一）学习了： 广告形式：互联网广告可以分为以下三种：1）展示广告（display ad）2）搜索广告（sponsored search ad）3）上下文广告（contextual ad）竞价模式：对于在线广告，主要有以下几种竞价模式：1）pay-per-impression（按展示付费）：广告商按照广告被展示的次数付费，这是一种最普遍的竞价模型。缺点在于没有考虑">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Many Links 0515">
+<meta property="og:url" content="http://thomaslau.github.io/2018/05/15/2018-05-15-many_links_0515/index.html">
+<meta property="og:site_name" content="e+Thomas">
+<meta property="og:description" content="CTR预估中的贝叶斯平滑方法（一）学习了： 广告形式：互联网广告可以分为以下三种：1）展示广告（display ad）2）搜索广告（sponsored search ad）3）上下文广告（contextual ad）竞价模式：对于在线广告，主要有以下几种竞价模式：1）pay-per-impression（按展示付费）：广告商按照广告被展示的次数付费，这是一种最普遍的竞价模型。缺点在于没有考虑">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-05-14T16:09:07.000Z">
+<meta property="article:modified_time" content="2018-05-14T17:02:23.000Z">
+<meta property="article:author" content="Thomas Lau">
+<meta property="article:tag" content="Tech">
+<meta property="article:tag" content="weeklyreading">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="e+Thomas" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">e+Thomas</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://thomaslau.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-2018-05-15-many_links_0515" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2018/05/15/2018-05-15-many_links_0515/" class="article-date">
+  <time class="dt-published" datetime="2018-05-14T16:09:07.000Z" itemprop="datePublished">2018-05-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Many Links 0515
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <ol>
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/dengxing1234/article/details/77965536">CTR预估中的贝叶斯平滑方法（一）</a><br>学习了：</p>
+<blockquote><p>广告形式：互联网广告可以分为以下三种：<br>1）展示广告（display ad）<br>2）搜索广告（sponsored search ad）<br>3）上下文广告（contextual ad）<br>竞价模式：对于在线广告，主要有以下几种竞价模式：<br>1）pay-per-impression（按展示付费）：广告商按照广告被展示的次数付费，这是一种最普遍的竞价模型。缺点在于没有考虑投放广告的效果。<br>2）pay-per-action（按行为付费）：只有在广告产生了销售或者类似的一些转化时，广告商才付费。缺点在于追踪用户的交易行为相对比较困难。<br>3）pay-per-click（按用户点击付费）：根据用户是否会点击广告来付费。这时候就需要对广告的点击率（CTR）进行精确的预估。<br>遇到的困难：<br>由于数据的稀疏性，对广告进行CTR预估是比较具有挑战性的，预估出来的CTR的可靠性不高，且具有较大的方差。主要有以下两类场景：<br>1）当广告的展示次数较少的时候，对其直接进行CTR的统计计算会导致一个偏高的结果。比如某个广告只展示了1次，被点击了1次，则纯粹的统计CTR&#x3D;1.0，这显然是过分高估了。<br>2）当广告的展示次数很大，但点击次数很少或几乎没有的时候，对其直接进行CTR的统计计算会导致一个偏低的结果。比如某个广告没有被点击过，则纯粹的统计CTR&#x3D;0.0，这显然是过分低估了。</p>
+</blockquote>
+<span id="more"></span>
+<ol start="2">
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1803.10195v1.pdf">What we talk about when we talk about monads</a><br>作者Tomas Petricek，看似简介monad，但感觉是在探讨一种理解编程语言的思维&#x2F;框架。<br>有时间可以用这篇短文打发一下：</p>
+<blockquote><p>More generally, we present a framework for understanding programming concepts that considers them at three levels: formal, metaphorical and implementation. We base such observations on established results about the scientific method and mathematical entities – cognitive sciences suggest that the metaphors used when thinking about monads are more important than widely accepted, while philosophy of science explains how the research paradigm from which monads originate influences and restricts their use.<br>Finally, we provide evidence for why a broader philosophical, sociological look at programming concepts should be of interest for programmers. It lets us understand programming concepts better and, fundamentally, choose more appropriate abstractions as illustrated in a number of case studies that conclude the paper.</p>
+</blockquote>
+<ol start="3">
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://tech.meituan.com/mt_proguard.html">插件化、热补丁中绕不开的Proguard的坑</a><br>一直对proguard混淆感兴趣，可惜未深入看过，本文当入门似乎有点深，但是分析思路很好。</p>
+<blockquote><p>ProGuard是2002年由比利时程序员Eric Lafortune发布的一款优秀的开源代码优化、混淆工具，适用于Java和Android应用，目标是让程序更小，运行更快，在Java界处于垄断地位。<br>主要分为三个模块：Shrinker（压缩器）、Optimizer（优化器）、Obfuscator（混淆器）、Retrace（堆栈反混淆）。<br>Shrinker 通过引用标记算法，将没用到的代码移除掉。<br>Optimizer 通过复杂的算法（Partial Evaluation &amp;Peephole optimization，这部分算法我们不再展开介绍）对字节码进行优化，代码优化会使部分代码块的结构出现变动。<br>Obfuscator 通过一个混淆名称发生器产生a、b、c的毫无意义名称来替换原来正常的名称，增加逆向的难度。<br>Retrace 经过ProGuard处理后的字节码运行的堆栈已经跟没有处理之前的不一样了，除了出现名称上的变化还伴随着逻辑上的变化，程序崩溃后，开发者需要借助Retrace将错误堆栈恢复为没有经过ProGuard处理的样子。<br>…<br>本文则主要介绍了Java优化&amp;混淆工具ProGuard的基本原理、ProGuard的几个模块之间的相互关系与影响、以及增量混淆使用-applymapping遇到部分方法映射错乱的Bug，Bug出现的原因以及修复方案。</p>
+</blockquote>
+<ol start="4">
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s/XiQW3Sbv_jHUYK7aoXy_Rg">全栈虚拟机GraalVM初体验</a><br>最近公众号&#x2F;知乎&#x2F;infoq系列关于GraalVM 引用&#x2F;收藏也较多的一篇文章：</p>
+<blockquote><p>js 运行在GraalVM之上的javascript命令行<br>node 跟普通的node一样，区别是运行在GraalVM之上<br>java 跟普通的java一样，区别是运行在GraalVM之上<br>lli 运行在GraalVM之上的llvm字节码执行器，C和C++代码会编译成llvm字节码，然后通过它来运行<br>native-image 预编译程序文件生成快速二进制文件，用于加速启动程序<br>gu 其它的语言像Python、Ruby和R的支持都是通过gu进行安装的</p>
+</blockquote>
+<ol start="5">
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/21734569/answer/32903623">真空里有什么</a><br>一个不明觉厉的回答，事实上，要理解有些困难，传统物理真空就是没有任何物质的空间状态，但是这里我们要理解的真空并不是传统的定义。<br>一种很民科的解释是，现代科学无法自圆其说，尤其在实验和量子论共同推波助澜下，于是创造了答案里的概念。<br>可以搜一搜 赛先生 一篇普及真空里有什么的文章。<br>另一个有趣的问题<br>自然数之和为什么等于-1&#x2F;12<br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/22506418">https://www.zhihu.com/question/22506418</a><br>6.<br><a target="_blank" rel="noopener" href="https://yq.aliyun.com/articles/59497">高性能数据库连接池的内幕</a><br>值得一看，一个数据库连接池需要考虑哪些基本问题，也包含几大知名连接池的简单对比，就不详细贴了。<br>7.<br>同6，这里推荐一个很好的实现，Springboot 2默认的连接池，HikariCP，这篇文章有更详细的对比<br>很鸡血的技术文章，也很有趣，不说了，<a target="_blank" rel="noopener" href="http://blog.didispace.com/Springboot-2-0-HikariCP-default-reason/">去感受下作者浓浓的技术激情吧：</a></p>
+<blockquote><p>HiKariCP是数据库连接池的一个后起之秀，号称性能最好，可以完美地PK掉其他连接池，是一个高性能的JDBC连接池，基于BoneCP做了不少的改进和优化。其作者还有另外一个开源作品——高性能的JSON解析器HikariJSON。<br>它，超快，快到连Spring Boot 2都宣布支持了。<br>代码体积更是少的可怜，130kb</p>
+</blockquote>
+<ol start="8">
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="http://highscalability.com/blog/2018/4/27/stuff-the-internet-says-on-scalability-for-april-27th-2018.html">http://highscalability.com/blog/2018/4/27/stuff-the-internet-says-on-scalability-for-april-27th-2018.html</a></p>
+<blockquote><p>@kwchang: ‘The internet went from a democratizing free space to having power very centralized; crypto decentralization is a reaction to that’ - @starkness #Angels #cryptointro<br>Lynn Langit: To me, containers are the new VMs. All this frenzy about containers, and more specifically container management systems — look, somebody has to manage the things. I want to pay the cloud providers to do it so I don’t have to.<br>@kellabyte: Many-core servers are a huge problem. We have no idea how to write software to actually use the hardware properly. For example, in Go, there’s no IO library that can go faster than 10GbE.<br>Markus Winand: Don’t say relational database when referring to SQL databases. SQL is really more than just relational.<br>Catalin Cimpanu: A loud sound emitted by a fire suppression system has destroyed the hard drives of a Swedish data center, downing Nasdaq operations across Northern Europe.<br>@brendangregg: context switching &amp; CPU cache invalidations are both CPU utilization. I’d look for single-threaded&#x2F;single-CPU bottlenecks first, then off-CPU analysis.</p>
+</blockquote>
+<ol start="9">
+<li></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="http://blog.pragmaticengineer.com/distributed-architecture-concepts-i-have-learned-while-building-payments-systems/">http://blog.pragmaticengineer.com/distributed-architecture-concepts-i-have-learned-while-building-payments-systems/</a><br>Uber工程师的一篇文章：</p>
+<blockquote><p>SLA<br>Horizontal vs vertical scaling<br>Consistency<br>Data Durability<br>Message Persistence and Durability<br>Idempotency<br>Sharding and Quorum<br>The Actor Model<br>Reactive Architecture<br>Closing</p>
+</blockquote>
+<p>上述几点可考虑纳入设计考量点，不多评论了，作者自己总结：</p>
+<blockquote><p>This write-up has been strictly focused on the planning and architecting of these systems. There is a whole lot of things to be said about building, deploying and migrating between high-load systems as well as operating them reliably. But all those topics are other posts.</p>
+</blockquote>
+<ol start="10">
+<li></li>
+</ol>
+<p>关于ES shard分配&#x2F;路由，看完这一篇就够了<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/iceman1952/article/details/79957290">https://blog.csdn.net/iceman1952/article/details/79957290</a><br>这是一篇译文，原文（Every shard deserves a home）于2016-11-11发布在elastic官方博客，可以保存方便即时查阅。<br>11.<br><a target="_blank" rel="noopener" href="http://hbasefly.com/2018/05/02/timeseries-database-7/">http://hbasefly.com/2018/05/02/timeseries-database-7/</a><br>任何一个数据库系统内核关注的重点无非：数据在内存中如何存储、在文件中如何存储、索引结构如何存储、数据写入流程以及数据读取流程。关于InfluxDB存储内核，笔者在之前的文章中已经比较全面的介绍了数据的文件存储格式、倒排索引存储实现以及数据写入流程，本篇文章重点介绍InfluxDB中时序数据的读取流程<br>12.<br><a target="_blank" rel="noopener" href="https://www.elastic.co/blog/composite-aggregations-elasticsearch-pizza-delivery-metrics">https://www.elastic.co/blog/composite-aggregations-elasticsearch-pizza-delivery-metrics</a><br>Composite aggregations are a powerful new feature in Elasticsearch 6.1.  To show the full power of the feature, we’ll walk through creating an analytics service for Sliceline, a fictional pizza delivery company.<br>Composite aggregations allow us to:<br>Quickly paginate through aggregation results<br>Build new indices from aggregation results<br>Develop APIs backed by Elasticsearch aggregations with consistent response times for large result sets<br>13.<br>Turning a MacBook into a Touchscreen with $1 of Hardware<br><a target="_blank" rel="noopener" href="https://www.anishathalye.com/2018/04/03/macbook-touchscreen/">https://www.anishathalye.com/2018/04/03/macbook-touchscreen/</a><br>只需1美元，作者在自己的MacBook的摄像头前巧妙的加装了一面小镜子，反射到摄像头，捕捉手指对屏幕的触控，并使用视觉识别，将摄像头拍摄的画面转换为触控反馈。<br>见过很多实现触摸的办法，外接镜面，外接ipad，airbar，本文介绍方法可以说，不仅便宜，而且非常的hack了。<br>不过不知道触摸效果怎样。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://thomaslau.github.io/2018/05/15/2018-05-15-many_links_0515/" data-id="cm7c6vn36001fuexa6g813r1a" data-title="Many Links 0515" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/05/24/2018-05-24-pieces_0524/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          捕风捉影 0524
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/05/13/2018-05-13-many_links_0513/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Many Links 0513</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/17monipdb/" rel="tag">17monipdb</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/B-Tree/" rel="tag">B Tree</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BigData/" rel="tag">BigData</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/BlogDigests/" rel="tag">BlogDigests</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS-SSO/" rel="tag">CAS SSO</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Chrome/" rel="tag">Chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Consistent-Hashing/" rel="tag">Consistent Hashing</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Eclipse/" rel="tag">Eclipse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/" rel="tag">Elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashTable/" rel="tag">HashTable</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Hyperloglog/" rel="tag">Hyperloglog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA-Flame-Graph/" rel="tag">JAVA Flame Graph</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JIT/" rel="tag">JIT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JMH/" rel="tag">JMH</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JPG-DCT/" rel="tag">JPG&#x2F;DCT</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JS/" rel="tag">JS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JVM/" rel="tag">JVM</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/" rel="tag">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Leaky/" rel="tag">Leaky</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Life/" rel="tag">Life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Lucene/" rel="tag">Lucene</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ML/" rel="tag">ML</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Maven/" rel="tag">Maven</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Minhash/" rel="tag">Minhash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Monte-Carlo/" rel="tag">Monte Carlo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Nginx/" rel="tag">Nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Object-hashCode/" rel="tag">Object.hashCode</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/" rel="tag">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redis/" rel="tag">Redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisCluster/" rel="tag">RedisCluster</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RedisLua/" rel="tag">RedisLua</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Security/" rel="tag">Security</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SimHash/" rel="tag">SimHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Spark/" rel="tag">Spark</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringCloud/" rel="tag">SpringCloud</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/SpringSecurity/" rel="tag">SpringSecurity</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tech/" rel="tag">Tech</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Thoughts/" rel="tag">Thoughts</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/" rel="tag">Tools</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/antirez/" rel="tag">antirez</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/architecture/" rel="tag">architecture</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bloomfilter/" rel="tag">bloomfilter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/elasticsearch/" rel="tag">elasticsearch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/geohash/" rel="tag">geohash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava/" rel="tag">guava</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/guava-ratelimiter/" rel="tag">guava ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hash/" rel="tag">hash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/" rel="tag">kafka</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/life/" rel="tag">life</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pHash-dHash/" rel="tag">pHash&#x2F;dHash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/performance/" rel="tag">performance</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ratelimiter/" rel="tag">ratelimiter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redis/" rel="tag">redis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/roaringbitmap/" rel="tag">roaringbitmap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sql-count/" rel="tag">sql.count</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/twitter/" rel="tag">twitter</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/unix-Epoch/" rel="tag">unix Epoch</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/weeklyreading/" rel="tag">weeklyreading</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/yearly/" rel="tag">yearly</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%AD%E5%8F%B0/" rel="tag">中台</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" rel="tag">碎言碎语</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%97%B0%E7%A7%92/" rel="tag">闰秒</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%9A%8F%E6%84%9F/" rel="tag">随感</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/17monipdb/" style="font-size: 10px;">17monipdb</a> <a href="/tags/B-Tree/" style="font-size: 10px;">B Tree</a> <a href="/tags/BigData/" style="font-size: 10px;">BigData</a> <a href="/tags/BlogDigests/" style="font-size: 10px;">BlogDigests</a> <a href="/tags/CAS-SSO/" style="font-size: 10px;">CAS SSO</a> <a href="/tags/Chrome/" style="font-size: 10px;">Chrome</a> <a href="/tags/Consistent-Hashing/" style="font-size: 10px;">Consistent Hashing</a> <a href="/tags/Eclipse/" style="font-size: 10px;">Eclipse</a> <a href="/tags/Elasticsearch/" style="font-size: 14px;">Elasticsearch</a> <a href="/tags/HashTable/" style="font-size: 10px;">HashTable</a> <a href="/tags/Hyperloglog/" style="font-size: 10px;">Hyperloglog</a> <a href="/tags/JAVA-Flame-Graph/" style="font-size: 10px;">JAVA Flame Graph</a> <a href="/tags/JIT/" style="font-size: 10px;">JIT</a> <a href="/tags/JMH/" style="font-size: 10px;">JMH</a> <a href="/tags/JPG-DCT/" style="font-size: 10px;">JPG/DCT</a> <a href="/tags/JS/" style="font-size: 10px;">JS</a> <a href="/tags/JVM/" style="font-size: 12px;">JVM</a> <a href="/tags/Java/" style="font-size: 10px;">Java</a> <a href="/tags/Leaky/" style="font-size: 10px;">Leaky</a> <a href="/tags/Life/" style="font-size: 16px;">Life</a> <a href="/tags/Lucene/" style="font-size: 12px;">Lucene</a> <a href="/tags/ML/" style="font-size: 12px;">ML</a> <a href="/tags/Maven/" style="font-size: 10px;">Maven</a> <a href="/tags/Minhash/" style="font-size: 10px;">Minhash</a> <a href="/tags/Monte-Carlo/" style="font-size: 10px;">Monte Carlo</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/Object-hashCode/" style="font-size: 10px;">Object.hashCode</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Redis/" style="font-size: 12px;">Redis</a> <a href="/tags/RedisCluster/" style="font-size: 10px;">RedisCluster</a> <a href="/tags/RedisLua/" style="font-size: 10px;">RedisLua</a> <a href="/tags/Security/" style="font-size: 12px;">Security</a> <a href="/tags/SimHash/" style="font-size: 10px;">SimHash</a> <a href="/tags/Spark/" style="font-size: 10px;">Spark</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/SpringSecurity/" style="font-size: 10px;">SpringSecurity</a> <a href="/tags/Tech/" style="font-size: 20px;">Tech</a> <a href="/tags/Thoughts/" style="font-size: 10px;">Thoughts</a> <a href="/tags/Tools/" style="font-size: 14px;">Tools</a> <a href="/tags/antirez/" style="font-size: 12px;">antirez</a> <a href="/tags/architecture/" style="font-size: 12px;">architecture</a> <a href="/tags/bloomfilter/" style="font-size: 10px;">bloomfilter</a> <a href="/tags/elasticsearch/" style="font-size: 12px;">elasticsearch</a> <a href="/tags/geohash/" style="font-size: 10px;">geohash</a> <a href="/tags/guava/" style="font-size: 10px;">guava</a> <a href="/tags/guava-ratelimiter/" style="font-size: 10px;">guava ratelimiter</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/kafka/" style="font-size: 12px;">kafka</a> <a href="/tags/life/" style="font-size: 12px;">life</a> <a href="/tags/pHash-dHash/" style="font-size: 10px;">pHash/dHash</a> <a href="/tags/performance/" style="font-size: 10px;">performance</a> <a href="/tags/ratelimiter/" style="font-size: 12px;">ratelimiter</a> <a href="/tags/redis/" style="font-size: 10px;">redis</a> <a href="/tags/roaringbitmap/" style="font-size: 10px;">roaringbitmap</a> <a href="/tags/sql-count/" style="font-size: 10px;">sql.count</a> <a href="/tags/twitter/" style="font-size: 10px;">twitter</a> <a href="/tags/unix-Epoch/" style="font-size: 10px;">unix Epoch</a> <a href="/tags/weeklyreading/" style="font-size: 18px;">weeklyreading</a> <a href="/tags/yearly/" style="font-size: 10px;">yearly</a> <a href="/tags/%E4%B8%AD%E5%8F%B0/" style="font-size: 10px;">中台</a> <a href="/tags/%E7%A2%8E%E8%A8%80%E7%A2%8E%E8%AF%AD/" style="font-size: 10px;">碎言碎语</a> <a href="/tags/%E9%97%B0%E7%A7%92/" style="font-size: 10px;">闰秒</a> <a href="/tags/%E9%9A%8F%E6%84%9F/" style="font-size: 12px;">随感</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2025/02/">February 2025</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/10/">October 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/09/">September 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/06/">June 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">May 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/01/">January 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">December 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">November 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/10/">October 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/09/">September 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/08/">August 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/06/">June 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/05/">May 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">August 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">July 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/06/">June 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">March 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/02/">February 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/01/">January 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">December 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/11/">November 2014</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2025/02/14/2025-02-14-on_computor_time/">计算机时间捡拾</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/10/2020-11-10-on_chain_of_trust/">软件研发中的信任链问题</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/23/2020-10-23-on_middle_platform/">什么是中台</a>
+          </li>
+        
+          <li>
+            <a href="/2020/09/21/2020-09-21-on_consistent_hash/">正确理解一致性哈希</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/26/2020-08-26-on_roaringbitmap_bf/">如何设计高性能支持64位的去重服务</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2025 Thomas Lau<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
